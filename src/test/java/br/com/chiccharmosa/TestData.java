@@ -1,6 +1,14 @@
 package br.com.chiccharmosa;
 
 import br.com.chiccharmosa.config.SeedIds;
+import br.com.chiccharmosa.dto.CategoryDto.CategoryRequest;
+import br.com.chiccharmosa.dto.CategoryDto.CategoryResponse;
+import br.com.chiccharmosa.dto.ProductDto.ProductRequest;
+import br.com.chiccharmosa.dto.ProductDto.ProductResponse;
+import br.com.chiccharmosa.dto.StockDto.EntryItem;
+import br.com.chiccharmosa.dto.StockDto.StockEntryRequest;
+import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
+import br.com.chiccharmosa.dto.VariantDto.VariantResponse;
 import br.com.chiccharmosa.entity.Device;
 import br.com.chiccharmosa.entity.Role;
 import br.com.chiccharmosa.entity.User;
@@ -10,9 +18,13 @@ import br.com.chiccharmosa.repository.RoleRepository;
 import br.com.chiccharmosa.repository.UserRepository;
 import br.com.chiccharmosa.security.CurrentUser;
 import br.com.chiccharmosa.security.JwtService;
+import br.com.chiccharmosa.service.CatalogService;
+import br.com.chiccharmosa.service.StockService;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -50,6 +62,12 @@ public class TestData {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private CatalogService catalogService;
+
+    @Autowired
+    private StockService stockService;
 
     public User userWith(String... permissionCodes) {
         Role role = new Role();
@@ -110,5 +128,27 @@ public class TestData {
 
     public Instant uniqueInstant() {
         return BASE_INSTANT.plus(sequence.incrementAndGet(), ChronoUnit.DAYS);
+    }
+
+    public VariantResponse variant(String price, String cost) {
+        CategoryResponse category = catalogService.createCategory(new CategoryRequest(UUID.randomUUID(), "Sutiã"), Instant.now());
+        ProductResponse product = catalogService.createProduct(new ProductRequest(UUID.randomUUID(), category.id(), "Sutiã básico", null), Instant.now());
+        VariantRequest request = new VariantRequest(UUID.randomUUID(), "Preto", "M", null, new BigDecimal(price), new BigDecimal(cost));
+        return catalogService.createVariant(product.id(), request, Instant.now());
+    }
+
+    public UUID variantWithStock(String price, String cost, int quantity) {
+        UUID variantId = variant(price, cost).id();
+        stockIn(variantId, quantity);
+        return variantId;
+    }
+
+    public void stockIn(UUID variantId, int quantity) {
+        stockService.registerEntry(entryRequest(variantId, quantity), Instant.now());
+    }
+
+    public StockEntryRequest entryRequest(UUID variantId, int quantity) {
+        EntryItem item = new EntryItem(UUID.randomUUID(), variantId, quantity, new BigDecimal("10.00"));
+        return new StockEntryRequest(UUID.randomUUID(), null, LocalDate.now(), null, List.of(item));
     }
 }
