@@ -30,13 +30,15 @@ public class CatalogService {
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
     private final StockService stockService;
+    private final AuditService auditService;
 
     public CatalogService(CategoryRepository categoryRepository, ProductRepository productRepository,
-            ProductVariantRepository variantRepository, StockService stockService) {
+            ProductVariantRepository variantRepository, StockService stockService, AuditService auditService) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.variantRepository = variantRepository;
         this.stockService = stockService;
+        this.auditService = auditService;
     }
 
     @Transactional(readOnly = true)
@@ -60,7 +62,9 @@ public class CatalogService {
         applyRequest(variant, request);
         variant.touch(changedAt);
         variantRepository.save(variant);
-        return VariantResponse.from(variant, 0);
+        VariantResponse response = VariantResponse.from(variant, 0);
+        auditService.record(AuditService.PRODUCT_VARIANT, variant.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -81,14 +85,20 @@ public class CatalogService {
     @Transactional
     public VariantResponse updateVariant(UUID id, VariantRequest request, Instant changedAt) {
         ProductVariant variant = findActiveVariant(id);
+        VariantResponse before = VariantResponse.from(variant, stockService.balance(id));
         applyRequest(variant, request);
         variant.touch(changedAt);
-        return VariantResponse.from(variant, stockService.balance(id));
+        VariantResponse after = VariantResponse.from(variant, before.balance());
+        auditService.record(AuditService.PRODUCT_VARIANT, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
     public void deleteVariant(UUID id, Instant changedAt) {
-        findActiveVariant(id).markDeleted(changedAt);
+        ProductVariant variant = findActiveVariant(id);
+        VariantResponse before = VariantResponse.from(variant, stockService.balance(id));
+        variant.markDeleted(changedAt);
+        auditService.record(AuditService.PRODUCT_VARIANT, id, AuditService.DELETE, before, null, changedAt);
     }
 
     private void applyRequest(ProductVariant variant, VariantRequest request) {
@@ -126,7 +136,9 @@ public class CatalogService {
         category.setId(request.id() == null ? UUID.randomUUID() : request.id());
         category.setName(request.name());
         category.touch(changedAt);
-        return CategoryResponse.from(categoryRepository.save(category));
+        CategoryResponse response = CategoryResponse.from(categoryRepository.save(category));
+        auditService.record(AuditService.CATEGORY, category.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -146,9 +158,12 @@ public class CatalogService {
     @Transactional
     public CategoryResponse updateCategory(UUID id, CategoryRequest request, Instant changedAt) {
         Category category = findActiveCategory(id);
+        CategoryResponse before = CategoryResponse.from(category);
         category.setName(request.name());
         category.touch(changedAt);
-        return CategoryResponse.from(category);
+        CategoryResponse after = CategoryResponse.from(category);
+        auditService.record(AuditService.CATEGORY, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
@@ -157,7 +172,9 @@ public class CatalogService {
         if (productRepository.existsByCategoryIdAndDeletedAtIsNull(id)) {
             throw new BusinessException(HttpStatus.CONFLICT, "Categoria possui produtos");
         }
+        CategoryResponse before = CategoryResponse.from(category);
         category.markDeleted(changedAt);
+        auditService.record(AuditService.CATEGORY, id, AuditService.DELETE, before, null, changedAt);
     }
 
     @Transactional
@@ -174,7 +191,9 @@ public class CatalogService {
         product.setName(request.name());
         product.setDescription(request.description());
         product.touch(changedAt);
-        return ProductResponse.from(productRepository.save(product));
+        ProductResponse response = ProductResponse.from(productRepository.save(product));
+        auditService.record(AuditService.PRODUCT, product.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -204,17 +223,22 @@ public class CatalogService {
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest request, Instant changedAt) {
         Product product = findActiveProduct(id);
+        ProductResponse before = ProductResponse.from(product);
         product.setCategory(findActiveCategoryForProduct(request.categoryId()));
         product.setName(request.name());
         product.setDescription(request.description());
         product.touch(changedAt);
-        return ProductResponse.from(product);
+        ProductResponse after = ProductResponse.from(product);
+        auditService.record(AuditService.PRODUCT, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
     public void deleteProduct(UUID id, Instant changedAt) {
         Product product = findActiveProduct(id);
+        ProductResponse before = ProductResponse.from(product);
         product.markDeleted(changedAt);
+        auditService.record(AuditService.PRODUCT, id, AuditService.DELETE, before, null, changedAt);
     }
 
     private Category findActiveCategory(UUID id) {

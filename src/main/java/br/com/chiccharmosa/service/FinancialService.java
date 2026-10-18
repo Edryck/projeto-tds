@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -53,15 +54,18 @@ public class FinancialService {
     private final FinancialEntryRepository entryRepository;
     private final CashClosingRepository closingRepository;
     private final PaymentRepository paymentRepository;
+    private final AuditService auditService;
 
     public FinancialService(FinancialAccountRepository accountRepository,
             FinancialCategoryRepository categoryRepository, FinancialEntryRepository entryRepository,
-            CashClosingRepository closingRepository, PaymentRepository paymentRepository) {
+            CashClosingRepository closingRepository, PaymentRepository paymentRepository,
+            AuditService auditService) {
         this.accountRepository = accountRepository;
         this.categoryRepository = categoryRepository;
         this.entryRepository = entryRepository;
         this.closingRepository = closingRepository;
         this.paymentRepository = paymentRepository;
+        this.auditService = auditService;
     }
 
     public List<AccountResponse> listAccounts() {
@@ -113,7 +117,9 @@ public class FinancialService {
         applyRequest(entry, request);
         ensureDayOpen(entry.getAccountId(), entry.getEntryDate());
         entry.touch(changedAt);
-        return EntryResponse.from(entryRepository.save(entry));
+        EntryResponse response = EntryResponse.from(entryRepository.save(entry));
+        auditService.record(AuditService.FINANCIAL_ENTRY, entry.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     public EntryResponse get(UUID id) {
@@ -132,17 +138,22 @@ public class FinancialService {
     public EntryResponse update(UUID id, EntryRequest request, Instant changedAt) {
         FinancialEntry entry = findEditableEntry(id);
         ensureDayOpen(entry.getAccountId(), entry.getEntryDate());
+        EntryResponse before = EntryResponse.from(entry);
         applyRequest(entry, request);
         ensureDayOpen(entry.getAccountId(), entry.getEntryDate());
         entry.touch(changedAt);
-        return EntryResponse.from(entry);
+        EntryResponse after = EntryResponse.from(entry);
+        auditService.record(AuditService.FINANCIAL_ENTRY, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
     public void delete(UUID id, Instant changedAt) {
         FinancialEntry entry = findEditableEntry(id);
         ensureDayOpen(entry.getAccountId(), entry.getEntryDate());
+        EntryResponse before = EntryResponse.from(entry);
         entry.markDeleted(changedAt);
+        auditService.record(AuditService.FINANCIAL_ENTRY, id, AuditService.DELETE, before, null, changedAt);
     }
 
     public boolean closingExists(UUID id) {
@@ -282,7 +293,9 @@ public class FinancialService {
         FinancialEntry entry = newOrderEntry(order, EntryType.INCOME, SeedIds.SALES_CATEGORY, paidAt);
         entry.setPaymentMethod(method);
         entry.setDescription("Venda do pedido");
-        return EntryResponse.from(entryRepository.save(entry));
+        entryRepository.save(entry);
+        recordDateMoved(entry, paidAt);
+        return EntryResponse.from(entry);
     }
 
     @Transactional
@@ -293,7 +306,9 @@ public class FinancialService {
         }
         FinancialEntry entry = newOrderEntry(order, EntryType.EXPENSE, SeedIds.REFUND_CATEGORY, cancelledAt);
         entry.setDescription("Estorno do pedido");
-        return EntryResponse.from(entryRepository.save(entry));
+        entryRepository.save(entry);
+        recordDateMoved(entry, cancelledAt);
+        return EntryResponse.from(entry);
     }
 
     private FinancialEntry newOrderEntry(Order order, EntryType type, UUID categoryId, Instant happenedAt) {
@@ -316,6 +331,21 @@ public class FinancialService {
             return LocalDate.now(STORE_ZONE);
         }
         return day;
+    }
+
+    private void recordDateMoved(FinancialEntry entry, Instant happenedAt) {
+        LocalDate originalDay = happenedAt.atZone(STORE_ZONE).toLocalDate();
+        if (originalDay.equals(entry.getEntryDate())) {
+            return;
+        }
+        Map<String, Object> before = Map.of("entryDate", originalDay);
+        Map<String, Object> after = new LinkedHashMap<>();
+        after.put("entryDate", entry.getEntryDate());
+        if (closingRepository.existsByAccountIdAndClosingDate(entry.getAccountId(), entry.getEntryDate())) {
+            after.put("todayAlsoClosed", true);
+        }
+        auditService.record(AuditService.FINANCIAL_ENTRY, entry.getId(), AuditService.INCOME_DATE_MOVED, before, after,
+                happenedAt);
     }
 
     private void ensureDayOpen(UUID accountId, LocalDate day) {

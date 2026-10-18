@@ -29,14 +29,17 @@ public class UserService {
     private final DeviceRepository deviceRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository, DeviceRepository deviceRepository,
-            RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder) {
+            RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder,
+            AuditService auditService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.deviceRepository = deviceRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
+        this.auditService = auditService;
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +68,9 @@ public class UserService {
         user.setRole(findRole(request.roleId()));
         user.setActive(request.active());
         user.touch(changedAt);
-        return UserResponse.from(userRepository.save(user));
+        UserResponse response = UserResponse.from(userRepository.save(user));
+        auditService.record(AuditService.USER, user.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -85,6 +90,7 @@ public class UserService {
     @Transactional
     public UserResponse update(UUID id, UserRequest request, Instant changedAt) {
         User user = findActive(id);
+        UserResponse before = UserResponse.from(user);
         String email = normalizeEmail(request.email());
         ensureEmailFree(email, id);
         user.setEmail(email);
@@ -99,15 +105,19 @@ public class UserService {
         if (!request.active()) {
             refreshTokenRepository.revokeAllByUserId(id, changedAt);
         }
-        return UserResponse.from(userRepository.findById(id).orElseThrow());
+        UserResponse after = UserResponse.from(userRepository.findById(id).orElseThrow());
+        auditService.record(AuditService.USER, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
     public void delete(UUID id, Instant changedAt) {
         User user = findActive(id);
+        UserResponse before = UserResponse.from(user);
         user.markDeleted(changedAt);
         userRepository.saveAndFlush(user);
         refreshTokenRepository.revokeAllByUserId(id, changedAt);
+        auditService.record(AuditService.USER, id, AuditService.DELETE, before, null, changedAt);
     }
 
     @Transactional(readOnly = true)

@@ -23,10 +23,13 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final AddressRepository addressRepository;
+    private final AuditService auditService;
 
-    public CustomerService(CustomerRepository customerRepository, AddressRepository addressRepository) {
+    public CustomerService(CustomerRepository customerRepository, AddressRepository addressRepository,
+            AuditService auditService) {
         this.customerRepository = customerRepository;
         this.addressRepository = addressRepository;
+        this.auditService = auditService;
     }
 
     public boolean exists(UUID id) {
@@ -49,7 +52,9 @@ public class CustomerService {
         customer.setId(request.id() == null ? UUID.randomUUID() : request.id());
         applyCustomerRequest(customer, request);
         customer.touch(changedAt);
-        return CustomerResponse.from(customerRepository.save(customer));
+        CustomerResponse response = CustomerResponse.from(customerRepository.save(customer));
+        auditService.record(AuditService.CUSTOMER, customer.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     public CustomerResponse get(UUID id) {
@@ -71,14 +76,20 @@ public class CustomerService {
     @Transactional
     public CustomerResponse update(UUID id, CustomerRequest request, Instant changedAt) {
         Customer customer = findActiveCustomer(id);
+        CustomerResponse before = CustomerResponse.from(customer);
         applyCustomerRequest(customer, request);
         customer.touch(changedAt);
-        return CustomerResponse.from(customer);
+        CustomerResponse after = CustomerResponse.from(customer);
+        auditService.record(AuditService.CUSTOMER, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
     public void delete(UUID id, Instant changedAt) {
-        findActiveCustomer(id).markDeleted(changedAt);
+        Customer customer = findActiveCustomer(id);
+        CustomerResponse before = CustomerResponse.from(customer);
+        customer.markDeleted(changedAt);
+        auditService.record(AuditService.CUSTOMER, id, AuditService.DELETE, before, null, changedAt);
     }
 
     public Page<AddressResponse> listAddresses(UUID customerId, Pageable pageable) {

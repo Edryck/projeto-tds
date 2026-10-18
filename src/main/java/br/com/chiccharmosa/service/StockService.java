@@ -37,13 +37,16 @@ public class StockService {
     private final StockEntryRepository entryRepository;
     private final ProductVariantRepository variantRepository;
     private final SupplierRepository supplierRepository;
+    private final AuditService auditService;
 
     public StockService(StockMovementRepository movementRepository, StockEntryRepository entryRepository,
-            ProductVariantRepository variantRepository, SupplierRepository supplierRepository) {
+            ProductVariantRepository variantRepository, SupplierRepository supplierRepository,
+            AuditService auditService) {
         this.movementRepository = movementRepository;
         this.entryRepository = entryRepository;
         this.variantRepository = variantRepository;
         this.supplierRepository = supplierRepository;
+        this.auditService = auditService;
     }
 
     public Map<UUID, Integer> balances(Collection<UUID> variantIds) {
@@ -105,7 +108,9 @@ public class StockService {
         for (StockEntryItem item : entry.getItems()) {
             saveMovement(item.getVariant(), item.getQuantity(), MovementType.ENTRY, entry.getId(), null, changedAt);
         }
-        return StockEntryResponse.from(entry);
+        StockEntryResponse response = StockEntryResponse.from(entry);
+        auditService.record(AuditService.STOCK_ENTRY, entry.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     public StockEntryResponse findEntry(UUID id) {
@@ -140,7 +145,9 @@ public class StockService {
         }
         StockMovement movement = saveMovement(variant, signedQuantity, MovementType.ADJUSTMENT, null, reason,
                 changedAt);
-        return MovementResponse.from(movement);
+        MovementResponse response = MovementResponse.from(movement);
+        auditService.record(AuditService.PRODUCT_VARIANT, variantId, AuditService.STOCK_ADJUSTMENT, null, response, changedAt);
+        return response;
     }
 
     @Transactional

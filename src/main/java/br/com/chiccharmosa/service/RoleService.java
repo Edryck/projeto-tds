@@ -28,12 +28,14 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
     public RoleService(RoleRepository roleRepository, PermissionRepository permissionRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository, AuditService auditService) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.userRepository = userRepository;
+        this.auditService = auditService;
     }
 
     @Transactional(readOnly = true)
@@ -54,7 +56,9 @@ public class RoleService {
         role.setName(request.name());
         role.setPermissions(findPermissions(permissionCodesOf(request)));
         role.touch(changedAt);
-        return RoleResponse.from(roleRepository.save(role));
+        RoleResponse response = RoleResponse.from(roleRepository.save(role));
+        auditService.record(AuditService.ROLE, role.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -70,10 +74,13 @@ public class RoleService {
     @Transactional
     public RoleResponse update(UUID id, RoleRequest request, Instant changedAt) {
         Role role = findActive(id);
+        RoleResponse before = RoleResponse.from(role);
         role.setName(request.name());
         role.setPermissions(findPermissions(permissionCodesOf(request)));
         role.touch(changedAt);
-        return RoleResponse.from(role);
+        RoleResponse after = RoleResponse.from(role);
+        auditService.record(AuditService.ROLE, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     @Transactional
@@ -82,7 +89,9 @@ public class RoleService {
         if (userRepository.existsByRoleIdAndDeletedAtIsNull(id)) {
             throw new BusinessException(HttpStatus.CONFLICT, "Perfil em uso por usuários");
         }
+        RoleResponse before = RoleResponse.from(role);
         role.markDeleted(changedAt);
+        auditService.record(AuditService.ROLE, id, AuditService.DELETE, before, null, changedAt);
     }
 
     @Transactional(readOnly = true)

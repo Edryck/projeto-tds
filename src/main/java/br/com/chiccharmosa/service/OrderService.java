@@ -46,11 +46,12 @@ public class OrderService {
     private final StockService stockService;
     private final CouponService couponService;
     private final FinancialService financialService;
+    private final AuditService auditService;
 
     public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository,
             ProductVariantRepository variantRepository, PaymentRepository paymentRepository,
             ShipmentRepository shipmentRepository, StockService stockService, CouponService couponService,
-            FinancialService financialService) {
+            FinancialService financialService, AuditService auditService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.variantRepository = variantRepository;
@@ -59,6 +60,7 @@ public class OrderService {
         this.stockService = stockService;
         this.couponService = couponService;
         this.financialService = financialService;
+        this.auditService = auditService;
     }
 
     public boolean exists(UUID id) {
@@ -129,7 +131,9 @@ public class OrderService {
         order.setDiscount(money(discount));
         order.setShippingCost(money(shippingCost));
         order.setTotal(money(subtotal.subtract(discount).add(shippingCost)));
-        return OrderResponse.from(orderRepository.save(order));
+        OrderResponse response = OrderResponse.from(orderRepository.save(order));
+        auditService.record(AuditService.ORDER, order.getId(), AuditService.CREATE, null, response, changedAt);
+        return response;
     }
 
     public OrderResponse get(UUID id) {
@@ -147,6 +151,7 @@ public class OrderService {
     @Transactional
     public OrderResponse pay(UUID id, PaymentMethod method, Instant changedAt) {
         Order order = findLockedOrder(id);
+        OrderResponse before = OrderResponse.from(order);
         moveTo(order, OrderStatus.PAID, changedAt);
         Payment payment = new Payment();
         payment.setId(UUID.randomUUID());
@@ -157,7 +162,7 @@ public class OrderService {
         payment.touch(changedAt);
         paymentRepository.save(payment);
         financialService.recordIncome(order, method, changedAt);
-        return OrderResponse.from(order);
+        return recordStatusChange(order, before, changedAt);
     }
 
     @Transactional
@@ -170,6 +175,7 @@ public class OrderService {
         if (method == ShippingMethod.POST_OFFICE && missingTrackingCode) {
             throw new BusinessException(UNPROCESSABLE, "Código de rastreio obrigatório para envio pelos Correios");
         }
+        OrderResponse before = OrderResponse.from(order);
         moveTo(order, OrderStatus.SHIPPED, changedAt);
         Shipment shipment = new Shipment();
         shipment.setId(UUID.randomUUID());
@@ -179,30 +185,32 @@ public class OrderService {
         shipment.setShippedAt(changedAt);
         shipment.touch(changedAt);
         shipmentRepository.save(shipment);
-        return OrderResponse.from(order);
+        return recordStatusChange(order, before, changedAt);
     }
 
     @Transactional
     public OrderResponse deliver(UUID id, Instant changedAt) {
         Order order = findLockedOrder(id);
+        OrderResponse before = OrderResponse.from(order);
         moveTo(order, OrderStatus.DELIVERED, changedAt);
         Shipment shipment = shipmentRepository.findByOrderId(order.getId())
                 .orElseThrow(() -> new BusinessException(UNPROCESSABLE, "Envio não encontrado"));
         shipment.setDeliveredAt(changedAt);
         shipment.touch(changedAt);
-        return OrderResponse.from(order);
+        return recordStatusChange(order, before, changedAt);
     }
 
     @Transactional
     public OrderResponse cancel(UUID id, Instant changedAt) {
         Order order = findLockedOrder(id);
+        OrderResponse before = OrderResponse.from(order);
         boolean wasPaid = order.getStatus() == OrderStatus.PAID;
         moveTo(order, OrderStatus.CANCELLED, changedAt);
         stockService.reverse(order.getId());
         if (wasPaid) {
             financialService.recordRefund(order, changedAt);
         }
-        return OrderResponse.from(order);
+        return recordStatusChange(order, before, changedAt);
     }
 
     @Transactional
@@ -214,10 +222,13 @@ public class OrderService {
         if (shippingCost == null || shippingCost.signum() < 0) {
             throw new BusinessException(HttpStatus.BAD_REQUEST, "Frete não pode ser negativo");
         }
+        OrderResponse before = OrderResponse.from(order);
         order.setShippingCost(money(shippingCost));
         order.setTotal(money(order.getSubtotal().subtract(order.getDiscount()).add(shippingCost)));
         order.touch(changedAt);
-        return OrderResponse.from(order);
+        OrderResponse after = OrderResponse.from(order);
+        auditService.record(AuditService.ORDER, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
     }
 
     // a trava na linha do pedido impede dois cancelamentos ao mesmo tempo de estornarem o estoque duas vezes
@@ -228,6 +239,12 @@ public class OrderService {
             throw new BusinessException(HttpStatus.NOT_FOUND, "Pedido não encontrado");
         }
         return order;
+    }
+
+    private OrderResponse recordStatusChange(Order order, OrderResponse before, Instant changedAt) {
+        OrderResponse after = OrderResponse.from(order);
+        auditService.record(AuditService.ORDER, order.getId(), AuditService.STATUS_CHANGE, before, after, changedAt);
+        return after;
     }
 
     private void moveTo(Order order, OrderStatus next, Instant changedAt) {
