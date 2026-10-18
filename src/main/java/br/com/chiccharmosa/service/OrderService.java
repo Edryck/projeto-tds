@@ -45,10 +45,12 @@ public class OrderService {
     private final ShipmentRepository shipmentRepository;
     private final StockService stockService;
     private final CouponService couponService;
+    private final FinancialService financialService;
 
     public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository,
             ProductVariantRepository variantRepository, PaymentRepository paymentRepository,
-            ShipmentRepository shipmentRepository, StockService stockService, CouponService couponService) {
+            ShipmentRepository shipmentRepository, StockService stockService, CouponService couponService,
+            FinancialService financialService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.variantRepository = variantRepository;
@@ -56,6 +58,7 @@ public class OrderService {
         this.shipmentRepository = shipmentRepository;
         this.stockService = stockService;
         this.couponService = couponService;
+        this.financialService = financialService;
     }
 
     public boolean exists(UUID id) {
@@ -153,6 +156,7 @@ public class OrderService {
         payment.setPaidAt(changedAt);
         payment.touch(changedAt);
         paymentRepository.save(payment);
+        financialService.recordIncome(order, method, changedAt);
         return OrderResponse.from(order);
     }
 
@@ -192,8 +196,12 @@ public class OrderService {
     @Transactional
     public OrderResponse cancel(UUID id, Instant changedAt) {
         Order order = findLockedOrder(id);
+        boolean wasPaid = order.getStatus() == OrderStatus.PAID;
         moveTo(order, OrderStatus.CANCELLED, changedAt);
         stockService.reverse(order.getId());
+        if (wasPaid) {
+            financialService.recordRefund(order, changedAt);
+        }
         return OrderResponse.from(order);
     }
 
