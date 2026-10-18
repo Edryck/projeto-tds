@@ -4,8 +4,10 @@ import br.com.chiccharmosa.entity.Order;
 import br.com.chiccharmosa.entity.OrderStatus;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -33,4 +35,14 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             """)
     Page<Order> search(@Param("status") OrderStatus status, @Param("customerId") UUID customerId,
             @Param("from") Instant from, @Param("to") Instant to, Pageable pageable);
+
+    @Query("select e from Order e where e.updatedAt > :since order by e.updatedAt, e.id")
+    List<Order> findChangedSince(@Param("since") Instant since, Limit limit);
+
+    @Query("""
+            select e from Order e
+            where e.updatedAt > :since or (e.updatedAt = :since and e.id > :afterId)
+            order by e.updatedAt, e.id
+            """)
+    List<Order> findChangedAfter(@Param("since") Instant since, @Param("afterId") UUID afterId, Limit limit);
 }
