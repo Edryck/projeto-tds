@@ -3,6 +3,9 @@ package br.com.chiccharmosa;
 import br.com.chiccharmosa.config.SeedIds;
 import br.com.chiccharmosa.dto.CategoryDto.CategoryRequest;
 import br.com.chiccharmosa.dto.CategoryDto.CategoryResponse;
+import br.com.chiccharmosa.dto.CustomerDto.CustomerRequest;
+import br.com.chiccharmosa.dto.OrderDto.ItemRequest;
+import br.com.chiccharmosa.dto.OrderDto.OrderRequest;
 import br.com.chiccharmosa.dto.ProductDto.ProductRequest;
 import br.com.chiccharmosa.dto.ProductDto.ProductResponse;
 import br.com.chiccharmosa.dto.StockDto.EntryItem;
@@ -19,6 +22,7 @@ import br.com.chiccharmosa.repository.UserRepository;
 import br.com.chiccharmosa.security.CurrentUser;
 import br.com.chiccharmosa.security.JwtService;
 import br.com.chiccharmosa.service.CatalogService;
+import br.com.chiccharmosa.service.CustomerService;
 import br.com.chiccharmosa.service.StockService;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -68,6 +72,9 @@ public class TestData {
 
     @Autowired
     private StockService stockService;
+
+    @Autowired
+    private CustomerService customerService;
 
     public User userWith(String... permissionCodes) {
         Role role = new Role();
@@ -150,5 +157,20 @@ public class TestData {
     public StockEntryRequest entryRequest(UUID variantId, int quantity) {
         EntryItem item = new EntryItem(UUID.randomUUID(), variantId, quantity, new BigDecimal("10.00"));
         return new StockEntryRequest(UUID.randomUUID(), null, LocalDate.now(), null, List.of(item));
+    }
+
+    public UUID customer() {
+        CustomerRequest request = new CustomerRequest(UUID.randomUUID(), "Maria Cliente", null, null, null);
+        return customerService.create(request, Instant.now()).id();
+    }
+
+    public OrderRequest orderRequest(UUID customerId, UUID variantId, int quantity) {
+        return orderRequest(customerId, variantId, quantity, null, null);
+    }
+
+    public OrderRequest orderRequest(UUID customerId, UUID variantId, int quantity, String shippingCost, String couponCode) {
+        ItemRequest item = new ItemRequest(UUID.randomUUID(), variantId, quantity);
+        BigDecimal shipping = shippingCost == null ? null : new BigDecimal(shippingCost);
+        return new OrderRequest(UUID.randomUUID(), customerId, null, shipping, couponCode, List.of(item));
     }
 }
