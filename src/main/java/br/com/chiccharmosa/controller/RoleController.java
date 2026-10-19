@@ -1,5 +1,8 @@
 package br.com.chiccharmosa.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import br.com.chiccharmosa.assembler.RoleAssembler;
 import br.com.chiccharmosa.dto.RoleDto.PermissionResponse;
 import br.com.chiccharmosa.dto.RoleDto.RoleRequest;
@@ -7,10 +10,10 @@ import br.com.chiccharmosa.dto.RoleDto.RoleResponse;
 import br.com.chiccharmosa.service.RoleService;
 import jakarta.validation.Valid;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.PagedModel;
@@ -61,8 +64,9 @@ public class RoleController {
 
     @GetMapping("/permissions")
     @PreAuthorize("hasAuthority('role:manage')")
-    public List<PermissionResponse> permissions() {
-        return roleService.permissions();
+    public CollectionModel<PermissionResponse> permissions() {
+        return CollectionModel.of(roleService.permissions(),
+                linkTo(methodOn(RoleController.class).permissions()).withSelfRel());
     }
 
     @GetMapping("/{id}")

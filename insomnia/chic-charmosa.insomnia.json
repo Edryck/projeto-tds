@@ -1,0 +1,2123 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-10-16T00:00:00.000Z",
+  "__export_source": "generate_insomnia.py",
+  "resources": [
+    {
+      "_id": "wrk_chic_charmosa",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Chic Charmosa",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_chic_charmosa_base",
+      "_type": "environment",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Base Environment",
+      "data": {
+        "baseUrl": "http://localhost:8080",
+        "token": "{% response 'body', 'req_92025b8b73595a15e22fbfa2fc5c6088', 'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'when-expired', 60 %}",
+        "addressId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "metaSortKey": 0
+    },
+    {
+      "_id": "fld_35d0f5fbca4b84a0ac3992970ff01199",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Auth",
+      "metaSortKey": 0
+    },
+    {
+      "_id": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Roles",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_57f2b181d0a5e79a147ea1cdf41457f5",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Users",
+      "metaSortKey": 2
+    },
+    {
+      "_id": "fld_df485c871329671f46570634d6321676",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Devices",
+      "metaSortKey": 3
+    },
+    {
+      "_id": "fld_6ccb60071be8f00760a3824d9f7d0fad",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Categories",
+      "metaSortKey": 4
+    },
+    {
+      "_id": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Products",
+      "metaSortKey": 5
+    },
+    {
+      "_id": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Variants",
+      "metaSortKey": 6
+    },
+    {
+      "_id": "fld_bcecf4562f1709b1448aff7c6b49edb6",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Stock",
+      "metaSortKey": 7
+    },
+    {
+      "_id": "fld_6f76bb2b1215eb0d4c441f3f5ec2e72d",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Suppliers",
+      "metaSortKey": 8
+    },
+    {
+      "_id": "fld_035eae60290f92e678316a977cd72bb5",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Customers",
+      "metaSortKey": 9
+    },
+    {
+      "_id": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Orders",
+      "metaSortKey": 10
+    },
+    {
+      "_id": "fld_97a3bacad749a8c1213633a58dd5564f",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Coupons",
+      "metaSortKey": 11
+    },
+    {
+      "_id": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Finance",
+      "metaSortKey": 12
+    },
+    {
+      "_id": "fld_fa1703dd78a038dfd348215453267694",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Audit",
+      "metaSortKey": 13
+    },
+    {
+      "_id": "req_92025b8b73595a15e22fbfa2fc5c6088",
+      "_type": "request",
+      "parentId": "fld_35d0f5fbca4b84a0ac3992970ff01199",
+      "name": "POST /api/auth/login",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/auth/login",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"deviceId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"deviceName\": \"string\"\n}"
+      },
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_23e1aa32502951a188215e3db1d65831",
+      "_type": "request",
+      "parentId": "fld_35d0f5fbca4b84a0ac3992970ff01199",
+      "name": "POST /api/auth/logout",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/auth/logout",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_d9db3a3ba8a3cd9468f9b7656a895a83",
+      "_type": "request",
+      "parentId": "fld_35d0f5fbca4b84a0ac3992970ff01199",
+      "name": "GET /api/auth/me",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/auth/me",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_07a61dd6bcc2b0b96aea8ac952cee982",
+      "_type": "request",
+      "parentId": "fld_35d0f5fbca4b84a0ac3992970ff01199",
+      "name": "POST /api/auth/refresh",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/auth/refresh",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"string\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_1d4f4eb4054e3c14f290799d0e5a693b",
+      "_type": "request",
+      "parentId": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "name": "GET /api/roles",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/roles",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_ae7555e785d20aac8261f38a8c657fbe",
+      "_type": "request",
+      "parentId": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "name": "POST /api/roles",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/roles",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"permissionCodes\": [\n    \"string\"\n  ]\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_3f38cfee6a47414938e828abc14889ba",
+      "_type": "request",
+      "parentId": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "name": "GET /api/roles/permissions",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/roles/permissions",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_83f574996664cae7b56fcdfda0d8947d",
+      "_type": "request",
+      "parentId": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "name": "GET /api/roles/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/roles/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_69d3caafd4cb3414606733f81c2cbc76",
+      "_type": "request",
+      "parentId": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "name": "PUT /api/roles/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/roles/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"permissionCodes\": [\n    \"string\"\n  ]\n}"
+      },
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_1c512f14cf76e07a8a8b9187c8748e1d",
+      "_type": "request",
+      "parentId": "fld_47dcc27d6e87ece8baebe7e3877a261a",
+      "name": "DELETE /api/roles/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/roles/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_491b3a1a69285f8406d114dc9906a3ff",
+      "_type": "request",
+      "parentId": "fld_57f2b181d0a5e79a147ea1cdf41457f5",
+      "name": "GET /api/users",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/users",
+      "parameters": [
+        {
+          "name": "name",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_5fce12112c94bd15a6a1620ff8e443fe",
+      "_type": "request",
+      "parentId": "fld_57f2b181d0a5e79a147ea1cdf41457f5",
+      "name": "POST /api/users",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/users",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"name\": \"string\",\n  \"roleId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"active\": true\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_60ff62b544b7646a58da068c34a58811",
+      "_type": "request",
+      "parentId": "fld_57f2b181d0a5e79a147ea1cdf41457f5",
+      "name": "GET /api/users/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/users/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_490f2f78aafe2587622b434e04ecc36e",
+      "_type": "request",
+      "parentId": "fld_57f2b181d0a5e79a147ea1cdf41457f5",
+      "name": "PUT /api/users/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/users/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"name\": \"string\",\n  \"roleId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"active\": true\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_267eca9a5a663b61836acd7741bcbfc6",
+      "_type": "request",
+      "parentId": "fld_57f2b181d0a5e79a147ea1cdf41457f5",
+      "name": "DELETE /api/users/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/users/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_8953e9ca4c68768bf49234b961d959ec",
+      "_type": "request",
+      "parentId": "fld_df485c871329671f46570634d6321676",
+      "name": "GET /api/devices",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/devices",
+      "parameters": [
+        {
+          "name": "userId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_30f4078812e949976d12d053dd7e08ad",
+      "_type": "request",
+      "parentId": "fld_df485c871329671f46570634d6321676",
+      "name": "PATCH /api/devices/{id}/disable",
+      "method": "PATCH",
+      "url": "{{ _.baseUrl }}/api/devices/{{ _.id }}/disable",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_d0542b90099b49f53a2c303332927a72",
+      "_type": "request",
+      "parentId": "fld_6ccb60071be8f00760a3824d9f7d0fad",
+      "name": "GET /api/categories",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/categories",
+      "parameters": [
+        {
+          "name": "name",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_a94fee09d8039a9171727bc4a64be3f4",
+      "_type": "request",
+      "parentId": "fld_6ccb60071be8f00760a3824d9f7d0fad",
+      "name": "POST /api/categories",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/categories",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_b67ef768a487c0c3e9a8297c30fa2353",
+      "_type": "request",
+      "parentId": "fld_6ccb60071be8f00760a3824d9f7d0fad",
+      "name": "GET /api/categories/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/categories/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_6b774d9f9141617f05b1d3d7719979f3",
+      "_type": "request",
+      "parentId": "fld_6ccb60071be8f00760a3824d9f7d0fad",
+      "name": "PUT /api/categories/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/categories/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_eae376da83a5c5faff889808d21f9ce0",
+      "_type": "request",
+      "parentId": "fld_6ccb60071be8f00760a3824d9f7d0fad",
+      "name": "DELETE /api/categories/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/categories/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_d60a6d5bf9835086cc715d50aa712897",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "GET /api/products",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/products",
+      "parameters": [
+        {
+          "name": "name",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "categoryId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_8064ba9397e588b6582acb1e6f1c90fd",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "POST /api/products",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/products",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"description\": \"string\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_67ec578aecb3e8f710b4649c98c1731b",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "GET /api/products/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/products/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_386d7d5347253b4301df6e240f27e1e0",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "PUT /api/products/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/products/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"description\": \"string\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_85443f142e104003a4358d49d24bb097",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "DELETE /api/products/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/products/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_1b80bd7f8e9ed41af7d4251961e07342",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "GET /api/products/{productId}/variants",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/products/{{ _.productId }}/variants",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_3362bc798193f572f4d96863f873e275",
+      "_type": "request",
+      "parentId": "fld_fe0a091fdbfb3e9c31b7a1bd79759749",
+      "name": "POST /api/products/{productId}/variants",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/products/{{ _.productId }}/variants",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"color\": \"string\",\n  \"size\": \"string\",\n  \"model\": \"string\",\n  \"price\": 1.0,\n  \"cost\": 1.0\n}"
+      },
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_25eed25f600e6e7264f0fda7b3880c47",
+      "_type": "request",
+      "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "name": "GET /api/variants/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/variants/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_3f8ee642b7a536a8f276447dfe780927",
+      "_type": "request",
+      "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "name": "PUT /api/variants/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/variants/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"color\": \"string\",\n  \"size\": \"string\",\n  \"model\": \"string\",\n  \"price\": 1.0,\n  \"cost\": 1.0\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_5ecc0a638ebdc24b68a3ed894db8e41f",
+      "_type": "request",
+      "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "name": "DELETE /api/variants/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/variants/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_ee51b63e05f9352eb2d3e7851e193163",
+      "_type": "request",
+      "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "name": "POST /api/variants/{id}/adjustments",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/variants/{{ _.id }}/adjustments",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"quantity\": 1,\n  \"reason\": \"string\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_5dc556dd18069d25e3ce08c7949d4e72",
+      "_type": "request",
+      "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "name": "GET /api/variants/{id}/movements",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/variants/{{ _.id }}/movements",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_aa5fa6e1d870d719e952eea94c5e01a8",
+      "_type": "request",
+      "parentId": "fld_bcecf4562f1709b1448aff7c6b49edb6",
+      "name": "GET /api/stock-entries",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/stock-entries",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_9f160092fe78bf57be85ed6fdd0ca5d6",
+      "_type": "request",
+      "parentId": "fld_bcecf4562f1709b1448aff7c6b49edb6",
+      "name": "POST /api/stock-entries",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/stock-entries",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"supplierId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"entryDate\": \"2026-10-16\",\n  \"note\": \"string\",\n  \"items\": [\n    {\n      \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n      \"variantId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n      \"quantity\": 1,\n      \"unitCost\": 1.0\n    }\n  ]\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_e8f9e05d482f827196029c3a983945b5",
+      "_type": "request",
+      "parentId": "fld_bcecf4562f1709b1448aff7c6b49edb6",
+      "name": "GET /api/stock-entries/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/stock-entries/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_e95d0d3fb377a344fe9b72a259c55186",
+      "_type": "request",
+      "parentId": "fld_6f76bb2b1215eb0d4c441f3f5ec2e72d",
+      "name": "GET /api/suppliers",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/suppliers",
+      "parameters": [
+        {
+          "name": "name",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_58d6a38676d61cdcb6712e85c0964bb4",
+      "_type": "request",
+      "parentId": "fld_6f76bb2b1215eb0d4c441f3f5ec2e72d",
+      "name": "POST /api/suppliers",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/suppliers",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_a866d78307ed0edff8765a190deb4c50",
+      "_type": "request",
+      "parentId": "fld_6f76bb2b1215eb0d4c441f3f5ec2e72d",
+      "name": "GET /api/suppliers/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/suppliers/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_02ce8b797f501d88a2c38df930f239ee",
+      "_type": "request",
+      "parentId": "fld_6f76bb2b1215eb0d4c441f3f5ec2e72d",
+      "name": "PUT /api/suppliers/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/suppliers/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_23e4706a4caa578b06029a73e8701754",
+      "_type": "request",
+      "parentId": "fld_6f76bb2b1215eb0d4c441f3f5ec2e72d",
+      "name": "DELETE /api/suppliers/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/suppliers/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_77ab98c04496772ef0d9ff881ef272a2",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "GET /api/customers",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/customers",
+      "parameters": [
+        {
+          "name": "name",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "phone",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_9275f416ae731658a691758d5e71eb85",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "POST /api/customers",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/customers",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\",\n  \"email\": \"string\",\n  \"note\": \"string\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_b3ea8566ea1f3cc600b67b682664f8f8",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "GET /api/customers/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_bdffdfd6595b5494d102b63b1d2824c6",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "PUT /api/customers/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\",\n  \"email\": \"string\",\n  \"note\": \"string\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_a4a7964fc5a3b33091541fb98ca99040",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "DELETE /api/customers/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_110c14229f1b57eecf75ad32508b041e",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "GET /api/customers/{id}/addresses",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}/addresses",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_6e399ad3c4dffcc5daaf6cedce37060d",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "POST /api/customers/{id}/addresses",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}/addresses",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"street\": \"string\",\n  \"number\": \"string\",\n  \"complement\": \"string\",\n  \"district\": \"string\",\n  \"city\": \"string\",\n  \"state\": \"string\",\n  \"zipCode\": \"string\"\n}"
+      },
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_a31642a6e47528043f7dad975204ce6c",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "GET /api/customers/{id}/addresses/{addressId}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}/addresses/{{ _.addressId }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_47b701d17dac1d6b66ec6d5218632bcb",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "PUT /api/customers/{id}/addresses/{addressId}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}/addresses/{{ _.addressId }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"street\": \"string\",\n  \"number\": \"string\",\n  \"complement\": \"string\",\n  \"district\": \"string\",\n  \"city\": \"string\",\n  \"state\": \"string\",\n  \"zipCode\": \"string\"\n}"
+      },
+      "metaSortKey": 8
+    },
+    {
+      "_id": "req_d35799b6a85b10f801cc798cf4bcad98",
+      "_type": "request",
+      "parentId": "fld_035eae60290f92e678316a977cd72bb5",
+      "name": "DELETE /api/customers/{id}/addresses/{addressId}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/customers/{{ _.id }}/addresses/{{ _.addressId }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 9
+    },
+    {
+      "_id": "req_03253597bd3440800568260ff2fe8c8c",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "GET /api/orders",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/orders",
+      "parameters": [
+        {
+          "name": "status",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "customerId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_4cfc2f258df2cda7153bb54adc3dbae9",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "POST /api/orders",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"customerId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"note\": \"string\",\n  \"shippingCost\": 1.0,\n  \"couponCode\": \"string\",\n  \"items\": [\n    {\n      \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n      \"variantId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n      \"quantity\": 1\n    }\n  ]\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_4b07a2ee07b2ef909d7c440cd66ed1db",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "GET /api/orders/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_7b4190a560416cc29dfd1db51e038868",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "POST /api/orders/{id}/cancel",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}/cancel",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_22a55b52435ed4b63f036f3b74ffba48",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "POST /api/orders/{id}/deliver",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}/deliver",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_f02bec55c36cee42897009ba5ff522c8",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "POST /api/orders/{id}/pay",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}/pay",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"method\": \"PIX\"\n}"
+      },
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_59a33d802d59c2c12d722d37dfa083e5",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "POST /api/orders/{id}/ship",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}/ship",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"method\": \"POST_OFFICE\",\n  \"trackingCode\": \"string\"\n}"
+      },
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_7bfada418af63f8939f0420e62da1919",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "PATCH /api/orders/{id}/shipping-cost",
+      "method": "PATCH",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}/shipping-cost",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"shippingCost\": 1.0\n}"
+      },
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_4d0fbfc36a0355c321fcb0e02c86e4e5",
+      "_type": "request",
+      "parentId": "fld_97a3bacad749a8c1213633a58dd5564f",
+      "name": "GET /api/coupons",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/coupons",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_dd5cc00877f6abd434c7871d2efc6a90",
+      "_type": "request",
+      "parentId": "fld_97a3bacad749a8c1213633a58dd5564f",
+      "name": "POST /api/coupons",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/coupons",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"code\": \"string\",\n  \"discountPercent\": 1.0,\n  \"validFrom\": \"2026-10-16T12:00:00Z\",\n  \"validUntil\": \"2026-10-16T12:00:00Z\",\n  \"usageLimit\": 1\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_dd2f952fb9af27460e60895b34c012fb",
+      "_type": "request",
+      "parentId": "fld_97a3bacad749a8c1213633a58dd5564f",
+      "name": "GET /api/coupons/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/coupons/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_a704bfba607a9691ffd307648992cd5c",
+      "_type": "request",
+      "parentId": "fld_97a3bacad749a8c1213633a58dd5564f",
+      "name": "PUT /api/coupons/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/coupons/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"code\": \"string\",\n  \"discountPercent\": 1.0,\n  \"validFrom\": \"2026-10-16T12:00:00Z\",\n  \"validUntil\": \"2026-10-16T12:00:00Z\",\n  \"usageLimit\": 1\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_d10343df7f323a02e3acbc81a032ee76",
+      "_type": "request",
+      "parentId": "fld_97a3bacad749a8c1213633a58dd5564f",
+      "name": "DELETE /api/coupons/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/coupons/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_2a631c40ebd6f51d62e098325cf0de40",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/cash-closings",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/cash-closings",
+      "parameters": [
+        {
+          "name": "accountId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_ef9b6a625c3d5f11c8491448724dbd9e",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "POST /api/cash-closings",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/cash-closings",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"closingDate\": \"2026-10-16\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_78ebf50f071ec72a4b9931a8bb0a18b6",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/cash-closings/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/cash-closings/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_0c56e45317d57d3ef3ca6918ed32db18",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/finance/profit",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/finance/profit",
+      "parameters": [
+        {
+          "name": "accountId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_f0bfcf64622bc150e22157094259a6fb",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/finance/profit/breakdown",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/finance/profit/breakdown",
+      "parameters": [
+        {
+          "name": "accountId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "groupBy",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_e77cbfc97be1c128247fe0fc1a48c18c",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/financial-accounts",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-accounts",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_1c930863c8557c8eb33b80af689218b1",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/financial-categories",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-categories",
+      "parameters": [
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_18f44170b638e3059372d6e33bbda812",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "POST /api/financial-categories",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/financial-categories",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"type\": \"INCOME\"\n}"
+      },
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_f6d1a07e84079af9fb0cfece98724993",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/financial-entries",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-entries",
+      "parameters": [
+        {
+          "name": "accountId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "type",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 8
+    },
+    {
+      "_id": "req_fd241f6aa69f0f93271664eb2cf6ee20",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "POST /api/financial-entries",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/financial-entries",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"type\": \"INCOME\",\n  \"amount\": 1.0,\n  \"paymentMethod\": \"PIX\",\n  \"entryDate\": \"2026-10-16\",\n  \"description\": \"string\"\n}"
+      },
+      "metaSortKey": 9
+    },
+    {
+      "_id": "req_4672f04ddf3a9938a70a762777d3014c",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/financial-entries/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-entries/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 10
+    },
+    {
+      "_id": "req_049e5a84e84457f5a3c1b33f6f723a5d",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "PUT /api/financial-entries/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/financial-entries/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"type\": \"INCOME\",\n  \"amount\": 1.0,\n  \"paymentMethod\": \"PIX\",\n  \"entryDate\": \"2026-10-16\",\n  \"description\": \"string\"\n}"
+      },
+      "metaSortKey": 11
+    },
+    {
+      "_id": "req_d2988cf2e852f9bce77c9ccc9989cbb4",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "DELETE /api/financial-entries/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/financial-entries/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 12
+    },
+    {
+      "_id": "req_2acd79e9fa473c28f638544e4d657d51",
+      "_type": "request",
+      "parentId": "fld_fa1703dd78a038dfd348215453267694",
+      "name": "GET /api/audit-logs",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/audit-logs",
+      "parameters": [
+        {
+          "name": "entity",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "entityId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "userId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "action",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_184d21d5db542ae1dc0dd93e588db771",
+      "_type": "request",
+      "parentId": "fld_fa1703dd78a038dfd348215453267694",
+      "name": "GET /api/audit-logs/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/audit-logs/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 1
+    }
+  ]
+}
