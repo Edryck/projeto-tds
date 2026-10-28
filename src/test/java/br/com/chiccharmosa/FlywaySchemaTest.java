@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import br.com.chiccharmosa.config.SeedIds;
+import br.com.chiccharmosa.dto.CustomerDto.CustomerResponse;
+import br.com.chiccharmosa.service.CustomerService;
 import java.time.LocalDate;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,6 +19,16 @@ class FlywaySchemaTest extends IntegrationTest {
 
     @Autowired
     private JdbcTemplate jdbc;
+
+    @Autowired
+    private CustomerService customerService;
+
+    @Test
+    void defaultCustomerIsSeeded() {
+        CustomerResponse customer = customerService.get(SeedIds.DEFAULT_CUSTOMER);
+
+        assertThat(customer.name()).isEqualTo("Consumidor não identificado");
+    }
 
     @Test
     void adminHasAllPermissions() {
