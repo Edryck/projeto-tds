@@ -3,10 +3,13 @@ import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './auth'
 import Layout from './components/Layout'
 import { PageHeader } from './components/ui'
+import { ToastProvider } from './components/Toast'
 import Login from './pages/Login'
 import Customers from './pages/Customers'
 import ProductForm from './pages/catalog/ProductForm'
 import ProductList from './pages/catalog/ProductList'
+import VariantForm from './pages/catalog/VariantForm'
+import Categories from './pages/catalog/Categories'
 import StockEntry from './pages/StockEntry'
 import CashClosingPage from './pages/CashClosing'
 import NewSale from './pages/sales/NewSale'
@@ -60,101 +63,127 @@ function Home() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <Screen>
-                <Home />
-              </Screen>
-            }
-          />
-          <Route path="/products" element={<Navigate to="/catalog" replace />} />
-          <Route
-            path="/catalog"
-            element={
-              <Screen permission="product:view">
-                <ProductList />
-              </Screen>
-            }
-          />
-          <Route
-            path="/catalog/new"
-            element={
-              <Screen permission="product:edit">
-                <ProductForm />
-              </Screen>
-            }
-          />
-          <Route
-            path="/catalog/:id"
-            element={
-              <Screen permission="product:view">
-                <ProductForm />
-              </Screen>
-            }
-          />
-          <Route
-            path="/stock-entry"
-            element={
-              <Screen permission="stock:adjust">
-                <StockEntry />
-              </Screen>
-            }
-          />
-          <Route
-            path="/customers"
-            element={
-              <Screen permission="customer:view">
-                <Customers />
-              </Screen>
-            }
-          />
-          <Route path="/orders" element={<Navigate to="/sales" replace />} />
-          <Route
-            path="/sales"
-            element={
-              <Screen permission="order:view">
-                <SalesList />
-              </Screen>
-            }
-          />
-          <Route
-            path="/sales/:id"
-            element={
-              <Screen permission="order:view">
-                <SaleDetail />
-              </Screen>
-            }
-          />
-          <Route
-            path="/sales/new"
-            element={
-              <FullScreen permission="order:create">
-                <NewSale />
-              </FullScreen>
-            }
-          />
-          <Route
-            path="/cash-closing"
-            element={
-              <Screen permission="finance:view">
-                <CashClosingPage />
-              </Screen>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <Screen>
-                <NotFound />
-              </Screen>
-            }
-          />
-        </Routes>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <Screen>
+                  <Home />
+                </Screen>
+              }
+            />
+            <Route path="/products" element={<Navigate to="/catalog" replace />} />
+            <Route
+              path="/catalog"
+              element={
+                <Screen permission="product:view">
+                  <ProductList />
+                </Screen>
+              }
+            />
+            <Route
+              path="/catalog/new"
+              element={
+                <Screen permission="product:edit">
+                  <ProductForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/catalog/:id"
+              element={
+                <Screen permission="product:view">
+                  <ProductForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/catalog/categories"
+              element={
+                <Screen permission="product:view">
+                  <Categories />
+                </Screen>
+              }
+            />
+            <Route
+              path="/catalog/:id/variants/new"
+              element={
+                <Screen permission="product:edit">
+                  <VariantForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/catalog/:id/variants/:variantId"
+              element={
+                <Screen permission="product:view">
+                  <VariantForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/stock-entry"
+              element={
+                <Screen permission="stock:adjust">
+                  <StockEntry />
+                </Screen>
+              }
+            />
+            <Route
+              path="/customers"
+              element={
+                <Screen permission="customer:view">
+                  <Customers />
+                </Screen>
+              }
+            />
+            <Route path="/orders" element={<Navigate to="/sales" replace />} />
+            <Route
+              path="/sales"
+              element={
+                <Screen permission="order:view">
+                  <SalesList />
+                </Screen>
+              }
+            />
+            <Route
+              path="/sales/:id"
+              element={
+                <Screen permission="order:view">
+                  <SaleDetail />
+                </Screen>
+              }
+            />
+            <Route
+              path="/sales/new"
+              element={
+                <FullScreen permission="order:create">
+                  <NewSale />
+                </FullScreen>
+              }
+            />
+            <Route
+              path="/cash-closing"
+              element={
+                <Screen permission="finance:view">
+                  <CashClosingPage />
+                </Screen>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <Screen>
+                  <NotFound />
+                </Screen>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   )
 }
