@@ -16,11 +16,22 @@ public interface CustomerRepository extends JpaRepository<Customer, UUID> {
 
     Optional<Customer> findByIdAndDeletedAtIsNull(UUID id);
 
-    Page<Customer> findByDeletedAtIsNull(Pageable pageable);
+    Page<Customer> findByDeletedAtIsNullAndIdNot(UUID excludedId, Pageable pageable);
 
-    Page<Customer> findByDeletedAtIsNullAndNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Customer> findByDeletedAtIsNullAndIdNotAndNameContainingIgnoreCase(UUID excludedId, String name,
+            Pageable pageable);
 
-    Page<Customer> findByDeletedAtIsNullAndPhoneContaining(String phone, Pageable pageable);
+    Page<Customer> findByDeletedAtIsNullAndIdNotAndPhoneContaining(UUID excludedId, String phone,
+            Pageable pageable);
+
+    @Query("""
+            select c from Customer c
+            where c.deletedAt is null and c.id <> :excludedId
+            and (lower(c.name) like concat('%', :q, '%')
+                or lower(c.phone) like concat('%', :q, '%')
+                or lower(c.email) like concat('%', :q, '%'))
+            """)
+    Page<Customer> search(@Param("q") String q, @Param("excludedId") UUID excludedId, Pageable pageable);
 
     @Query("select e from Customer e where e.updatedAt > :since order by e.updatedAt, e.id")
     List<Customer> findChangedSince(@Param("since") Instant since, Limit limit);

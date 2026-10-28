@@ -5,6 +5,7 @@ import br.com.chiccharmosa.dto.CustomerDto.AddressRequest;
 import br.com.chiccharmosa.dto.CustomerDto.AddressResponse;
 import br.com.chiccharmosa.dto.CustomerDto.CustomerRequest;
 import br.com.chiccharmosa.dto.CustomerDto.CustomerResponse;
+import br.com.chiccharmosa.dto.CustomerDto.CustomerView;
 import br.com.chiccharmosa.service.CustomerService;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -34,11 +35,11 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final CustomerAssembler customerAssembler;
-    private final PagedResourcesAssembler<CustomerResponse> pagedCustomerAssembler;
+    private final PagedResourcesAssembler<CustomerView> pagedCustomerAssembler;
     private final PagedResourcesAssembler<AddressResponse> pagedAddressAssembler;
 
     public CustomerController(CustomerService customerService, CustomerAssembler customerAssembler,
-            PagedResourcesAssembler<CustomerResponse> pagedCustomerAssembler,
+            PagedResourcesAssembler<CustomerView> pagedCustomerAssembler,
             PagedResourcesAssembler<AddressResponse> pagedAddressAssembler) {
         this.customerService = customerService;
         this.customerAssembler = customerAssembler;
@@ -60,15 +61,17 @@ public class CustomerController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('customer:view')")
-    public PagedModel<EntityModel<CustomerResponse>> list(@RequestParam(required = false) String name,
-            @RequestParam(required = false) String phone, Pageable pageable) {
-        return pagedCustomerAssembler.toModel(customerService.list(name, phone, pageable), customerAssembler);
+    public PagedModel<EntityModel<CustomerView>> list(@RequestParam(required = false) String q,
+            @RequestParam(required = false) String name, @RequestParam(required = false) String phone,
+            Pageable pageable) {
+        return pagedCustomerAssembler.toModel(customerService.listViews(q, name, phone, pageable),
+                customerAssembler::toViewModel);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('customer:view')")
-    public EntityModel<CustomerResponse> get(@PathVariable UUID id) {
-        return customerAssembler.toModel(customerService.get(id));
+    public EntityModel<CustomerView> get(@PathVariable UUID id) {
+        return customerAssembler.toViewModel(customerService.getView(id));
     }
 
     @PutMapping("/{id}")

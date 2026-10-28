@@ -4,6 +4,7 @@ import br.com.chiccharmosa.entity.Order;
 import br.com.chiccharmosa.entity.OrderStatus;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,6 +38,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             """)
     Page<Order> search(@Param("status") OrderStatus status, @Param("customerId") UUID customerId,
             @Param("q") String q, @Param("from") Instant from, @Param("to") Instant to, Pageable pageable);
+
+    @Query("""
+            select o.customer.id, max(o.orderedAt) from Order o
+            where o.deletedAt is null and o.status <> 'CANCELLED' and o.customer.id in :ids
+            group by o.customer.id
+            """)
+    List<Object[]> lastOrderAtByCustomerIds(@Param("ids") Collection<UUID> ids);
 
     @Query("select e from Order e where e.updatedAt > :since order by e.updatedAt, e.id")
     List<Order> findChangedSince(@Param("since") Instant since, Limit limit);

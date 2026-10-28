@@ -6,6 +6,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import br.com.chiccharmosa.controller.CustomerController;
 import br.com.chiccharmosa.dto.CustomerDto.AddressResponse;
 import br.com.chiccharmosa.dto.CustomerDto.CustomerResponse;
+import br.com.chiccharmosa.dto.CustomerDto.CustomerView;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -19,7 +20,18 @@ public class CustomerAssembler implements RepresentationModelAssembler<CustomerR
     public EntityModel<CustomerResponse> toModel(CustomerResponse customer) {
         return EntityModel.of(customer,
                 linkTo(methodOn(CustomerController.class).get(customer.id())).withSelfRel(),
-                linkTo(methodOn(CustomerController.class).list(null, null, null)).withRel("customers"),
+                linkTo(methodOn(CustomerController.class).list(null, null, null, null)).withRel("customers"),
+                linkTo(methodOn(CustomerController.class).listAddresses(customer.id(), null)).withRel("addresses"),
+                Link.of(ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/api/orders")
+                        .queryParam("customerId", customer.id())
+                        .toUriString(), "orders"));
+    }
+
+    public EntityModel<CustomerView> toViewModel(CustomerView customer) {
+        return EntityModel.of(customer,
+                linkTo(methodOn(CustomerController.class).get(customer.id())).withSelfRel(),
+                linkTo(methodOn(CustomerController.class).list(null, null, null, null)).withRel("customers"),
                 linkTo(methodOn(CustomerController.class).listAddresses(customer.id(), null)).withRel("addresses"),
                 Link.of(ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/api/orders")

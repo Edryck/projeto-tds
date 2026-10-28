@@ -5,6 +5,7 @@ import br.com.chiccharmosa.entity.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.hateoas.server.core.Relation;
 
@@ -24,6 +25,11 @@ public final class CustomerDto {
             return new CustomerResponse(customer.getId(), customer.getName(), customer.getPhone(),
                     customer.getEmail(), customer.getNote());
         }
+    }
+
+    @Relation(collectionRelation = "customers")
+    public record CustomerView(UUID id, String name, String phone, String email, String note, Instant createdAt,
+            Instant lastOrderAt) {
     }
 
     public record AddressRequest(UUID id, @NotBlank @Size(max = 200) String street, @Size(max = 20) String number,

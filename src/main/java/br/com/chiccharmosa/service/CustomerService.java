@@ -4,12 +4,18 @@ import br.com.chiccharmosa.dto.CustomerDto.AddressRequest;
 import br.com.chiccharmosa.dto.CustomerDto.AddressResponse;
 import br.com.chiccharmosa.dto.CustomerDto.CustomerRequest;
 import br.com.chiccharmosa.dto.CustomerDto.CustomerResponse;
+import br.com.chiccharmosa.dto.CustomerDto.CustomerView;
+import br.com.chiccharmosa.config.SeedIds;
 import br.com.chiccharmosa.entity.Address;
 import br.com.chiccharmosa.entity.Customer;
 import br.com.chiccharmosa.exception.BusinessException;
 import br.com.chiccharmosa.repository.AddressRepository;
 import br.com.chiccharmosa.repository.CustomerRepository;
+import br.com.chiccharmosa.repository.OrderRepository;
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,12 +29,14 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final AddressRepository addressRepository;
+    private final OrderRepository orderRepository;
     private final AuditService auditService;
 
     public CustomerService(CustomerRepository customerRepository, AddressRepository addressRepository,
-            AuditService auditService) {
+            OrderRepository orderRepository, AuditService auditService) {
         this.customerRepository = customerRepository;
         this.addressRepository = addressRepository;
+        this.orderRepository = orderRepository;
         this.auditService = auditService;
     }
 
@@ -61,20 +69,52 @@ public class CustomerService {
         return CustomerResponse.from(findActiveCustomer(id));
     }
 
-    public Page<CustomerResponse> list(String name, String phone, Pageable pageable) {
-        if (name != null && !name.isBlank()) {
-            return customerRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable)
-                    .map(CustomerResponse::from);
+    public CustomerView getView(UUID id) {
+        Customer customer = findActiveCustomer(id);
+        Instant lastOrderAt = null;
+        for (Object[] row : orderRepository.lastOrderAtByCustomerIds(List.of(id))) {
+            lastOrderAt = (Instant) row[1];
         }
-        if (phone != null && !phone.isBlank()) {
-            return customerRepository.findByDeletedAtIsNullAndPhoneContaining(phone, pageable)
-                    .map(CustomerResponse::from);
+        return toView(customer, lastOrderAt);
+    }
+
+    public Page<CustomerView> listViews(String q, String name, String phone, Pageable pageable) {
+        Page<Customer> page;
+        if (q != null && !q.isBlank()) {
+            page = customerRepository.search(q.trim().toLowerCase(), SeedIds.DEFAULT_CUSTOMER, pageable);
+        } else if (name != null && !name.isBlank()) {
+            page = customerRepository.findByDeletedAtIsNullAndIdNotAndNameContainingIgnoreCase(
+                    SeedIds.DEFAULT_CUSTOMER, name, pageable);
+        } else if (phone != null && !phone.isBlank()) {
+            page = customerRepository.findByDeletedAtIsNullAndIdNotAndPhoneContaining(
+                    SeedIds.DEFAULT_CUSTOMER, phone, pageable);
+        } else {
+            page = customerRepository.findByDeletedAtIsNullAndIdNot(SeedIds.DEFAULT_CUSTOMER, pageable);
         }
-        return customerRepository.findByDeletedAtIsNull(pageable).map(CustomerResponse::from);
+        Map<UUID, Instant> lastOrders = new HashMap<>();
+        if (page.hasContent()) {
+            List<UUID> ids = page.getContent().stream().map(Customer::getId).toList();
+            for (Object[] row : orderRepository.lastOrderAtByCustomerIds(ids)) {
+                lastOrders.put((UUID) row[0], (Instant) row[1]);
+            }
+        }
+        return page.map(customer -> toView(customer, lastOrders.get(customer.getId())));
+    }
+
+    private CustomerView toView(Customer customer, Instant lastOrderAt) {
+        return new CustomerView(customer.getId(), customer.getName(), customer.getPhone(), customer.getEmail(),
+                customer.getNote(), customer.getCreatedAt(), lastOrderAt);
+    }
+
+    private void rejectDefaultCustomer(UUID id) {
+        if (SeedIds.DEFAULT_CUSTOMER.equals(id)) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Cliente padrão não pode ser alterada");
+        }
     }
 
     @Transactional
     public CustomerResponse update(UUID id, CustomerRequest request, Instant changedAt) {
+        rejectDefaultCustomer(id);
         Customer customer = findActiveCustomer(id);
         CustomerResponse before = CustomerResponse.from(customer);
         applyCustomerRequest(customer, request);
@@ -86,6 +126,7 @@ public class CustomerService {
 
     @Transactional
     public void delete(UUID id, Instant changedAt) {
+        rejectDefaultCustomer(id);
         Customer customer = findActiveCustomer(id);
         CustomerResponse before = CustomerResponse.from(customer);
         customer.markDeleted(changedAt);
