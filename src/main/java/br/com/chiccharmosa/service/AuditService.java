@@ -27,6 +27,7 @@ public class AuditService {
     public static final String FINANCIAL_ENTRY = "FINANCIAL_ENTRY";
     public static final String USER = "USER";
     public static final String ROLE = "ROLE";
+    public static final String SUPPLIER = "SUPPLIER";
 
     public static final String CREATE = "CREATE";
     public static final String UPDATE = "UPDATE";

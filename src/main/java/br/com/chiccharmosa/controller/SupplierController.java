@@ -3,6 +3,7 @@ package br.com.chiccharmosa.controller;
 import br.com.chiccharmosa.assembler.SupplierAssembler;
 import br.com.chiccharmosa.dto.SupplierDto.SupplierRequest;
 import br.com.chiccharmosa.dto.SupplierDto.SupplierResponse;
+import br.com.chiccharmosa.dto.SupplierDto.SupplierView;
 import br.com.chiccharmosa.service.StockService;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -32,10 +33,10 @@ public class SupplierController {
 
     private final StockService stockService;
     private final SupplierAssembler supplierAssembler;
-    private final PagedResourcesAssembler<SupplierResponse> pagedAssembler;
+    private final PagedResourcesAssembler<SupplierView> pagedAssembler;
 
     public SupplierController(StockService stockService, SupplierAssembler supplierAssembler,
-            PagedResourcesAssembler<SupplierResponse> pagedAssembler) {
+            PagedResourcesAssembler<SupplierView> pagedAssembler) {
         this.stockService = stockService;
         this.supplierAssembler = supplierAssembler;
         this.pagedAssembler = pagedAssembler;
@@ -55,15 +56,16 @@ public class SupplierController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('stock:view')")
-    public PagedModel<EntityModel<SupplierResponse>> list(@RequestParam(required = false) String name,
+    public PagedModel<EntityModel<SupplierView>> list(@RequestParam(required = false) String name,
             Pageable pageable) {
-        return pagedAssembler.toModel(stockService.listSuppliers(name, pageable), supplierAssembler);
+        return pagedAssembler.toModel(stockService.listSupplierViews(name, pageable),
+                supplierAssembler::toViewModel);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('stock:view')")
-    public EntityModel<SupplierResponse> get(@PathVariable UUID id) {
-        return supplierAssembler.toModel(stockService.getSupplier(id));
+    public EntityModel<SupplierView> get(@PathVariable UUID id) {
+        return supplierAssembler.toViewModel(stockService.getSupplierView(id));
     }
 
     @PutMapping("/{id}")

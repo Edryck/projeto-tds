@@ -6,6 +6,7 @@ import br.com.chiccharmosa.dto.StockDto.StockEntryRequest;
 import br.com.chiccharmosa.dto.StockDto.StockEntryResponse;
 import br.com.chiccharmosa.dto.SupplierDto.SupplierRequest;
 import br.com.chiccharmosa.dto.SupplierDto.SupplierResponse;
+import br.com.chiccharmosa.dto.SupplierDto.SupplierView;
 import br.com.chiccharmosa.entity.MovementType;
 import br.com.chiccharmosa.entity.ProductVariant;
 import br.com.chiccharmosa.entity.StockEntry;
@@ -191,35 +192,62 @@ public class StockService {
         Supplier supplier = new Supplier();
         supplier.setId(request.id() == null ? UUID.randomUUID() : request.id());
         supplier.setName(request.name());
-        supplier.setPhone(request.phone());
+        copySupplierFields(supplier, request);
         supplier.touch(changedAt);
         return SupplierResponse.from(supplierRepository.save(supplier));
     }
 
-    public SupplierResponse getSupplier(UUID id) {
-        return SupplierResponse.from(findActiveSupplier(id));
+    public SupplierView getSupplierView(UUID id) {
+        Supplier supplier = findActiveSupplier(id);
+        return toSupplierView(supplier, entryRepository.countBySupplierIdAndDeletedAtIsNull(id));
     }
 
-    public Page<SupplierResponse> listSuppliers(String name, Pageable pageable) {
+    public Page<SupplierView> listSupplierViews(String name, Pageable pageable) {
+        Page<Supplier> page;
         if (name == null || name.isBlank()) {
-            return supplierRepository.findByDeletedAtIsNull(pageable).map(SupplierResponse::from);
+            page = supplierRepository.findByDeletedAtIsNull(pageable);
+        } else {
+            page = supplierRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
         }
-        return supplierRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable)
-                .map(SupplierResponse::from);
+        Map<UUID, Long> counts = new HashMap<>();
+        if (page.hasContent()) {
+            List<UUID> ids = page.getContent().stream().map(Supplier::getId).toList();
+            for (Object[] row : entryRepository.countBySupplierIds(ids)) {
+                counts.put((UUID) row[0], ((Number) row[1]).longValue());
+            }
+        }
+        return page.map(supplier -> toSupplierView(supplier, counts.getOrDefault(supplier.getId(), 0L)));
+    }
+
+    private SupplierView toSupplierView(Supplier supplier, long entryCount) {
+        return new SupplierView(supplier.getId(), supplier.getName(), supplier.getPhone(),
+                supplier.getContactName(), supplier.getEmail(), supplier.getAddress(), supplier.getNote(),
+                entryCount);
     }
 
     @Transactional
     public SupplierResponse updateSupplier(UUID id, SupplierRequest request, Instant changedAt) {
         Supplier supplier = findActiveSupplier(id);
-        supplier.setName(request.name());
-        supplier.setPhone(request.phone());
+        copySupplierFields(supplier, request);
         supplier.touch(changedAt);
         return SupplierResponse.from(supplier);
     }
 
+    private void copySupplierFields(Supplier supplier, SupplierRequest request) {
+        supplier.setName(request.name());
+        supplier.setPhone(request.phone());
+        supplier.setContactName(request.contactName());
+        supplier.setEmail(request.email());
+        supplier.setAddress(request.address());
+        supplier.setNote(request.note());
+    }
+
     @Transactional
     public void deleteSupplier(UUID id, Instant changedAt) {
-        findActiveSupplier(id).markDeleted(changedAt);
+        Supplier supplier = findActiveSupplier(id);
+        SupplierResponse before = SupplierResponse.from(supplier);
+        supplier.markDeleted(changedAt);
+        auditService.record(AuditService.SUPPLIER, id, AuditService.DELETE, before, null, changedAt);
     }
 
     private Supplier findActiveSupplier(UUID id) {

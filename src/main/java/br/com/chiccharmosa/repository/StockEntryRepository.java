@@ -2,6 +2,7 @@ package br.com.chiccharmosa.repository;
 
 import br.com.chiccharmosa.entity.StockEntry;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,6 +18,15 @@ public interface StockEntryRepository extends JpaRepository<StockEntry, UUID> {
     Optional<StockEntry> findByIdAndDeletedAtIsNull(UUID id);
 
     Page<StockEntry> findByDeletedAtIsNull(Pageable pageable);
+
+    long countBySupplierIdAndDeletedAtIsNull(UUID supplierId);
+
+    @Query("""
+            select e.supplierId, count(e) from StockEntry e
+            where e.supplierId in :supplierIds and e.deletedAt is null
+            group by e.supplierId
+            """)
+    List<Object[]> countBySupplierIds(@Param("supplierIds") Collection<UUID> supplierIds);
 
     @Query("select e from StockEntry e where e.updatedAt > :since order by e.updatedAt, e.id")
     List<StockEntry> findChangedSince(@Param("since") Instant since, Limit limit);
