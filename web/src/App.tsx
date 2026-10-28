@@ -16,7 +16,7 @@ import StockEntryForm from './pages/stock/StockEntryForm'
 import StockPosition from './pages/stock/StockPosition'
 import EntryForm from './pages/finance/EntryForm'
 import EntryList from './pages/finance/EntryList'
-import CashClosingPage from './pages/CashClosing'
+import CashClosing from './pages/finance/CashClosing'
 import NewSale from './pages/sales/NewSale'
 import SaleDetail from './pages/sales/SaleDetail'
 import SalesList from './pages/sales/SalesList'
@@ -260,18 +260,19 @@ export default function App() {
               }
             />
             <Route
+              path="/finance/closing"
+              element={
+                <Screen permission="finance:view">
+                  <CashClosing />
+                </Screen>
+              }
+            />
+            <Route path="/cash-closing" element={<Navigate to="/finance/closing" replace />} />
+            <Route
               path="/finance/:id"
               element={
                 <Screen permission="finance:view">
                   <EntryForm />
-                </Screen>
-              }
-            />
-            <Route
-              path="/cash-closing"
-              element={
-                <Screen permission="finance:view">
-                  <CashClosingPage />
                 </Screen>
               }
             />
