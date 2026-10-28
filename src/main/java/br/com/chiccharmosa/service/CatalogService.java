@@ -7,6 +7,7 @@ import br.com.chiccharmosa.dto.ProductDto.ProductResponse;
 import br.com.chiccharmosa.entity.Category;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
 import br.com.chiccharmosa.dto.VariantDto.VariantResponse;
+import br.com.chiccharmosa.dto.VariantDto.VariantView;
 import br.com.chiccharmosa.entity.Product;
 import br.com.chiccharmosa.entity.ProductVariant;
 import br.com.chiccharmosa.exception.BusinessException;
@@ -80,6 +81,25 @@ public class CatalogService {
         List<UUID> ids = page.getContent().stream().map(ProductVariant::getId).toList();
         Map<UUID, Integer> balances = stockService.balances(ids);
         return page.map(variant -> VariantResponse.from(variant, balances.get(variant.getId())));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VariantView> searchVariants(String q, String status, Pageable pageable) {
+        String term = q == null ? "" : q.trim();
+        Integer minBalance = null;
+        Integer maxBalance = null;
+        if ("SOLD_OUT".equals(status)) {
+            maxBalance = 0;
+        } else if ("LOW".equals(status)) {
+            minBalance = 1;
+            maxBalance = StockService.LOW_STOCK_LIMIT;
+        } else if ("AVAILABLE".equals(status)) {
+            minBalance = StockService.LOW_STOCK_LIMIT + 1;
+        } else if (status != null) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Status inválido");
+        }
+        Page<Object[]> rows = variantRepository.search(term, minBalance, maxBalance, pageable);
+        return rows.map(row -> VariantView.from((ProductVariant) row[0], ((Number) row[1]).intValue()));
     }
 
     @Transactional

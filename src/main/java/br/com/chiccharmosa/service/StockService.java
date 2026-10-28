@@ -33,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class StockService {
 
+    public static final int LOW_STOCK_LIMIT = 2;
+
     private final StockMovementRepository movementRepository;
     private final StockEntryRepository entryRepository;
     private final ProductVariantRepository variantRepository;

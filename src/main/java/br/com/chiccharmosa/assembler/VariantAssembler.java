@@ -6,6 +6,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import br.com.chiccharmosa.controller.ProductController;
 import br.com.chiccharmosa.controller.VariantController;
 import br.com.chiccharmosa.dto.VariantDto.VariantResponse;
+import br.com.chiccharmosa.dto.VariantDto.VariantView;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.security.core.Authentication;
@@ -27,6 +28,12 @@ public class VariantAssembler implements RepresentationModelAssembler<VariantRes
                     .withRel("adjust"));
         }
         return model;
+    }
+
+    public EntityModel<VariantView> toViewModel(VariantView variant) {
+        return EntityModel.of(variant,
+                linkTo(methodOn(VariantController.class).get(variant.id())).withSelfRel(),
+                linkTo(methodOn(ProductController.class).get(variant.productId())).withRel("product"));
     }
 
     private boolean canAdjustStock() {

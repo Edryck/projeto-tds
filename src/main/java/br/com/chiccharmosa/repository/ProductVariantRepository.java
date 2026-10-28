@@ -33,4 +33,33 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
             order by e.updatedAt, e.id
             """)
     List<ProductVariant> findChangedAfter(@Param("since") Instant since, @Param("afterId") UUID afterId, Limit limit);
+
+    @Query(value = """
+            select v, coalesce(sum(m.quantity), 0) from ProductVariant v
+            join v.product p
+            left join StockMovement m on m.variant = v
+            where v.deletedAt is null and p.deletedAt is null
+            and (lower(p.name) like lower(concat('%', :q, '%'))
+                or lower(v.color) like lower(concat('%', :q, '%'))
+                or lower(v.size) like lower(concat('%', :q, '%'))
+                or lower(v.model) like lower(concat('%', :q, '%')))
+            group by v, p.name
+            having (:minBalance is null or coalesce(sum(m.quantity), 0) >= :minBalance)
+            and (:maxBalance is null or coalesce(sum(m.quantity), 0) <= :maxBalance)
+            order by p.name, v.size
+            """, countQuery = """
+            select count(v) from ProductVariant v
+            join v.product p
+            where v.deletedAt is null and p.deletedAt is null
+            and (lower(p.name) like lower(concat('%', :q, '%'))
+                or lower(v.color) like lower(concat('%', :q, '%'))
+                or lower(v.size) like lower(concat('%', :q, '%'))
+                or lower(v.model) like lower(concat('%', :q, '%')))
+            and (:minBalance is null
+                or coalesce((select sum(m.quantity) from StockMovement m where m.variant = v), 0) >= :minBalance)
+            and (:maxBalance is null
+                or coalesce((select sum(m.quantity) from StockMovement m where m.variant = v), 0) <= :maxBalance)
+            """)
+    Page<Object[]> search(@Param("q") String q, @Param("minBalance") Integer minBalance,
+            @Param("maxBalance") Integer maxBalance, Pageable pageable);
 }

@@ -131,7 +131,7 @@ class StockServiceTest extends IntegrationTest {
         assertThat(catalogService.findVariant(created.id()).status()).isEqualTo("SOLD_OUT");
 
         testData.stockIn(created.id(), 1);
-        assertThat(catalogService.findVariant(created.id()).status()).isEqualTo("AVAILABLE");
+        assertThat(catalogService.findVariant(created.id()).status()).isEqualTo("LOW");
 
         stockService.withdraw(created.id(), 3, UUID.randomUUID(), true);
         VariantResponse negative = catalogService.findVariant(created.id());

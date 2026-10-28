@@ -3,6 +3,7 @@ package br.com.chiccharmosa.controller;
 import br.com.chiccharmosa.assembler.VariantAssembler;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
 import br.com.chiccharmosa.dto.VariantDto.VariantResponse;
+import br.com.chiccharmosa.dto.VariantDto.VariantView;
 import br.com.chiccharmosa.service.CatalogService;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,12 +34,23 @@ public class VariantController {
     private final CatalogService catalogService;
     private final VariantAssembler variantAssembler;
     private final PagedResourcesAssembler<VariantResponse> pagedAssembler;
+    private final PagedResourcesAssembler<VariantView> pagedViewAssembler;
 
     public VariantController(CatalogService catalogService, VariantAssembler variantAssembler,
-            PagedResourcesAssembler<VariantResponse> pagedAssembler) {
+            PagedResourcesAssembler<VariantResponse> pagedAssembler,
+            PagedResourcesAssembler<VariantView> pagedViewAssembler) {
         this.catalogService = catalogService;
         this.variantAssembler = variantAssembler;
         this.pagedAssembler = pagedAssembler;
+        this.pagedViewAssembler = pagedViewAssembler;
+    }
+
+    @GetMapping("/variants")
+    @PreAuthorize("hasAuthority('product:view') or hasAuthority('stock:view')")
+    public PagedModel<EntityModel<VariantView>> search(@RequestParam(required = false) String q,
+            @RequestParam(required = false) String status, Pageable pageable) {
+        return pagedViewAssembler.toModel(catalogService.searchVariants(q, status, pageable),
+                variantAssembler::toViewModel);
     }
 
     @PostMapping("/products/{productId}/variants")
