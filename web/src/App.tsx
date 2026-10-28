@@ -9,6 +9,7 @@ import Orders from './pages/Orders'
 import Products from './pages/Products'
 import StockEntry from './pages/StockEntry'
 import CashClosingPage from './pages/CashClosing'
+import NewSale from './pages/sales/NewSale'
 import NotFound from './pages/NotFound'
 import Forbidden from './pages/Forbidden'
 
@@ -35,6 +36,16 @@ function Screen({ permission, children }: { permission?: string; children: React
   return (
     <RequireAuth>
       <Layout>{permission ? <RequirePermission permission={permission}>{children}</RequirePermission> : children}</Layout>
+    </RequireAuth>
+  )
+}
+
+function FullScreen({ permission, children }: { permission: string; children: ReactNode }) {
+  return (
+    <RequireAuth>
+      <Layout hideNav>
+        <RequirePermission permission={permission}>{children}</RequirePermission>
+      </Layout>
     </RequireAuth>
   )
 }
@@ -88,6 +99,14 @@ export default function App() {
               <Screen permission="order:view">
                 <Orders />
               </Screen>
+            }
+          />
+          <Route
+            path="/sales/new"
+            element={
+              <FullScreen permission="order:create">
+                <NewSale />
+              </FullScreen>
             }
           />
           <Route
