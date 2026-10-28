@@ -5,11 +5,12 @@ import Layout from './components/Layout'
 import { PageHeader } from './components/ui'
 import Login from './pages/Login'
 import Customers from './pages/Customers'
-import Orders from './pages/Orders'
 import Products from './pages/Products'
 import StockEntry from './pages/StockEntry'
 import CashClosingPage from './pages/CashClosing'
 import NewSale from './pages/sales/NewSale'
+import SaleDetail from './pages/sales/SaleDetail'
+import SalesList from './pages/sales/SalesList'
 import NotFound from './pages/NotFound'
 import Forbidden from './pages/Forbidden'
 
@@ -93,11 +94,20 @@ export default function App() {
               </Screen>
             }
           />
+          <Route path="/orders" element={<Navigate to="/sales" replace />} />
           <Route
-            path="/orders"
+            path="/sales"
             element={
               <Screen permission="order:view">
-                <Orders />
+                <SalesList />
+              </Screen>
+            }
+          />
+          <Route
+            path="/sales/:id"
+            element={
+              <Screen permission="order:view">
+                <SaleDetail />
               </Screen>
             }
           />
