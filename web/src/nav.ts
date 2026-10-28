@@ -46,7 +46,7 @@ export const menuGroups: { title: string; items: NavItem[] }[] = [
       { label: 'Clientes', to: '/customers', icon: Users, permission: 'customer:view' },
       { label: 'Catálogo', to: '/catalog', icon: Package, permission: 'product:view' },
       { label: 'Categorias', to: '/catalog/categories', icon: Layers, permission: 'product:view' },
-      { label: 'Fornecedores', to: '/suppliers', icon: Truck, permission: 'product:view' },
+      { label: 'Fornecedores', to: '/suppliers', icon: Truck, permission: 'stock:view' },
     ],
   },
   {
@@ -66,7 +66,7 @@ export const menuGroups: { title: string; items: NavItem[] }[] = [
     items: [
       { label: 'Usuários', to: '/admin/users', icon: ShieldCheck, permission: 'user:manage' },
       { label: 'Solicitações de cancelamento', to: '/admin/cancellations', icon: Ban, permission: 'order:cancel' },
-      { label: 'Configurações', to: '/admin/settings', icon: Sliders, permission: 'user:manage' },
+      { label: 'Configurações', to: '/admin/settings', icon: Sliders, permission: 'settings:manage' },
     ],
   },
 ]

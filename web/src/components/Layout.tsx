@@ -107,8 +107,8 @@ export default function Layout({ children, hideNav }: { children: ReactNode; hid
 
   const createVisible = visible(createItems, can)
   const bottomVisible = visible(bottomItems, can)
-  const firstItems = bottomVisible.slice(0, 1)
-  const lastItems = bottomVisible.slice(1)
+  const leftItems = bottomVisible.filter((item) => item.to === '/' || item.to === '/sales')
+  const rightItems = bottomVisible.filter((item) => item.to === '/stock')
 
   function bottomLink(item: NavItem) {
     const Icon = item.icon
@@ -117,7 +117,11 @@ export default function Layout({ children, hideNav }: { children: ReactNode; hid
         key={item.to}
         to={item.to}
         end={item.to === '/'}
-        className="flex min-h-[48px] min-w-[56px] flex-col items-center justify-center gap-0.5 text-text"
+        className={({ isActive }) =>
+          `flex min-h-[48px] min-w-[56px] flex-col items-center justify-center gap-0.5 ${
+            isActive ? 'text-text' : 'text-text-secondary'
+          }`
+        }
       >
         {({ isActive }) => (
           <>
@@ -196,23 +200,22 @@ export default function Layout({ children, hideNav }: { children: ReactNode; hid
         className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+8px)] lg:hidden"
       >
         <div className="flex w-full max-w-md items-center justify-around rounded-full border border-border bg-surface px-2 py-1 shadow-md">
-          {firstItems.map(bottomLink)}
-          {lastItems.slice(0, 1).map(bottomLink)}
+          {leftItems.map(bottomLink)}
           {createVisible.length > 0 && (
             <button
               type="button"
               aria-label="Criar"
               onClick={() => setCreateOpen(true)}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary"
+              className="flex h-12 w-12 items-center justify-center -translate-y-2 rounded-full bg-secondary text-primary shadow-md"
             >
               <Plus className="h-6 w-6" aria-hidden="true" />
             </button>
           )}
-          {lastItems.slice(1).map(bottomLink)}
+          {rightItems.map(bottomLink)}
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            className="flex min-h-[48px] min-w-[56px] flex-col items-center justify-center gap-0.5 text-text"
+            className="flex min-h-[48px] min-w-[56px] flex-col items-center justify-center gap-0.5 text-text-secondary"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
             <span className="text-[11px] font-medium leading-none">Menu</span>
