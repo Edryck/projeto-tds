@@ -14,6 +14,8 @@ import Categories from './pages/catalog/Categories'
 import StockAdjustment from './pages/stock/StockAdjustment'
 import StockEntryForm from './pages/stock/StockEntryForm'
 import StockPosition from './pages/stock/StockPosition'
+import EntryForm from './pages/finance/EntryForm'
+import EntryList from './pages/finance/EntryList'
 import CashClosingPage from './pages/CashClosing'
 import NewSale from './pages/sales/NewSale'
 import SaleDetail from './pages/sales/SaleDetail'
@@ -239,6 +241,30 @@ export default function App() {
                 <FullScreen permission="order:create">
                   <NewSale />
                 </FullScreen>
+              }
+            />
+            <Route
+              path="/finance"
+              element={
+                <Screen permission="finance:view">
+                  <EntryList />
+                </Screen>
+              }
+            />
+            <Route
+              path="/finance/new"
+              element={
+                <Screen permission="finance:edit">
+                  <EntryForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/finance/:id"
+              element={
+                <Screen permission="finance:view">
+                  <EntryForm />
+                </Screen>
               }
             />
             <Route

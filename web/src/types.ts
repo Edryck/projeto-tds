@@ -162,3 +162,49 @@ export type Address = {
   state: string
   zipCode: string | null
 }
+
+export type EntryType = 'INCOME' | 'EXPENSE'
+export type AccountType = 'STORE' | 'PERSONAL'
+
+export type Account = {
+  id: string
+  name: string
+  type: AccountType
+}
+
+export type Entry = {
+  id: string
+  accountId: string
+  categoryId: string
+  type: EntryType
+  amount: number
+  paymentMethod: PaymentMethod | null
+  entryDate: string
+  description: string | null
+  orderId: string | null
+  note: string | null
+}
+
+export type EntrySummary = {
+  income: number
+  expense: number
+  balance: number
+}
+
+export type FinancialCategoryView = {
+  id: string
+  name: string
+  type: EntryType
+  entryCount: number
+  system: boolean
+}
+
+export const accountLabels: Record<AccountType, string> = {
+  STORE: 'Loja',
+  PERSONAL: 'Pessoal',
+}
+
+export const entryTypeLabels: Record<EntryType, string> = {
+  INCOME: 'Receita',
+  EXPENSE: 'Despesa',
+}
