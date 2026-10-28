@@ -99,3 +99,33 @@ export const orderStatusMeta: Record<
   DELIVERED: { label: 'Entregue', tone: 'success', icon: PackageCheck },
   CANCELLED: { label: 'Cancelado', tone: 'danger', icon: XCircle },
 }
+
+export type ProductView = {
+  id: string
+  categoryId: string
+  categoryName: string
+  name: string
+  description: string | null
+  variantCount: number
+  minPrice: number | null
+  maxPrice: number | null
+  totalBalance: number
+}
+
+export type CategoryView = {
+  id: string
+  name: string
+  productCount: number
+}
+
+export type VariantResponse = {
+  id: string
+  productId: string
+  color: string
+  size: string
+  model: string | null
+  price: number
+  cost: number
+  balance: number
+  status: VariantStatus
+}

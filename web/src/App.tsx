@@ -5,7 +5,8 @@ import Layout from './components/Layout'
 import { PageHeader } from './components/ui'
 import Login from './pages/Login'
 import Customers from './pages/Customers'
-import Products from './pages/Products'
+import ProductForm from './pages/catalog/ProductForm'
+import ProductList from './pages/catalog/ProductList'
 import StockEntry from './pages/StockEntry'
 import CashClosingPage from './pages/CashClosing'
 import NewSale from './pages/sales/NewSale'
@@ -70,11 +71,28 @@ export default function App() {
               </Screen>
             }
           />
+          <Route path="/products" element={<Navigate to="/catalog" replace />} />
           <Route
-            path="/products"
+            path="/catalog"
             element={
               <Screen permission="product:view">
-                <Products />
+                <ProductList />
+              </Screen>
+            }
+          />
+          <Route
+            path="/catalog/new"
+            element={
+              <Screen permission="product:edit">
+                <ProductForm />
+              </Screen>
+            }
+          />
+          <Route
+            path="/catalog/:id"
+            element={
+              <Screen permission="product:view">
+                <ProductForm />
               </Screen>
             }
           />
