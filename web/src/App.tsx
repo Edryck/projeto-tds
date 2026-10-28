@@ -17,6 +17,7 @@ import StockPosition from './pages/stock/StockPosition'
 import EntryForm from './pages/finance/EntryForm'
 import EntryList from './pages/finance/EntryList'
 import CashClosing from './pages/finance/CashClosing'
+import FinancialCategories from './pages/finance/FinancialCategories'
 import NewSale from './pages/sales/NewSale'
 import SaleDetail from './pages/sales/SaleDetail'
 import SalesList from './pages/sales/SalesList'
@@ -264,6 +265,14 @@ export default function App() {
               element={
                 <Screen permission="finance:view">
                   <CashClosing />
+                </Screen>
+              }
+            />
+            <Route
+              path="/finance/categories"
+              element={
+                <Screen permission="finance:view">
+                  <FinancialCategories />
                 </Screen>
               }
             />
