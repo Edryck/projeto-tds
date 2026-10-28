@@ -1,17 +1,21 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './auth'
+import Layout from './components/Layout'
+import { PageHeader } from './components/ui'
 import Login from './pages/Login'
 import Customers from './pages/Customers'
 import Orders from './pages/Orders'
 import Products from './pages/Products'
 import StockEntry from './pages/StockEntry'
 import CashClosingPage from './pages/CashClosing'
+import NotFound from './pages/NotFound'
+import Forbidden from './pages/Forbidden'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
   if (loading) {
-    return <p className="p-4 text-gray-900">Carregando...</p>
+    return <p className="p-4 text-text">Carregando...</p>
   }
   if (!me) {
     return <Navigate to="/login" replace />
@@ -19,66 +23,25 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return children
 }
 
-function Home() {
-  const { me, logout, can } = useAuth()
+function RequirePermission({ permission, children }: { permission: string; children: ReactNode }) {
+  const { can } = useAuth()
+  if (!can(permission)) {
+    return <Forbidden />
+  }
+  return children
+}
+
+function Screen({ permission, children }: { permission?: string; children: ReactNode }) {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-gray-900">
-          Olá, <strong>{me?.name}</strong>
-        </p>
-        <nav aria-label="Menu principal" className="flex flex-wrap items-center gap-2">
-          {can('product:view') && (
-            <Link
-              to="/products"
-              className="flex h-12 items-center rounded-md border border-gray-500 px-4 font-medium text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-            >
-              Produtos
-            </Link>
-          )}
-          {can('stock:adjust') && (
-            <Link
-              to="/stock-entry"
-              className="flex h-12 items-center rounded-md border border-gray-500 px-4 font-medium text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-            >
-              Entrada de estoque
-            </Link>
-          )}
-          {can('customer:view') && (
-            <Link
-              to="/customers"
-              className="flex h-12 items-center rounded-md border border-gray-500 px-4 font-medium text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-            >
-              Clientes
-            </Link>
-          )}
-          {can('order:view') && (
-            <Link
-              to="/orders"
-              className="flex h-12 items-center rounded-md border border-gray-500 px-4 font-medium text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-            >
-              Pedidos
-            </Link>
-          )}
-          {can('finance:view') && (
-            <Link
-              to="/cash-closing"
-              className="flex h-12 items-center rounded-md border border-gray-500 px-4 font-medium text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-            >
-              Caixa
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={logout}
-            className="h-12 rounded-md border border-gray-500 px-4 font-medium text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-          >
-            Sair
-          </button>
-        </nav>
-      </header>
-    </div>
+    <RequireAuth>
+      <Layout>{permission ? <RequirePermission permission={permission}>{children}</RequirePermission> : children}</Layout>
+    </RequireAuth>
   )
+}
+
+function Home() {
+  const { me } = useAuth()
+  return <PageHeader title="Início" subtitle={`Olá, ${me?.name}`} />
 }
 
 export default function App() {
@@ -90,52 +53,59 @@ export default function App() {
           <Route
             path="/"
             element={
-              <RequireAuth>
+              <Screen>
                 <Home />
-              </RequireAuth>
+              </Screen>
             }
           />
           <Route
             path="/products"
             element={
-              <RequireAuth>
+              <Screen permission="product:view">
                 <Products />
-              </RequireAuth>
+              </Screen>
             }
           />
           <Route
             path="/stock-entry"
             element={
-              <RequireAuth>
+              <Screen permission="stock:adjust">
                 <StockEntry />
-              </RequireAuth>
+              </Screen>
             }
           />
           <Route
             path="/customers"
             element={
-              <RequireAuth>
+              <Screen permission="customer:view">
                 <Customers />
-              </RequireAuth>
+              </Screen>
             }
           />
           <Route
             path="/orders"
             element={
-              <RequireAuth>
+              <Screen permission="order:view">
                 <Orders />
-              </RequireAuth>
+              </Screen>
             }
           />
           <Route
             path="/cash-closing"
             element={
-              <RequireAuth>
+              <Screen permission="finance:view">
                 <CashClosingPage />
-              </RequireAuth>
+              </Screen>
             }
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="*"
+            element={
+              <Screen>
+                <NotFound />
+              </Screen>
+            }
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
