@@ -16,6 +16,8 @@ public interface CashClosingRepository extends JpaRepository<CashClosing, UUID> 
 
     Optional<CashClosing> findByIdAndDeletedAtIsNull(UUID id);
 
+    Optional<CashClosing> findByAccountIdAndClosingDateAndDeletedAtIsNull(UUID accountId, LocalDate closingDate);
+
     @Query("""
             select c from CashClosing c
             where c.deletedAt is null

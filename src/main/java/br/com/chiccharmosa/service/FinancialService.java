@@ -2,6 +2,7 @@ package br.com.chiccharmosa.service;
 
 import br.com.chiccharmosa.config.SeedIds;
 import br.com.chiccharmosa.dto.FinanceDto.AccountResponse;
+import br.com.chiccharmosa.dto.FinanceDto.CashClosingPreview;
 import br.com.chiccharmosa.dto.FinanceDto.CashClosingRequest;
 import br.com.chiccharmosa.dto.FinanceDto.CashClosingResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntryRequest;
@@ -181,11 +182,36 @@ public class FinancialService {
         closing.setId(request.id() == null ? UUID.randomUUID() : request.id());
         closing.setAccountId(accountId);
         closing.setClosingDate(day);
-        closing.setPixTotal(money(entryRepository.sumOfDay(accountId, day, EntryType.INCOME, PaymentMethod.PIX)));
-        closing.setCardTotal(money(entryRepository.sumOfDay(accountId, day, EntryType.INCOME, PaymentMethod.CARD)));
-        closing.setCashTotal(money(entryRepository.sumOfDay(accountId, day, EntryType.INCOME, PaymentMethod.CASH)));
-        closing.setExpenseTotal(money(entryRepository.sumOfDay(accountId, day, EntryType.EXPENSE, null)));
+        DayTotals totals = totalsOfDay(accountId, day);
+        closing.setPixTotal(totals.pix());
+        closing.setCardTotal(totals.card());
+        closing.setCashTotal(totals.cash());
+        closing.setExpenseTotal(totals.expense());
+        closing.setCountedPix(request.countedPix());
+        closing.setCountedCard(request.countedCard());
+        closing.setCountedCash(request.countedCash());
+        closing.setNote(request.note());
         return CashClosingResponse.from(closingRepository.save(closing));
+    }
+
+    public CashClosingPreview preview(UUID accountId, LocalDate day) {
+        DayTotals totals = totalsOfDay(accountId, day);
+        UUID closingId = closingRepository.findByAccountIdAndClosingDateAndDeletedAtIsNull(accountId, day)
+                .map(CashClosing::getId)
+                .orElse(null);
+        return new CashClosingPreview(accountId, day, totals.pix(), totals.card(), totals.cash(),
+                totals.expense(), closingId);
+    }
+
+    private DayTotals totalsOfDay(UUID accountId, LocalDate day) {
+        return new DayTotals(
+                money(entryRepository.sumOfDay(accountId, day, EntryType.INCOME, PaymentMethod.PIX)),
+                money(entryRepository.sumOfDay(accountId, day, EntryType.INCOME, PaymentMethod.CARD)),
+                money(entryRepository.sumOfDay(accountId, day, EntryType.INCOME, PaymentMethod.CASH)),
+                money(entryRepository.sumOfDay(accountId, day, EntryType.EXPENSE, null)));
+    }
+
+    private record DayTotals(BigDecimal pix, BigDecimal card, BigDecimal cash, BigDecimal expense) {
     }
 
     public CashClosingResponse getClosing(UUID id) {

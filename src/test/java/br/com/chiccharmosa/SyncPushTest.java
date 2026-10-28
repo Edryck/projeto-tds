@@ -32,6 +32,7 @@ import br.com.chiccharmosa.service.FinancialService;
 import br.com.chiccharmosa.service.OrderService;
 import br.com.chiccharmosa.service.StockService;
 import br.com.chiccharmosa.service.SyncService;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -247,7 +248,8 @@ class SyncPushTest extends IntegrationTest {
     @Test
     void offlinePayOnClosedDayMovesIncomeToTodayAndAudits() {
         LocalDate closedDay = testData.uniqueDay();
-        CashClosingResponse closing = financialService.close(new CashClosingRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, closedDay));
+        CashClosingResponse closing = financialService.close(new CashClosingRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, closedDay,
+                BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, null));
         UUID variantId = testData.variantWithStock("50.00", "20.00", 5);
         OrderResponse order = orderService.create(testData.orderRequest(testData.customer(), variantId, 1), Instant.now(), false);
         Instant clientTime = closedDay.atTime(12, 0).atZone(STORE_ZONE).toInstant();

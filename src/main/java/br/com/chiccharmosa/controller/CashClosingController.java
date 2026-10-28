@@ -1,6 +1,10 @@
 package br.com.chiccharmosa.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import br.com.chiccharmosa.assembler.CashClosingAssembler;
+import br.com.chiccharmosa.dto.FinanceDto.CashClosingPreview;
 import br.com.chiccharmosa.dto.FinanceDto.CashClosingRequest;
 import br.com.chiccharmosa.dto.FinanceDto.CashClosingResponse;
 import br.com.chiccharmosa.service.FinancialService;
@@ -54,6 +58,14 @@ public class CashClosingController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             Pageable pageable) {
         return pagedAssembler.toModel(financialService.listClosings(accountId, from, to, pageable), closingAssembler);
+    }
+
+    @GetMapping("/api/cash-closings/preview")
+    @PreAuthorize("hasAuthority('finance:view')")
+    public EntityModel<CashClosingPreview> preview(@RequestParam UUID accountId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return EntityModel.of(financialService.preview(accountId, date),
+                linkTo(methodOn(CashClosingController.class).preview(accountId, date)).withSelfRel());
     }
 
     @GetMapping("/api/cash-closings/{id}")

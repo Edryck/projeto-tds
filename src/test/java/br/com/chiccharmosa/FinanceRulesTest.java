@@ -276,6 +276,34 @@ class FinanceRulesTest extends IntegrationTest {
         assertThat(summary.balance()).isEqualByComparingTo("70.00");
     }
 
+    @Test
+    void closingStoresCountedAndDifferences() {
+        LocalDate day = testData.uniqueDay();
+        incomeOfDay(day, PaymentMethod.CASH, "540.00");
+        CashClosingResponse closing = financialService.close(new CashClosingRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT,
+                day, new BigDecimal("0"), new BigDecimal("0"), new BigDecimal("535.00"), "faltou troco"));
+        assertThat(closing.cashDifference()).isEqualByComparingTo("-5.00");
+        assertThat(closing.totalDifference()).isEqualByComparingTo("-5.00");
+        assertThat(closing.note()).isEqualTo("faltou troco");
+    }
+
+    @Test
+    void previewShowsExpectedAndClosedState() {
+        LocalDate day = testData.uniqueDay();
+        incomeOfDay(day, PaymentMethod.PIX, "100.00");
+        assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).pixTotal()).isEqualByComparingTo("100.00");
+        assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).closingId()).isNull();
+        CashClosingResponse closing = close(day);
+        assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).closingId()).isEqualTo(closing.id());
+    }
+
+    @Test
+    void previewOfEmptyDayIsZero() {
+        LocalDate day = testData.uniqueDay();
+        assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).cashTotal()).isEqualByComparingTo("0");
+        assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).expenseTotal()).isEqualByComparingTo("0");
+    }
+
     private UUID createdAccountWithEntries(LocalDate day, String income, String expense) {
         entry(day, EntryType.INCOME, SeedIds.SALES_CATEGORY, PaymentMethod.PIX, income);
         entry(day, EntryType.EXPENSE, SeedIds.OTHER_CATEGORY, null, expense);
@@ -283,7 +311,12 @@ class FinanceRulesTest extends IntegrationTest {
     }
 
     private CashClosingResponse close(LocalDate day) {
-        return financialService.close(new CashClosingRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, day));
+        return financialService.close(new CashClosingRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, day,
+                BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, null));
+    }
+
+    private EntryResponse incomeOfDay(LocalDate day, PaymentMethod method, String amount) {
+        return entry(day, EntryType.INCOME, SeedIds.SALES_CATEGORY, method, amount);
     }
 
     private OrderResponse pendingOrder(String price, String cost, String shippingCost) {
