@@ -10,6 +10,7 @@ import ProductForm from './pages/catalog/ProductForm'
 import ProductList from './pages/catalog/ProductList'
 import VariantForm from './pages/catalog/VariantForm'
 import Categories from './pages/catalog/Categories'
+import StockAdjustment from './pages/stock/StockAdjustment'
 import StockEntryForm from './pages/stock/StockEntryForm'
 import StockPosition from './pages/stock/StockPosition'
 import CashClosingPage from './pages/CashClosing'
@@ -143,6 +144,14 @@ export default function App() {
               element={
                 <Screen permission="stock:adjust">
                   <StockEntryForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/stock/adjustment"
+              element={
+                <Screen permission="stock:adjust">
+                  <StockAdjustment />
                 </Screen>
               }
             />
