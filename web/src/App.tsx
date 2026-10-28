@@ -19,6 +19,9 @@ import SaleDetail from './pages/sales/SaleDetail'
 import SalesList from './pages/sales/SalesList'
 import NotFound from './pages/NotFound'
 import Forbidden from './pages/Forbidden'
+import SupplierDetail from './pages/suppliers/SupplierDetail'
+import SupplierForm from './pages/suppliers/SupplierForm'
+import SupplierList from './pages/suppliers/SupplierList'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -156,6 +159,38 @@ export default function App() {
               }
             />
             <Route path="/stock-entry" element={<LegacyStockEntry />} />
+            <Route
+              path="/suppliers"
+              element={
+                <Screen permission="stock:view">
+                  <SupplierList />
+                </Screen>
+              }
+            />
+            <Route
+              path="/suppliers/new"
+              element={
+                <Screen permission="stock:adjust">
+                  <SupplierForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/suppliers/:id"
+              element={
+                <Screen permission="stock:view">
+                  <SupplierDetail />
+                </Screen>
+              }
+            />
+            <Route
+              path="/suppliers/:id/edit"
+              element={
+                <Screen permission="stock:adjust">
+                  <SupplierForm />
+                </Screen>
+              }
+            />
             <Route
               path="/customers"
               element={

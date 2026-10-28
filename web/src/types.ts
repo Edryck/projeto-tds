@@ -129,3 +129,14 @@ export type VariantResponse = {
   balance: number
   status: VariantStatus
 }
+
+export type SupplierView = {
+  id: string
+  name: string
+  phone: string | null
+  contactName: string | null
+  email: string | null
+  address: string | null
+  note: string | null
+  entryCount: number
+}
