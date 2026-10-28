@@ -5,7 +5,7 @@ import Layout from './components/Layout'
 import { PageHeader } from './components/ui'
 import { ToastProvider } from './components/Toast'
 import Login from './pages/Login'
-import Customers from './pages/Customers'
+import CustomerList from './pages/customers/CustomerList'
 import ProductForm from './pages/catalog/ProductForm'
 import ProductList from './pages/catalog/ProductList'
 import VariantForm from './pages/catalog/VariantForm'
@@ -195,7 +195,7 @@ export default function App() {
               path="/customers"
               element={
                 <Screen permission="customer:view">
-                  <Customers />
+                  <CustomerList />
                 </Screen>
               }
             />

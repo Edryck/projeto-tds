@@ -140,3 +140,25 @@ export type SupplierView = {
   note: string | null
   entryCount: number
 }
+
+export type CustomerView = {
+  id: string
+  name: string
+  phone: string | null
+  email: string | null
+  note: string | null
+  createdAt: string
+  lastOrderAt: string | null
+}
+
+export type Address = {
+  id: string
+  customerId: string
+  street: string
+  number: string | null
+  complement: string | null
+  district: string | null
+  city: string
+  state: string
+  zipCode: string | null
+}

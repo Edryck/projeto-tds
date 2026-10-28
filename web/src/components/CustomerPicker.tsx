@@ -44,7 +44,7 @@ export function CustomerPicker({
     if (!open) {
       return []
     }
-    const page = await fetchPage<Customer>(`/api/customers?name=${encodeURIComponent(term)}&size=30`)
+    const page = await fetchPage<Customer>(`/api/customers?q=${encodeURIComponent(term)}&size=30`)
     return page.items
   }, [open, term])
 
