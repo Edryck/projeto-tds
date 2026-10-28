@@ -240,6 +240,15 @@ export function Sheet({
       }
       const first = items[0]
       const last = items[items.length - 1]
+      if (!panel.contains(document.activeElement)) {
+        event.preventDefault()
+        if (event.shiftKey) {
+          last.focus()
+        } else {
+          first.focus()
+        }
+        return
+      }
       if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
         event.preventDefault()
         last.focus()
@@ -315,7 +324,7 @@ export function ConfirmSheet({
   return (
     <Sheet
       open={open}
-      onClose={onClose}
+      onClose={busy ? () => {} : onClose}
       title={title}
       footer={
         <>
@@ -413,7 +422,7 @@ export function Segmented<T extends string>({
           type="button"
           aria-pressed={option.value === value}
           onClick={() => onChange(option.value)}
-          className={`min-h-[44px] flex-1 rounded-[10px] px-3 text-sm font-semibold transition-colors ${
+          className={`min-h-[48px] flex-1 rounded-[10px] px-3 text-sm font-semibold transition-colors ${
             option.value === value ? 'bg-secondary text-primary' : 'text-text-secondary'
           }`}
         >
