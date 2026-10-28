@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CheckCircle2, ChevronRight, Minus, Plus, ShoppingBag, Trash2, UserRound } from 'lucide-react'
+import { CheckCircle2, ChevronRight, Clock3, Minus, Plus, ShoppingBag, Trash2, UserRound } from 'lucide-react'
 import { ApiError, fetchPage, newId, request } from '../../api'
 import { CustomerPicker } from '../../components/CustomerPicker'
 import { useToast } from '../../components/Toast'
@@ -12,7 +12,7 @@ import type { Customer, OrderView, PaymentMethod, VariantView } from '../../type
 
 type CartLine = { variant: VariantView; quantity: number }
 type Step = 'items' | 'payment' | 'done'
-type Result = { order: OrderView; method: PaymentMethod | null; change: number | null; payFailed: boolean }
+type Result = { order: OrderView; method: PaymentMethod | null; received: number | null; payFailed: boolean }
 
 const defaultCustomer: Customer = {
   id: DEFAULT_CUSTOMER_ID,
@@ -75,8 +75,11 @@ export default function NewSale() {
   const shippingInvalid = Number.isNaN(shippingValue) || shippingValue < 0
   const total = subtotal + (shippingInvalid ? 0 : shippingValue)
   const receivedValue = received.trim() === '' ? null : parseMoney(received)
-  const cashShort = method === 'CASH' && receivedValue !== null && receivedValue < total
+  const hasCoupon = couponCode.trim() !== ''
+  const cashShort = !hasCoupon && method === 'CASH' && receivedValue !== null && receivedValue < total
+  const hasSoldOut = cart.some((line) => line.variant.balance <= 0)
   const change = method === 'CASH' && receivedValue !== null && receivedValue >= total ? receivedValue - total : null
+  const canProceed = cart.length > 0 && !hasSoldOut
 
   function addVariant(variant: VariantView) {
     setStockNotes({})
@@ -99,7 +102,7 @@ export default function NewSale() {
         if (line.variant.id !== variantId) {
           return line
         }
-        const next = Math.min(Math.max(line.quantity + delta, 1), line.variant.balance)
+        const next = Math.min(Math.max(line.quantity + delta, 1), Math.max(line.variant.balance, 1))
         return { ...line, quantity: next }
       }),
     )
@@ -152,6 +155,9 @@ export default function NewSale() {
     setCart(updated)
     setStockNotes(notes)
     setStep('items')
+    if (Object.keys(notes).length > 0) {
+      setCartOpen(true)
+    }
   }
 
   async function submit(pay: boolean) {
@@ -204,7 +210,7 @@ export default function NewSale() {
     setResult({
       order: finalOrder,
       method: pay && !payFailed ? method : null,
-      change: pay && !payFailed ? change : null,
+      received: pay && !payFailed && method === 'CASH' ? receivedValue : null,
       payFailed,
     })
     setCart([])
@@ -310,7 +316,7 @@ export default function NewSale() {
   )
 
   if (step === 'payment') {
-    const canFinish = method !== null && !cashShort && cart.length > 0
+    const canFinish = method !== null && !cashShort && canProceed
     return (
       <div className="pb-32 lg:pb-0">
         <PageHeader title="Pagamento" subtitle={customer.name} />
@@ -359,7 +365,9 @@ export default function NewSale() {
               />
             </Field>
             {change !== null && (
-              <p className="text-base font-semibold text-text">Troco: {money(change)}</p>
+              <p className="text-base font-semibold text-text">
+                {hasCoupon ? 'Troco estimado' : 'Troco'}: {money(change)}
+              </p>
             )}
           </div>
         )}
@@ -397,7 +405,7 @@ export default function NewSale() {
             <Button onClick={() => submit(true)} disabled={!canFinish} loading={busy}>
               Finalizar venda
             </Button>
-            <Button variant="ghost" onClick={() => submit(false)} disabled={busy || cart.length === 0}>
+            <Button variant="ghost" onClick={() => submit(false)} disabled={busy || !canProceed}>
               Salvar como pendente
             </Button>
             <Button variant="ghost" onClick={() => setStep('items')} disabled={busy}>
@@ -429,7 +437,7 @@ export default function NewSale() {
           <Card className="sticky top-4 space-y-4">
             <h2 className="font-serif text-lg font-bold text-text">Carrinho</h2>
             {cartContent}
-            <Button className="w-full" onClick={goToPayment} disabled={cart.length === 0}>
+            <Button className="w-full" onClick={goToPayment} disabled={!canProceed}>
               Continuar para pagamento
             </Button>
           </Card>
@@ -449,7 +457,7 @@ export default function NewSale() {
             </span>
             <span className="text-sm font-semibold">Ver carrinho</span>
           </button>
-          <Button onClick={goToPayment} disabled={cart.length === 0}>
+          <Button onClick={goToPayment} disabled={!canProceed}>
             Continuar para pagamento
           </Button>
         </div>
@@ -464,11 +472,16 @@ export default function NewSale() {
 }
 
 function Done({ result, onNew }: { result: Result; onNew: () => void }) {
-  const { order, method, change, payFailed } = result
+  const { order, method, received, payFailed } = result
+  const change = received !== null && received >= order.total ? received - order.total : null
   const pending = payFailed || method === null
   return (
     <div className="mx-auto max-w-md space-y-4 py-6 text-center">
-      <CheckCircle2 className="mx-auto h-14 w-14 text-accent" aria-hidden="true" />
+      {pending ? (
+        <Clock3 className="mx-auto h-14 w-14 text-warning" aria-hidden="true" />
+      ) : (
+        <CheckCircle2 className="mx-auto h-14 w-14 text-accent" aria-hidden="true" />
+      )}
       <h1 className="font-serif text-2xl font-bold text-text">
         {pending ? 'Venda salva como pendente' : 'Venda concluída'}
       </h1>
