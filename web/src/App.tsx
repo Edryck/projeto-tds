@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './auth'
 import Layout from './components/Layout'
@@ -10,7 +10,7 @@ import ProductForm from './pages/catalog/ProductForm'
 import ProductList from './pages/catalog/ProductList'
 import VariantForm from './pages/catalog/VariantForm'
 import Categories from './pages/catalog/Categories'
-import StockEntry from './pages/StockEntry'
+import StockEntryForm from './pages/stock/StockEntryForm'
 import StockPosition from './pages/stock/StockPosition'
 import CashClosingPage from './pages/CashClosing'
 import NewSale from './pages/sales/NewSale'
@@ -54,6 +54,11 @@ function FullScreen({ permission, children }: { permission: string; children: Re
       </Layout>
     </RequireAuth>
   )
+}
+
+function LegacyStockEntry() {
+  const { search } = useLocation()
+  return <Navigate to={`/stock/entry${search}`} replace />
 }
 
 function Home() {
@@ -134,13 +139,14 @@ export default function App() {
               }
             />
             <Route
-              path="/stock-entry"
+              path="/stock/entry"
               element={
                 <Screen permission="stock:adjust">
-                  <StockEntry />
+                  <StockEntryForm />
                 </Screen>
               }
             />
+            <Route path="/stock-entry" element={<LegacyStockEntry />} />
             <Route
               path="/customers"
               element={
