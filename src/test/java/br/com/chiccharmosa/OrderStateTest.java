@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.chiccharmosa.dto.OrderDto.ItemRequest;
 import br.com.chiccharmosa.dto.OrderDto.OrderRequest;
+import br.com.chiccharmosa.dto.OrderDto.OrderView;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
 import br.com.chiccharmosa.dto.VariantDto.VariantResponse;
@@ -37,6 +38,8 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -74,6 +77,27 @@ class OrderStateTest extends IntegrationTest {
     void setUp() {
         admin = testData.loginAs(testData.admin());
         customerId = testData.customer();
+    }
+
+    @Test
+    void viewCarriesItemNamesPaymentAndShipment() {
+        UUID variantId = testData.variantWithStock("50.00", "20.00", 5);
+        OrderResponse created = orderService.create(testData.orderRequest(customerId, variantId, 1), testData.uniqueInstant(), false);
+        orderService.pay(created.id(), PaymentMethod.PIX, testData.uniqueInstant());
+        orderService.ship(created.id(), ShippingMethod.POST_OFFICE, "BR123", testData.uniqueInstant());
+        OrderView view = orderService.getView(created.id());
+        assertThat(view.items().get(0).productName()).isNotBlank();
+        assertThat(view.payment().method()).isEqualTo(PaymentMethod.PIX);
+        assertThat(view.shipment().trackingCode()).isEqualTo("BR123");
+    }
+
+    @Test
+    void searchByShortIdPrefixFindsOrder() {
+        UUID variantId = testData.variantWithStock("50.00", "20.00", 5);
+        OrderResponse created = orderService.create(testData.orderRequest(customerId, variantId, 1), testData.uniqueInstant(), false);
+        String prefix = "#" + created.id().toString().substring(0, 6).toUpperCase();
+        Page<OrderView> page = orderService.listViews(null, null, prefix, null, null, PageRequest.of(0, 20));
+        assertThat(page.getContent()).extracting(OrderView::id).contains(created.id());
     }
 
     @Test

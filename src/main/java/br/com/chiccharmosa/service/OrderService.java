@@ -1,8 +1,12 @@
 package br.com.chiccharmosa.service;
 
 import br.com.chiccharmosa.dto.OrderDto.ItemRequest;
+import br.com.chiccharmosa.dto.OrderDto.ItemView;
 import br.com.chiccharmosa.dto.OrderDto.OrderRequest;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
+import br.com.chiccharmosa.dto.OrderDto.OrderView;
+import br.com.chiccharmosa.dto.OrderDto.PaymentView;
+import br.com.chiccharmosa.dto.OrderDto.ShipmentView;
 import br.com.chiccharmosa.entity.Coupon;
 import br.com.chiccharmosa.entity.Customer;
 import br.com.chiccharmosa.entity.Order;
@@ -14,6 +18,7 @@ import br.com.chiccharmosa.entity.ProductVariant;
 import br.com.chiccharmosa.entity.Shipment;
 import br.com.chiccharmosa.entity.ShippingMethod;
 import br.com.chiccharmosa.exception.BusinessException;
+import br.com.chiccharmosa.repository.CouponRepository;
 import br.com.chiccharmosa.repository.CustomerRepository;
 import br.com.chiccharmosa.repository.OrderRepository;
 import br.com.chiccharmosa.repository.PaymentRepository;
@@ -22,6 +27,9 @@ import br.com.chiccharmosa.repository.ShipmentRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -43,6 +51,7 @@ public class OrderService {
     private final ProductVariantRepository variantRepository;
     private final PaymentRepository paymentRepository;
     private final ShipmentRepository shipmentRepository;
+    private final CouponRepository couponRepository;
     private final StockService stockService;
     private final CouponService couponService;
     private final FinancialService financialService;
@@ -50,13 +59,14 @@ public class OrderService {
 
     public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository,
             ProductVariantRepository variantRepository, PaymentRepository paymentRepository,
-            ShipmentRepository shipmentRepository, StockService stockService, CouponService couponService,
+            ShipmentRepository shipmentRepository, CouponRepository couponRepository, StockService stockService, CouponService couponService,
             FinancialService financialService, AuditService auditService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.variantRepository = variantRepository;
         this.paymentRepository = paymentRepository;
         this.shipmentRepository = shipmentRepository;
+        this.couponRepository = couponRepository;
         this.stockService = stockService;
         this.couponService = couponService;
         this.financialService = financialService;
@@ -142,10 +152,81 @@ public class OrderService {
 
     public Page<OrderResponse> list(OrderStatus status, UUID customerId, Instant from, Instant to,
             Pageable pageable) {
+        return searchOrders(status, customerId, null, from, to, pageable).map(OrderResponse::from);
+    }
+
+    public OrderView getView(UUID id) {
+        Order order = findActiveOrder(id);
+        Payment payment = paymentRepository.findByOrderId(id).orElse(null);
+        Shipment shipment = shipmentRepository.findByOrderId(id).orElse(null);
+        return toView(order, payment, shipment);
+    }
+
+    public Page<OrderView> listViews(OrderStatus status, UUID customerId, String q, Instant from, Instant to,
+            Pageable pageable) {
+        Page<Order> page = searchOrders(status, customerId, q, from, to, pageable);
+        List<UUID> ids = new ArrayList<>();
+        for (Order order : page.getContent()) {
+            ids.add(order.getId());
+        }
+        Map<UUID, Payment> payments = new HashMap<>();
+        for (Payment payment : paymentRepository.findByOrderIdIn(ids)) {
+            payments.put(payment.getOrderId(), payment);
+        }
+        Map<UUID, Shipment> shipments = new HashMap<>();
+        for (Shipment shipment : shipmentRepository.findByOrderIdIn(ids)) {
+            shipments.put(shipment.getOrderId(), shipment);
+        }
+        return page.map(order -> toView(order, payments.get(order.getId()), shipments.get(order.getId())));
+    }
+
+    private Page<Order> searchOrders(OrderStatus status, UUID customerId, String q, Instant from, Instant to,
+            Pageable pageable) {
         // postgres não descobre o tipo de um Instant nulo na query, então troco por limites bem largos
         Instant start = from == null ? Instant.EPOCH : from;
         Instant end = to == null ? FAR_FUTURE : to;
-        return orderRepository.search(status, customerId, start, end, pageable).map(OrderResponse::from);
+        return orderRepository.search(status, customerId, normalizeSearch(q), start, end, pageable);
+    }
+
+    private String normalizeSearch(String q) {
+        if (q == null) {
+            return "";
+        }
+        String text = q.trim();
+        if (text.startsWith("#")) {
+            text = text.substring(1).trim();
+        }
+        return text.toLowerCase();
+    }
+
+    private OrderView toView(Order order, Payment payment, Shipment shipment) {
+        List<ItemView> items = new ArrayList<>();
+        for (OrderItem item : order.getItems()) {
+            items.add(toItemView(item));
+        }
+        String couponCode = null;
+        if (order.getCouponId() != null) {
+            couponCode = couponRepository.findById(order.getCouponId()).map(Coupon::getCode).orElse(null);
+        }
+        PaymentView paymentView = payment == null ? null : new PaymentView(payment.getMethod(), payment.getPaidAt());
+        ShipmentView shipmentView = null;
+        if (shipment != null) {
+            shipmentView = new ShipmentView(shipment.getMethod(), shipment.getTrackingCode(),
+                    shipment.getShippedAt(), shipment.getDeliveredAt());
+        }
+        return new OrderView(order.getId(), order.getCustomer().getId(), order.getCustomer().getName(),
+                order.getStatus(), items, order.getSubtotal(), order.getDiscount(), order.getShippingCost(),
+                order.getTotal(), couponCode, order.getNote(), order.getOrderedAt(), paymentView, shipmentView);
+    }
+
+    private ItemView toItemView(OrderItem item) {
+        ProductVariant variant = item.getVariant();
+        String label = variant.getSize() + " · " + variant.getColor();
+        if (variant.getModel() != null && !variant.getModel().isBlank()) {
+            label = label + " · " + variant.getModel();
+        }
+        return new ItemView(item.getId(), variant.getId(), variant.getProduct().getName(), label, item.getQuantity(),
+                item.getUnitPrice(), item.getUnitCost());
     }
 
     @Transactional

@@ -62,4 +62,20 @@ public final class OrderDto {
                     order.getTotal(), order.getNote(), order.getOrderedAt());
         }
     }
+
+    public record ItemView(UUID id, UUID variantId, String productName, String variantLabel, int quantity,
+            BigDecimal unitPrice, BigDecimal unitCost) {
+    }
+
+    public record PaymentView(PaymentMethod method, Instant paidAt) {
+    }
+
+    public record ShipmentView(ShippingMethod method, String trackingCode, Instant shippedAt, Instant deliveredAt) {
+    }
+
+    @Relation(collectionRelation = "orders")
+    public record OrderView(UUID id, UUID customerId, String customerName, OrderStatus status, List<ItemView> items,
+            BigDecimal subtotal, BigDecimal discount, BigDecimal shippingCost, BigDecimal total, String couponCode,
+            String note, Instant orderedAt, PaymentView payment, ShipmentView shipment) {
+    }
 }

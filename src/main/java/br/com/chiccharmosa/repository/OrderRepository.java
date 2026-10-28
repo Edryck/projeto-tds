@@ -30,11 +30,13 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
             where o.deletedAt is null
             and (:status is null or o.status = :status)
             and (:customerId is null or o.customer.id = :customerId)
+            and (:q = '' or lower(o.customer.name) like concat('%', :q, '%')
+                or lower(cast(o.id as string)) like concat(:q, '%'))
             and o.orderedAt >= :from
             and o.orderedAt <= :to
             """)
     Page<Order> search(@Param("status") OrderStatus status, @Param("customerId") UUID customerId,
-            @Param("from") Instant from, @Param("to") Instant to, Pageable pageable);
+            @Param("q") String q, @Param("from") Instant from, @Param("to") Instant to, Pageable pageable);
 
     @Query("select e from Order e where e.updatedAt > :since order by e.updatedAt, e.id")
     List<Order> findChangedSince(@Param("since") Instant since, Limit limit);
