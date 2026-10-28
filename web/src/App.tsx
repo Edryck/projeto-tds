@@ -11,6 +11,7 @@ import ProductList from './pages/catalog/ProductList'
 import VariantForm from './pages/catalog/VariantForm'
 import Categories from './pages/catalog/Categories'
 import StockEntry from './pages/StockEntry'
+import StockPosition from './pages/stock/StockPosition'
 import CashClosingPage from './pages/CashClosing'
 import NewSale from './pages/sales/NewSale'
 import SaleDetail from './pages/sales/SaleDetail'
@@ -121,6 +122,14 @@ export default function App() {
               element={
                 <Screen permission="product:view">
                   <VariantForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/stock"
+              element={
+                <Screen permission="stock:view">
+                  <StockPosition />
                 </Screen>
               }
             />
