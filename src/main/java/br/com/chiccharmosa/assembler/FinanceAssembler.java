@@ -7,6 +7,7 @@ import br.com.chiccharmosa.controller.FinanceController;
 import br.com.chiccharmosa.dto.FinanceDto.AccountResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryView;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -37,6 +38,12 @@ public class FinanceAssembler implements RepresentationModelAssembler<EntryRespo
 
     public EntityModel<FinancialCategoryResponse> toCategoryModel(FinancialCategoryResponse category) {
         return EntityModel.of(category,
+                linkTo(methodOn(FinanceController.class).listCategories(null)).withRel("categories"));
+    }
+
+    public EntityModel<FinancialCategoryView> toCategoryViewModel(FinancialCategoryView category) {
+        return EntityModel.of(category,
+                linkTo(methodOn(FinanceController.class).getCategory(category.id())).withSelfRel(),
                 linkTo(methodOn(FinanceController.class).listCategories(null)).withRel("categories"));
     }
 

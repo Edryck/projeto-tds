@@ -10,6 +10,7 @@ import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryView;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitGroup;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitLine;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
@@ -32,6 +33,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +84,71 @@ public class FinancialService {
         return categoryRepository.existsById(id);
     }
 
-    public Page<FinancialCategoryResponse> listCategories(Pageable pageable) {
-        return categoryRepository.findByDeletedAtIsNull(pageable).map(FinancialCategoryResponse::from);
+    public FinancialCategoryView getCategoryView(UUID id) {
+        FinancialCategory category = findActiveCategory(id);
+        return toCategoryView(category, entryRepository.countByCategoryIdAndDeletedAtIsNull(id));
+    }
+
+    public Page<FinancialCategoryView> listCategoryViews(Pageable pageable) {
+        Page<FinancialCategory> page = categoryRepository.findByDeletedAtIsNull(pageable);
+        Map<UUID, Long> counts = new HashMap<>();
+        if (page.hasContent()) {
+            List<UUID> ids = new ArrayList<>();
+            for (FinancialCategory category : page.getContent()) {
+                ids.add(category.getId());
+            }
+            for (Object[] row : entryRepository.countByCategoryIds(ids)) {
+                counts.put((UUID) row[0], ((Number) row[1]).longValue());
+            }
+        }
+        return page.map(category -> toCategoryView(category, counts.getOrDefault(category.getId(), 0L)));
+    }
+
+    @Transactional
+    public FinancialCategoryResponse updateCategory(UUID id, FinancialCategoryRequest request, Instant changedAt) {
+        FinancialCategory category = findActiveCategory(id);
+        if (category.getType() != request.type() && isSystemCategory(id)) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Categoria do sistema não pode mudar de tipo");
+        }
+        if (category.getType() != request.type() && entryRepository.countByCategoryIdAndDeletedAtIsNull(id) > 0) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Categoria com lançamentos não pode mudar de tipo");
+        }
+        FinancialCategoryResponse before = FinancialCategoryResponse.from(category);
+        category.setName(request.name());
+        category.setType(request.type());
+        category.touch(changedAt);
+        FinancialCategoryResponse after = FinancialCategoryResponse.from(category);
+        auditService.record(AuditService.FINANCIAL_CATEGORY, id, AuditService.UPDATE, before, after, changedAt);
+        return after;
+    }
+
+    @Transactional
+    public void deleteCategory(UUID id, Instant changedAt) {
+        FinancialCategory category = findActiveCategory(id);
+        if (isSystemCategory(id)) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Categoria do sistema não pode ser excluída");
+        }
+        if (entryRepository.countByCategoryIdAndDeletedAtIsNull(id) > 0) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Categoria possui lançamentos");
+        }
+        FinancialCategoryResponse before = FinancialCategoryResponse.from(category);
+        category.markDeleted(changedAt);
+        auditService.record(AuditService.FINANCIAL_CATEGORY, id, AuditService.DELETE, before, null, changedAt);
+    }
+
+    private FinancialCategory findActiveCategory(UUID id) {
+        return categoryRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Categoria não encontrada"));
+    }
+
+    private boolean isSystemCategory(UUID id) {
+        return id.equals(SeedIds.SALES_CATEGORY) || id.equals(SeedIds.REFUND_CATEGORY)
+                || id.equals(SeedIds.SHIPPING_CATEGORY);
+    }
+
+    private FinancialCategoryView toCategoryView(FinancialCategory category, long entryCount) {
+        return new FinancialCategoryView(category.getId(), category.getName(), category.getType(), entryCount,
+                isSystemCategory(category.getId()));
     }
 
     @Transactional

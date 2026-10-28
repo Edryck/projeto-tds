@@ -9,6 +9,8 @@ import br.com.chiccharmosa.dto.FinanceDto.CashClosingResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
+import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryRequest;
+import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
@@ -302,6 +304,41 @@ class FinanceRulesTest extends IntegrationTest {
         LocalDate day = testData.uniqueDay();
         assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).cashTotal()).isEqualByComparingTo("0");
         assertThat(financialService.preview(SeedIds.STORE_ACCOUNT, day).expenseTotal()).isEqualByComparingTo("0");
+    }
+
+    @Test
+    void categoryWithEntriesCannotBeDeleted() {
+        UUID category = expenseCategoryWithOneEntry();
+        assertThatThrownBy(() -> financialService.deleteCategory(category, testData.uniqueInstant()))
+                .hasMessage("Categoria possui lançamentos");
+    }
+
+    @Test
+    void categoryWithEntriesCannotChangeType() {
+        UUID category = expenseCategoryWithOneEntry();
+        FinancialCategoryRequest request = new FinancialCategoryRequest(category, "Renomeada", EntryType.INCOME);
+        assertThatThrownBy(() -> financialService.updateCategory(category, request, testData.uniqueInstant()))
+                .hasMessage("Categoria com lançamentos não pode mudar de tipo");
+    }
+
+    @Test
+    void systemCategoryCannotBeDeleted() {
+        assertThatThrownBy(() -> financialService.deleteCategory(SeedIds.SHIPPING_CATEGORY, testData.uniqueInstant()))
+                .hasMessage("Categoria do sistema não pode ser excluída");
+    }
+
+    @Test
+    void systemCategoryCannotChangeType() {
+        FinancialCategoryRequest request = new FinancialCategoryRequest(SeedIds.SALES_CATEGORY, "Vendas", EntryType.EXPENSE);
+        assertThatThrownBy(() -> financialService.updateCategory(SeedIds.SALES_CATEGORY, request, testData.uniqueInstant()))
+                .hasMessage("Categoria do sistema não pode mudar de tipo");
+    }
+
+    private UUID expenseCategoryWithOneEntry() {
+        FinancialCategoryResponse category = financialService.createCategory(
+                new FinancialCategoryRequest(UUID.randomUUID(), "Embalagens", EntryType.EXPENSE), Instant.now());
+        entry(testData.uniqueDay(), EntryType.EXPENSE, category.id(), null, "10.00");
+        return category.id();
     }
 
     private UUID createdAccountWithEntries(LocalDate day, String income, String expense) {

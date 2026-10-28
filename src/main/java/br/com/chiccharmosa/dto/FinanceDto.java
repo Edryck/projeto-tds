@@ -42,6 +42,10 @@ public final class FinanceDto {
         }
     }
 
+    @Relation(collectionRelation = "financialCategories")
+    public record FinancialCategoryView(UUID id, String name, EntryType type, long entryCount, boolean system) {
+    }
+
     public record EntryRequest(UUID id, @NotNull UUID accountId, @NotNull UUID categoryId, @NotNull EntryType type,
             @NotNull @Positive BigDecimal amount, PaymentMethod paymentMethod, @NotNull LocalDate entryDate,
             @Size(max = 500) String description, @Size(max = 1000) String note) {

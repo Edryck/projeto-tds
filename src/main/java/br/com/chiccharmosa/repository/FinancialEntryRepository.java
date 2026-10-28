@@ -6,6 +6,7 @@ import br.com.chiccharmosa.entity.PaymentMethod;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +22,15 @@ public interface FinancialEntryRepository extends JpaRepository<FinancialEntry, 
     Optional<FinancialEntry> findByIdAndDeletedAtIsNull(UUID id);
 
     List<FinancialEntry> findByOrderId(UUID orderId);
+
+    long countByCategoryIdAndDeletedAtIsNull(UUID categoryId);
+
+    @Query("""
+            select e.categoryId, count(e) from FinancialEntry e
+            where e.deletedAt is null and e.categoryId in :categoryIds
+            group by e.categoryId
+            """)
+    List<Object[]> countByCategoryIds(@Param("categoryIds") Collection<UUID> categoryIds);
 
     @Query("""
             select e from FinancialEntry e

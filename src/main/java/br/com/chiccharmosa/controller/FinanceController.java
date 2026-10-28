@@ -10,6 +10,7 @@ import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryView;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitLine;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
 import br.com.chiccharmosa.entity.EntryType;
@@ -46,11 +47,11 @@ public class FinanceController {
     private final FinancialService financialService;
     private final FinanceAssembler financeAssembler;
     private final PagedResourcesAssembler<EntryResponse> pagedEntryAssembler;
-    private final PagedResourcesAssembler<FinancialCategoryResponse> pagedCategoryAssembler;
+    private final PagedResourcesAssembler<FinancialCategoryView> pagedCategoryAssembler;
 
     public FinanceController(FinancialService financialService, FinanceAssembler financeAssembler,
             PagedResourcesAssembler<EntryResponse> pagedEntryAssembler,
-            PagedResourcesAssembler<FinancialCategoryResponse> pagedCategoryAssembler) {
+            PagedResourcesAssembler<FinancialCategoryView> pagedCategoryAssembler) {
         this.financialService = financialService;
         this.financeAssembler = financeAssembler;
         this.pagedEntryAssembler = pagedEntryAssembler;
@@ -69,9 +70,29 @@ public class FinanceController {
 
     @GetMapping("/api/financial-categories")
     @PreAuthorize("hasAuthority('finance:view')")
-    public PagedModel<EntityModel<FinancialCategoryResponse>> listCategories(Pageable pageable) {
-        return pagedCategoryAssembler.toModel(financialService.listCategories(pageable),
-                financeAssembler::toCategoryModel);
+    public PagedModel<EntityModel<FinancialCategoryView>> listCategories(Pageable pageable) {
+        return pagedCategoryAssembler.toModel(financialService.listCategoryViews(pageable),
+                financeAssembler::toCategoryViewModel);
+    }
+
+    @GetMapping("/api/financial-categories/{id}")
+    @PreAuthorize("hasAuthority('finance:view')")
+    public EntityModel<FinancialCategoryView> getCategory(@PathVariable UUID id) {
+        return financeAssembler.toCategoryViewModel(financialService.getCategoryView(id));
+    }
+
+    @PutMapping("/api/financial-categories/{id}")
+    @PreAuthorize("hasAuthority('finance:edit')")
+    public EntityModel<FinancialCategoryResponse> updateCategory(@PathVariable UUID id,
+            @Valid @RequestBody FinancialCategoryRequest request) {
+        return financeAssembler.toCategoryModel(financialService.updateCategory(id, request, Instant.now()));
+    }
+
+    @DeleteMapping("/api/financial-categories/{id}")
+    @PreAuthorize("hasAuthority('finance:edit')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCategory(@PathVariable UUID id) {
+        financialService.deleteCategory(id, Instant.now());
     }
 
     @PostMapping("/api/financial-categories")
