@@ -16,6 +16,7 @@ const DEVICE_KEY = 'deviceId'
 type AuthContextValue = {
   me: Me | null
   loading: boolean
+  sessionExpired: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   can: (permission: string) => boolean
@@ -32,12 +33,41 @@ function getDeviceId(): string {
   return deviceId
 }
 
+function browserName(agent: string): string {
+  if (agent.includes('Edg/')) return 'Edge'
+  if (agent.includes('Firefox/')) return 'Firefox'
+  if (agent.includes('Chrome/')) return 'Chrome'
+  if (agent.includes('Safari/')) return 'Safari'
+  return ''
+}
+
+function systemName(agent: string): string {
+  if (agent.includes('Android')) return 'Android'
+  if (/iPhone|iPad|iPod/.test(agent)) return 'iOS'
+  if (agent.includes('Windows')) return 'Windows'
+  if (agent.includes('Mac OS X')) return 'macOS'
+  if (agent.includes('Linux')) return 'Linux'
+  return ''
+}
+
+function deviceName(): string {
+  const agent = navigator.userAgent
+  const browser = browserName(agent)
+  if (!browser) return 'Navegador'
+  const system = systemName(agent)
+  return system ? `${browser} · ${system}` : browser
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(hasRefreshToken())
+  const [sessionExpired, setSessionExpired] = useState(false)
 
   useEffect(() => {
-    setOnSessionLost(() => setMe(null))
+    setOnSessionLost(() => {
+      setMe(null)
+      setSessionExpired(true)
+    })
     if (!hasRefreshToken()) {
       return
     }
@@ -51,10 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const tokens = await request<{ accessToken: string; refreshToken: string }>('/api/auth/login', {
       method: 'POST',
-      body: { email, password, deviceId: getDeviceId(), deviceName: 'Navegador' },
+      body: { email, password, deviceId: getDeviceId(), deviceName: deviceName() },
       anonymous: true,
     })
     saveTokens(tokens)
+    setSessionExpired(false)
     setMe(await request<Me>('/api/auth/me'))
   }, [])
 
@@ -71,7 +102,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const can = useCallback((permission: string) => me?.permissions.includes(permission) ?? false, [me])
 
-  return <AuthContext.Provider value={{ me, loading, login, logout, can }}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={{ me, loading, sessionExpired, login, logout, can }}>{children}</AuthContext.Provider>
+  )
 }
 
 export function useAuth(): AuthContextValue {

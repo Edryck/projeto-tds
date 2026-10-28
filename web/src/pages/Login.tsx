@@ -1,13 +1,40 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
+import { ApiError } from '../api'
 import { useAuth } from '../auth'
+import { Button, Field, Input } from '../components/ui'
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const SESSION_EXPIRED_MESSAGE = 'Sua sessão expirou, entre novamente'
+
+function validateEmail(value: string): string {
+  if (!value.trim()) return 'Informe o e-mail'
+  if (!EMAIL_PATTERN.test(value.trim())) return 'E-mail inválido'
+  return ''
+}
+
+function validatePassword(value: string): string {
+  return value ? '' : 'Informe a senha'
+}
+
+function loginErrorMessage(caught: unknown): string {
+  if (!(caught instanceof ApiError)) return 'Ocorreu um erro inesperado'
+  if (caught.status === 401) return 'E-mail ou senha incorretos'
+  if (caught.status === 429) return 'Muitas tentativas. Aguarde um pouco'
+  if (caught.status === 0) return 'Sem conexão com o servidor'
+  return caught.message
+}
 
 export default function Login() {
-  const { me, login } = useAuth()
+  const { me, login, sessionExpired } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [apiError, setApiError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   if (me) {
@@ -16,61 +43,84 @@ export default function Login() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    setError('')
+    const nextEmailError = validateEmail(email)
+    const nextPasswordError = validatePassword(password)
+    setEmailError(nextEmailError)
+    setPasswordError(nextPasswordError)
+    setApiError('')
+    if (nextEmailError || nextPasswordError || submitting) {
+      return
+    }
     setSubmitting(true)
     try {
-      await login(email, password)
+      await login(email.trim(), password)
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado')
+      setApiError(loginErrorMessage(caught))
       setSubmitting(false)
     }
   }
 
+  const banner = apiError || (sessionExpired ? SESSION_EXPIRED_MESSAGE : '')
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Chic Charmosa</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="font-medium text-gray-900">
-            E-mail
-          </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="username"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="h-12 rounded-md border border-gray-500 px-3 text-base focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-          />
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-sm">
+        <div className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-2xl bg-surface p-2">
+          <img src="/logo.jpg" alt="Chic Charmosa" className="h-full w-full object-contain" />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="password" className="font-medium text-gray-900">
-            Senha
-          </label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="h-12 rounded-md border border-gray-500 px-3 text-base focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700"
-          />
-        </div>
-        {error && (
-          <p role="alert" className="font-medium text-red-700">
-            {error}
+        <h1 className="font-serif text-2xl font-bold text-text">Bem-vinda de volta</h1>
+        <p className="mb-6 mt-1 text-base text-text-secondary">Entre para gerenciar sua loja</p>
+
+        {banner && (
+          <p role="alert" className="mb-4 rounded-[10px] bg-error-soft px-4 py-3 text-sm font-medium text-error">
+            {banner}
           </p>
         )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="h-12 rounded-md bg-indigo-700 px-4 font-medium text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-700 disabled:bg-gray-600"
-        >
-          {submitting ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
+
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+          <Field label="E-mail" required error={emailError}>
+            <Input
+              type="email"
+              inputMode="email"
+              autoComplete="username"
+              value={email}
+              invalid={Boolean(emailError)}
+              onChange={(event) => setEmail(event.target.value)}
+              onBlur={() => setEmailError(validateEmail(email))}
+            />
+          </Field>
+
+          <Field label="Senha" required error={passwordError}>
+            <div className="relative">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                invalid={Boolean(passwordError)}
+                className="pr-14"
+                onChange={(event) => setPassword(event.target.value)}
+                onBlur={() => setPasswordError(validatePassword(password))}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                className="absolute right-0 top-0 flex h-12 w-12 items-center justify-center rounded-r-[10px] text-text-secondary hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/40"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+              </button>
+            </div>
+          </Field>
+
+          <Button type="submit" className="w-full" loading={submitting}>
+            {submitting ? 'Entrando…' : 'Entrar'}
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-text-secondary">
+          Esqueceu a senha? Fale com a administradora da loja.
+        </p>
+      </div>
     </main>
   )
 }

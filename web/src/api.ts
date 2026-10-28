@@ -62,7 +62,7 @@ async function send(path: string, options: Options): Promise<Response> {
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     })
   } catch {
-    throw new ApiError(0, 'Não foi possível conectar ao servidor')
+    throw new ApiError(0, 'Sem conexão com o servidor')
   }
 }
 
