@@ -39,6 +39,9 @@ public class FinancialEntry extends BaseEntity {
     @Column(name = "order_id")
     private UUID orderId;
 
+    @Column(length = 1000)
+    private String note;
+
     public UUID getAccountId() {
         return accountId;
     }
@@ -101,5 +104,13 @@ public class FinancialEntry extends BaseEntity {
 
     public void setOrderId(UUID orderId) {
         this.orderId = orderId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

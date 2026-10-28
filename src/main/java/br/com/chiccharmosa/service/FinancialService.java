@@ -6,6 +6,7 @@ import br.com.chiccharmosa.dto.FinanceDto.CashClosingRequest;
 import br.com.chiccharmosa.dto.FinanceDto.CashClosingResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitGroup;
@@ -199,6 +200,18 @@ public class FinancialService {
         return closingRepository.search(accountId, start, end, pageable).map(CashClosingResponse::from);
     }
 
+    public EntrySummary summary(UUID accountId, LocalDate from, LocalDate to) {
+        if (from == null || to == null) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Período obrigatório");
+        }
+        if (from.isAfter(to)) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Período inválido");
+        }
+        BigDecimal income = money(entryRepository.sumByType(accountId, EntryType.INCOME, from, to));
+        BigDecimal expense = money(entryRepository.sumByType(accountId, EntryType.EXPENSE, from, to));
+        return new EntrySummary(income, expense, income.subtract(expense));
+    }
+
     public ProfitResponse profit(UUID accountId, LocalDate from, LocalDate to) {
         if (from == null || to == null) {
             throw new BusinessException(HttpStatus.BAD_REQUEST, "Período obrigatório");
@@ -383,6 +396,7 @@ public class FinancialService {
         entry.setPaymentMethod(request.paymentMethod());
         entry.setEntryDate(request.entryDate());
         entry.setDescription(request.description());
+        entry.setNote(request.note());
     }
 
     private FinancialEntry findActiveEntry(UUID id) {

@@ -29,6 +29,18 @@ public class CashClosing extends BaseEntity {
     @Column(name = "expense_total", nullable = false, precision = 12, scale = 2)
     private BigDecimal expenseTotal;
 
+    @Column(name = "counted_pix", precision = 12, scale = 2)
+    private BigDecimal countedPix;
+
+    @Column(name = "counted_card", precision = 12, scale = 2)
+    private BigDecimal countedCard;
+
+    @Column(name = "counted_cash", precision = 12, scale = 2)
+    private BigDecimal countedCash;
+
+    @Column(length = 1000)
+    private String note;
+
     public UUID getAccountId() {
         return accountId;
     }
@@ -75,5 +87,37 @@ public class CashClosing extends BaseEntity {
 
     public void setExpenseTotal(BigDecimal expenseTotal) {
         this.expenseTotal = expenseTotal;
+    }
+
+    public BigDecimal getCountedPix() {
+        return countedPix;
+    }
+
+    public void setCountedPix(BigDecimal countedPix) {
+        this.countedPix = countedPix;
+    }
+
+    public BigDecimal getCountedCard() {
+        return countedCard;
+    }
+
+    public void setCountedCard(BigDecimal countedCard) {
+        this.countedCard = countedCard;
+    }
+
+    public BigDecimal getCountedCash() {
+        return countedCash;
+    }
+
+    public void setCountedCash(BigDecimal countedCash) {
+        this.countedCash = countedCash;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }

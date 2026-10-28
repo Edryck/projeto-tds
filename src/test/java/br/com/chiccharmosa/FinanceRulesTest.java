@@ -8,6 +8,7 @@ import br.com.chiccharmosa.dto.FinanceDto.CashClosingRequest;
 import br.com.chiccharmosa.dto.FinanceDto.CashClosingResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
@@ -114,7 +115,7 @@ class FinanceRulesTest extends IntegrationTest {
         orderService.pay(order.id(), PaymentMethod.PIX, Instant.now());
         EntryResponse income = onlyEntry(order.id(), EntryType.INCOME);
         EntryRequest change = new EntryRequest(income.id(), SeedIds.STORE_ACCOUNT, SeedIds.SALES_CATEGORY,
-                EntryType.INCOME, new BigDecimal("1.00"), PaymentMethod.PIX, today(), "Alterado");
+                EntryType.INCOME, new BigDecimal("1.00"), PaymentMethod.PIX, today(), "Alterado", null);
 
         assertStatus(() -> financialService.update(income.id(), change, Instant.now()), UNPROCESSABLE);
         assertStatus(() -> financialService.delete(income.id(), Instant.now()), UNPROCESSABLE);
@@ -263,6 +264,24 @@ class FinanceRulesTest extends IntegrationTest {
         assertStatus(() -> financialService.profit(SeedIds.STORE_ACCOUNT, day, day.minusDays(1)), HttpStatus.BAD_REQUEST);
     }
 
+    @Test
+    void summarySumsIncomeAndExpenseOfPeriod() {
+        LocalDate day = testData.uniqueDay();
+        UUID account = createdAccountWithEntries(day, "100.00", "30.00");
+
+        EntrySummary summary = financialService.summary(account, day, day);
+
+        assertThat(summary.income()).isEqualByComparingTo("100.00");
+        assertThat(summary.expense()).isEqualByComparingTo("30.00");
+        assertThat(summary.balance()).isEqualByComparingTo("70.00");
+    }
+
+    private UUID createdAccountWithEntries(LocalDate day, String income, String expense) {
+        entry(day, EntryType.INCOME, SeedIds.SALES_CATEGORY, PaymentMethod.PIX, income);
+        entry(day, EntryType.EXPENSE, SeedIds.OTHER_CATEGORY, null, expense);
+        return SeedIds.STORE_ACCOUNT;
+    }
+
     private CashClosingResponse close(LocalDate day) {
         return financialService.close(new CashClosingRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, day));
     }
@@ -274,7 +293,7 @@ class FinanceRulesTest extends IntegrationTest {
 
     private EntryResponse entry(LocalDate day, EntryType type, UUID categoryId, PaymentMethod method, String amount) {
         EntryRequest request = new EntryRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, categoryId, type,
-                new BigDecimal(amount), method, day, "Lançamento de teste");
+                new BigDecimal(amount), method, day, "Lançamento de teste", null);
         return financialService.create(request, Instant.now());
     }
 

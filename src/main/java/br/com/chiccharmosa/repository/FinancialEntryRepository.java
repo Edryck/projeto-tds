@@ -56,6 +56,17 @@ public interface FinancialEntryRepository extends JpaRepository<FinancialEntry, 
     BigDecimal sumOfPeriod(@Param("accountId") UUID accountId, @Param("type") EntryType type,
             @Param("from") LocalDate from, @Param("to") LocalDate to, @Param("ignoredCategories") List<UUID> ignoredCategories);
 
+    @Query("""
+            select coalesce(sum(e.amount), 0) from FinancialEntry e
+            where e.deletedAt is null
+            and e.accountId = :accountId
+            and e.entryDate >= :from
+            and e.entryDate <= :to
+            and e.type = :type
+            """)
+    BigDecimal sumByType(@Param("accountId") UUID accountId, @Param("type") EntryType type,
+            @Param("from") LocalDate from, @Param("to") LocalDate to);
+
     @Query("select e from FinancialEntry e where e.updatedAt > :since order by e.updatedAt, e.id")
     List<FinancialEntry> findChangedSince(@Param("since") Instant since, Limit limit);
 

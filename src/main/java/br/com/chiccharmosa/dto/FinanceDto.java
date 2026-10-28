@@ -43,18 +43,22 @@ public final class FinanceDto {
 
     public record EntryRequest(UUID id, @NotNull UUID accountId, @NotNull UUID categoryId, @NotNull EntryType type,
             @NotNull @Positive BigDecimal amount, PaymentMethod paymentMethod, @NotNull LocalDate entryDate,
-            @Size(max = 500) String description) {
+            @Size(max = 500) String description, @Size(max = 1000) String note) {
     }
 
     @Relation(collectionRelation = "entries")
     public record EntryResponse(UUID id, UUID accountId, UUID categoryId, EntryType type, BigDecimal amount,
-            PaymentMethod paymentMethod, LocalDate entryDate, String description, UUID orderId) {
+            PaymentMethod paymentMethod, LocalDate entryDate, String description, UUID orderId,
+            String note) {
 
         public static EntryResponse from(FinancialEntry entry) {
             return new EntryResponse(entry.getId(), entry.getAccountId(), entry.getCategoryId(), entry.getType(),
                     entry.getAmount(), entry.getPaymentMethod(), entry.getEntryDate(), entry.getDescription(),
-                    entry.getOrderId());
+                    entry.getOrderId(), entry.getNote());
         }
+    }
+
+    public record EntrySummary(BigDecimal income, BigDecimal expense, BigDecimal balance) {
     }
 
     public record CashClosingRequest(UUID id, @NotNull UUID accountId, @NotNull LocalDate closingDate) {

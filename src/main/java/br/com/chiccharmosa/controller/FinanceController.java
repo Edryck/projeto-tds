@@ -7,6 +7,7 @@ import br.com.chiccharmosa.assembler.FinanceAssembler;
 import br.com.chiccharmosa.dto.FinanceDto.AccountResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitLine;
@@ -106,6 +107,15 @@ public class FinanceController {
             Pageable pageable) {
         return pagedEntryAssembler.toModel(financialService.list(accountId, type, from, to, pageable),
                 financeAssembler);
+    }
+
+    @GetMapping("/api/financial-entries/summary")
+    @PreAuthorize("hasAuthority('finance:view')")
+    public EntityModel<EntrySummary> entrySummary(@RequestParam UUID accountId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return EntityModel.of(financialService.summary(accountId, from, to),
+                linkTo(methodOn(FinanceController.class).entrySummary(accountId, from, to)).withSelfRel());
     }
 
     @GetMapping("/api/financial-entries/{id}")

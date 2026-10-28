@@ -79,7 +79,7 @@ class SyncPullTest extends IntegrationTest {
     void pullOmitsEntitiesUserCannotView() {
         Instant since = testData.uniqueInstant();
         EntryRequest request = new EntryRequest(UUID.randomUUID(), SeedIds.STORE_ACCOUNT, SeedIds.OTHER_CATEGORY,
-                EntryType.EXPENSE, new BigDecimal("10.00"), null, testData.uniqueDay(), "Despesa");
+                EntryType.EXPENSE, new BigDecimal("10.00"), null, testData.uniqueDay(), "Despesa", null);
         EntryResponse entry = financialService.create(request, Instant.now());
         backdate("financial_entry", entry.id(), since.plusSeconds(1));
         UUID customerId = customerAt(since.plusSeconds(2));
