@@ -3,6 +3,7 @@ package br.com.chiccharmosa.controller;
 import br.com.chiccharmosa.assembler.ProductAssembler;
 import br.com.chiccharmosa.dto.ProductDto.ProductRequest;
 import br.com.chiccharmosa.dto.ProductDto.ProductResponse;
+import br.com.chiccharmosa.dto.ProductDto.ProductView;
 import br.com.chiccharmosa.service.CatalogService;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -32,10 +33,10 @@ public class ProductController {
 
     private final CatalogService catalogService;
     private final ProductAssembler productAssembler;
-    private final PagedResourcesAssembler<ProductResponse> pagedAssembler;
+    private final PagedResourcesAssembler<ProductView> pagedAssembler;
 
     public ProductController(CatalogService catalogService, ProductAssembler productAssembler,
-            PagedResourcesAssembler<ProductResponse> pagedAssembler) {
+            PagedResourcesAssembler<ProductView> pagedAssembler) {
         this.catalogService = catalogService;
         this.productAssembler = productAssembler;
         this.pagedAssembler = pagedAssembler;
@@ -55,15 +56,16 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('product:view')")
-    public PagedModel<EntityModel<ProductResponse>> list(@RequestParam(required = false) String name,
+    public PagedModel<EntityModel<ProductView>> list(@RequestParam(required = false) String name,
             @RequestParam(required = false) UUID categoryId, Pageable pageable) {
-        return pagedAssembler.toModel(catalogService.listProducts(name, categoryId, pageable), productAssembler);
+        return pagedAssembler.toModel(catalogService.listProductViews(name, categoryId, pageable),
+                productAssembler::toViewModel);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('product:view')")
-    public EntityModel<ProductResponse> get(@PathVariable UUID id) {
-        return productAssembler.toModel(catalogService.getProduct(id));
+    public EntityModel<ProductView> get(@PathVariable UUID id) {
+        return productAssembler.toViewModel(catalogService.getProductView(id));
     }
 
     @PutMapping("/{id}")

@@ -5,6 +5,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import br.com.chiccharmosa.controller.CategoryController;
 import br.com.chiccharmosa.dto.CategoryDto.CategoryResponse;
+import br.com.chiccharmosa.dto.CategoryDto.CategoryView;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,12 @@ public class CategoryAssembler implements RepresentationModelAssembler<CategoryR
 
     @Override
     public EntityModel<CategoryResponse> toModel(CategoryResponse category) {
+        return EntityModel.of(category,
+                linkTo(methodOn(CategoryController.class).get(category.id())).withSelfRel(),
+                linkTo(methodOn(CategoryController.class).list(null, null)).withRel("categories"));
+    }
+
+    public EntityModel<CategoryView> toViewModel(CategoryView category) {
         return EntityModel.of(category,
                 linkTo(methodOn(CategoryController.class).get(category.id())).withSelfRel(),
                 linkTo(methodOn(CategoryController.class).list(null, null)).withRel("categories"));

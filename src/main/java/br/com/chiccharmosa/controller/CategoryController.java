@@ -3,6 +3,7 @@ package br.com.chiccharmosa.controller;
 import br.com.chiccharmosa.assembler.CategoryAssembler;
 import br.com.chiccharmosa.dto.CategoryDto.CategoryRequest;
 import br.com.chiccharmosa.dto.CategoryDto.CategoryResponse;
+import br.com.chiccharmosa.dto.CategoryDto.CategoryView;
 import br.com.chiccharmosa.service.CatalogService;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -32,10 +33,10 @@ public class CategoryController {
 
     private final CatalogService catalogService;
     private final CategoryAssembler categoryAssembler;
-    private final PagedResourcesAssembler<CategoryResponse> pagedAssembler;
+    private final PagedResourcesAssembler<CategoryView> pagedAssembler;
 
     public CategoryController(CatalogService catalogService, CategoryAssembler categoryAssembler,
-            PagedResourcesAssembler<CategoryResponse> pagedAssembler) {
+            PagedResourcesAssembler<CategoryView> pagedAssembler) {
         this.catalogService = catalogService;
         this.categoryAssembler = categoryAssembler;
         this.pagedAssembler = pagedAssembler;
@@ -55,15 +56,16 @@ public class CategoryController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('product:view')")
-    public PagedModel<EntityModel<CategoryResponse>> list(@RequestParam(required = false) String name,
+    public PagedModel<EntityModel<CategoryView>> list(@RequestParam(required = false) String name,
             Pageable pageable) {
-        return pagedAssembler.toModel(catalogService.listCategories(name, pageable), categoryAssembler);
+        return pagedAssembler.toModel(catalogService.listCategoryViews(name, pageable),
+                categoryAssembler::toViewModel);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('product:view')")
-    public EntityModel<CategoryResponse> get(@PathVariable UUID id) {
-        return categoryAssembler.toModel(catalogService.getCategory(id));
+    public EntityModel<CategoryView> get(@PathVariable UUID id) {
+        return categoryAssembler.toViewModel(catalogService.getCategoryView(id));
     }
 
     @PutMapping("/{id}")

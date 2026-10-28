@@ -4,6 +4,7 @@ import br.com.chiccharmosa.entity.Category;
 import br.com.chiccharmosa.entity.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.UUID;
 import org.springframework.hateoas.server.core.Relation;
 
@@ -23,5 +24,10 @@ public final class ProductDto {
             return new ProductResponse(product.getId(), category.getId(), category.getName(),
                     product.getName(), product.getDescription());
         }
+    }
+
+    @Relation(collectionRelation = "products")
+    public record ProductView(UUID id, UUID categoryId, String categoryName, String name, String description,
+            int variantCount, BigDecimal minPrice, BigDecimal maxPrice, int totalBalance) {
     }
 }

@@ -2,6 +2,7 @@ package br.com.chiccharmosa.repository;
 
 import br.com.chiccharmosa.entity.Product;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,15 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             Pageable pageable);
 
     boolean existsByCategoryIdAndDeletedAtIsNull(UUID categoryId);
+
+    long countByCategoryIdAndDeletedAtIsNull(UUID categoryId);
+
+    @Query("""
+            select p.category.id, count(p) from Product p
+            where p.deletedAt is null and p.category.id in :categoryIds
+            group by p.category.id
+            """)
+    List<Object[]> countByCategoryIds(@Param("categoryIds") Collection<UUID> categoryIds);
 
     @Query("select e from Product e where e.updatedAt > :since order by e.updatedAt, e.id")
     List<Product> findChangedSince(@Param("since") Instant since, Limit limit);

@@ -2,8 +2,10 @@ package br.com.chiccharmosa.service;
 
 import br.com.chiccharmosa.dto.CategoryDto.CategoryRequest;
 import br.com.chiccharmosa.dto.CategoryDto.CategoryResponse;
+import br.com.chiccharmosa.dto.CategoryDto.CategoryView;
 import br.com.chiccharmosa.dto.ProductDto.ProductRequest;
 import br.com.chiccharmosa.dto.ProductDto.ProductResponse;
+import br.com.chiccharmosa.dto.ProductDto.ProductView;
 import br.com.chiccharmosa.entity.Category;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
 import br.com.chiccharmosa.dto.VariantDto.VariantResponse;
@@ -14,11 +16,15 @@ import br.com.chiccharmosa.exception.BusinessException;
 import br.com.chiccharmosa.repository.CategoryRepository;
 import br.com.chiccharmosa.repository.ProductRepository;
 import br.com.chiccharmosa.repository.ProductVariantRepository;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -162,17 +168,29 @@ public class CatalogService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryResponse getCategory(UUID id) {
-        return CategoryResponse.from(findActiveCategory(id));
+    public CategoryView getCategoryView(UUID id) {
+        Category category = findActiveCategory(id);
+        return new CategoryView(category.getId(), category.getName(),
+                productRepository.countByCategoryIdAndDeletedAtIsNull(id));
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoryResponse> listCategories(String name, Pageable pageable) {
+    public Page<CategoryView> listCategoryViews(String name, Pageable pageable) {
+        Page<Category> page;
         if (name == null || name.isBlank()) {
-            return categoryRepository.findByDeletedAtIsNull(pageable).map(CategoryResponse::from);
+            page = categoryRepository.findByDeletedAtIsNull(pageable);
+        } else {
+            page = categoryRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
         }
-        return categoryRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable)
-                .map(CategoryResponse::from);
+        Map<UUID, Long> counts = new HashMap<>();
+        if (page.hasContent()) {
+            List<UUID> ids = page.getContent().stream().map(Category::getId).toList();
+            for (Object[] row : productRepository.countByCategoryIds(ids)) {
+                counts.put((UUID) row[0], ((Number) row[1]).longValue());
+            }
+        }
+        return page.map(category -> new CategoryView(category.getId(), category.getName(),
+                counts.getOrDefault(category.getId(), 0L)));
     }
 
     @Transactional
@@ -217,27 +235,63 @@ public class CatalogService {
     }
 
     @Transactional(readOnly = true)
-    public ProductResponse getProduct(UUID id) {
-        return ProductResponse.from(findActiveProduct(id));
+    public ProductView getProductView(UUID id) {
+        return buildProductViews(List.of(findActiveProduct(id))).get(0);
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponse> listProducts(String name, UUID categoryId, Pageable pageable) {
+    public Page<ProductView> listProductViews(String name, UUID categoryId, Pageable pageable) {
         boolean filterByName = name != null && !name.isBlank();
         boolean filterByCategory = categoryId != null;
+        Page<Product> page;
         if (filterByName && filterByCategory) {
-            return productRepository.findByDeletedAtIsNullAndCategoryIdAndNameContainingIgnoreCase(
-                    categoryId, name, pageable).map(ProductResponse::from);
+            page = productRepository.findByDeletedAtIsNullAndCategoryIdAndNameContainingIgnoreCase(
+                    categoryId, name, pageable);
+        } else if (filterByName) {
+            page = productRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable);
+        } else if (filterByCategory) {
+            page = productRepository.findByDeletedAtIsNullAndCategoryId(categoryId, pageable);
+        } else {
+            page = productRepository.findByDeletedAtIsNull(pageable);
         }
-        if (filterByName) {
-            return productRepository.findByDeletedAtIsNullAndNameContainingIgnoreCase(name, pageable)
-                    .map(ProductResponse::from);
+        List<ProductView> views = buildProductViews(page.getContent());
+        return new PageImpl<>(views, pageable, page.getTotalElements());
+    }
+
+    private List<ProductView> buildProductViews(List<Product> products) {
+        List<UUID> productIds = products.stream().map(Product::getId).toList();
+        List<ProductVariant> variants = variantRepository.findByProductIdInAndDeletedAtIsNull(productIds);
+        List<UUID> variantIds = variants.stream().map(ProductVariant::getId).toList();
+        Map<UUID, Integer> balances = stockService.balances(variantIds);
+        Map<UUID, List<ProductVariant>> variantsByProduct = new HashMap<>();
+        for (ProductVariant variant : variants) {
+            variantsByProduct.computeIfAbsent(variant.getProduct().getId(), key -> new ArrayList<>()).add(variant);
         }
-        if (filterByCategory) {
-            return productRepository.findByDeletedAtIsNullAndCategoryId(categoryId, pageable)
-                    .map(ProductResponse::from);
+        List<ProductView> views = new ArrayList<>();
+        for (Product product : products) {
+            List<ProductVariant> own = variantsByProduct.getOrDefault(product.getId(), List.of());
+            views.add(toProductView(product, own, balances));
         }
-        return productRepository.findByDeletedAtIsNull(pageable).map(ProductResponse::from);
+        return views;
+    }
+
+    private ProductView toProductView(Product product, List<ProductVariant> variants, Map<UUID, Integer> balances) {
+        BigDecimal minPrice = null;
+        BigDecimal maxPrice = null;
+        int totalBalance = 0;
+        for (ProductVariant variant : variants) {
+            BigDecimal price = variant.getPrice();
+            if (minPrice == null || price.compareTo(minPrice) < 0) {
+                minPrice = price;
+            }
+            if (maxPrice == null || price.compareTo(maxPrice) > 0) {
+                maxPrice = price;
+            }
+            totalBalance += balances.get(variant.getId());
+        }
+        Category category = product.getCategory();
+        return new ProductView(product.getId(), category.getId(), category.getName(), product.getName(),
+                product.getDescription(), variants.size(), minPrice, maxPrice, totalBalance);
     }
 
     @Transactional

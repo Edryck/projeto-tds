@@ -3,6 +3,7 @@ package br.com.chiccharmosa.repository;
 import br.com.chiccharmosa.entity.ProductVariant;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +20,8 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     Optional<ProductVariant> findByIdAndDeletedAtIsNull(UUID id);
 
     Page<ProductVariant> findByProductIdAndDeletedAtIsNull(UUID productId, Pageable pageable);
+
+    List<ProductVariant> findByProductIdInAndDeletedAtIsNull(Collection<UUID> productIds);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select v from ProductVariant v where v.id = :id")

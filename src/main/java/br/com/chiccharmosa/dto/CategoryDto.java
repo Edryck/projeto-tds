@@ -20,4 +20,8 @@ public final class CategoryDto {
             return new CategoryResponse(category.getId(), category.getName());
         }
     }
+
+    @Relation(collectionRelation = "categories")
+    public record CategoryView(UUID id, String name, long productCount) {
+    }
 }
