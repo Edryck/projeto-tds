@@ -127,3 +127,28 @@ export async function request<T>(path: string, options: Options = {}): Promise<T
 export function follow<T>(link: { href: string }, options: Options = {}): Promise<T> {
   return request<T>(link.href.replace(API_URL, ''), options)
 }
+
+export type Link = { href: string }
+
+export type Model<T> = T & { _links: Record<string, Link> }
+
+export type Page<T> = {
+  items: Model<T>[]
+  page: { number: number; totalPages: number; totalElements: number }
+}
+
+export async function fetchPage<T>(path: string): Promise<Page<T>> {
+  const body = await request<{
+    _embedded?: Record<string, Model<T>[]>
+    page?: Page<T>['page']
+  }>(path)
+  const lists = Object.values(body._embedded ?? {})
+  return {
+    items: lists[0] ?? [],
+    page: body.page ?? { number: 0, totalPages: 0, totalElements: 0 },
+  }
+}
+
+export function hasLink(model: { _links?: Record<string, Link> }, rel: string): boolean {
+  return model._links?.[rel] !== undefined
+}
