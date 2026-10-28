@@ -6,6 +6,7 @@ import { PageHeader } from './components/ui'
 import { ToastProvider } from './components/Toast'
 import Login from './pages/Login'
 import CustomerList from './pages/customers/CustomerList'
+import CustomerProfile from './pages/customers/CustomerProfile'
 import ProductForm from './pages/catalog/ProductForm'
 import ProductList from './pages/catalog/ProductList'
 import VariantForm from './pages/catalog/VariantForm'
@@ -196,6 +197,22 @@ export default function App() {
               element={
                 <Screen permission="customer:view">
                   <CustomerList />
+                </Screen>
+              }
+            />
+            <Route
+              path="/customers/new"
+              element={
+                <Screen permission="customer:edit">
+                  <CustomerProfile />
+                </Screen>
+              }
+            />
+            <Route
+              path="/customers/:id"
+              element={
+                <Screen permission="customer:view">
+                  <CustomerProfile />
                 </Screen>
               }
             />
