@@ -204,7 +204,7 @@ export default function App() {
               path="/customers/new"
               element={
                 <Screen permission="customer:edit">
-                  <CustomerProfile />
+                  <CustomerProfile key="new" />
                 </Screen>
               }
             />
@@ -212,7 +212,7 @@ export default function App() {
               path="/customers/:id"
               element={
                 <Screen permission="customer:view">
-                  <CustomerProfile />
+                  <CustomerProfile key="profile" />
                 </Screen>
               }
             />
