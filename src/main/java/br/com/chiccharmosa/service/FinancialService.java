@@ -13,7 +13,9 @@ import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryView;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitGroup;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitLine;
+import br.com.chiccharmosa.dto.FinanceDto.PaymentLine;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
+import br.com.chiccharmosa.dto.FinanceDto.SalesByPayment;
 import br.com.chiccharmosa.entity.CashClosing;
 import br.com.chiccharmosa.entity.EntryType;
 import br.com.chiccharmosa.entity.FinancialAccount;
@@ -323,6 +325,34 @@ public class FinancialService {
         BigDecimal expenses = entryRepository.sumOfPeriod(accountId, EntryType.EXPENSE, from, to, ignoredCategories);
         BigDecimal profit = revenue.subtract(costOfGoods).subtract(expenses);
         return new ProfitResponse(money(revenue), money(costOfGoods), money(expenses), money(profit));
+    }
+
+    public SalesByPayment salesByPayment(LocalDate from, LocalDate to) {
+        if (from == null || to == null) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Período obrigatório");
+        }
+        if (from.isAfter(to)) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, "Período inválido");
+        }
+        Instant start = from.atStartOfDay(STORE_ZONE).toInstant();
+        Instant end = to.plusDays(1).atStartOfDay(STORE_ZONE).toInstant();
+        Map<PaymentMethod, BigDecimal> totals = new HashMap<>();
+        Map<PaymentMethod, Long> counts = new HashMap<>();
+        for (Object[] row : paymentRepository.sumByMethod(start, end)) {
+            totals.put((PaymentMethod) row[0], (BigDecimal) row[1]);
+            counts.put((PaymentMethod) row[0], ((Number) row[2]).longValue());
+        }
+        List<PaymentLine> lines = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+        long orderCount = 0;
+        for (PaymentMethod method : List.of(PaymentMethod.PIX, PaymentMethod.CARD, PaymentMethod.CASH)) {
+            BigDecimal lineTotal = totals.getOrDefault(method, BigDecimal.ZERO);
+            long lineCount = counts.getOrDefault(method, 0L);
+            lines.add(new PaymentLine(method, money(lineTotal), lineCount));
+            total = total.add(lineTotal);
+            orderCount += lineCount;
+        }
+        return new SalesByPayment(from, to, money(total), orderCount, lines);
     }
 
     public List<ProfitLine> profitBreakdown(UUID accountId, LocalDate from, LocalDate to, String groupBy) {

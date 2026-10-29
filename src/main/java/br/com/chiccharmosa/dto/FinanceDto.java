@@ -14,6 +14,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.hateoas.server.core.Relation;
 
@@ -107,6 +108,13 @@ public final class FinanceDto {
 
     public record ProfitResponse(BigDecimal revenue, BigDecimal costOfGoods, BigDecimal expenses,
             BigDecimal profit) {
+    }
+
+    public record PaymentLine(PaymentMethod method, BigDecimal total, long orderCount) {
+    }
+
+    public record SalesByPayment(LocalDate from, LocalDate to, BigDecimal total, long orderCount,
+            List<PaymentLine> lines) {
     }
 
     public enum ProfitGroup {

@@ -13,6 +13,7 @@ import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryView;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitLine;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
+import br.com.chiccharmosa.dto.FinanceDto.SalesByPayment;
 import br.com.chiccharmosa.entity.EntryType;
 import br.com.chiccharmosa.service.FinancialService;
 import jakarta.validation.Valid;
@@ -176,5 +177,14 @@ public class FinanceController {
         return CollectionModel.of(financialService.profitBreakdown(accountId, from, to, groupBy),
                 linkTo(methodOn(FinanceController.class).profitBreakdown(accountId, from, to, groupBy))
                         .withSelfRel());
+    }
+
+    @GetMapping("/api/reports/sales-by-payment")
+    @PreAuthorize("hasAuthority('finance:view')")
+    public EntityModel<SalesByPayment> salesByPayment(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return EntityModel.of(financialService.salesByPayment(from, to),
+                linkTo(methodOn(FinanceController.class).salesByPayment(from, to)).withSelfRel());
     }
 }

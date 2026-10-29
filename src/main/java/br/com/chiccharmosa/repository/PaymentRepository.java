@@ -56,6 +56,18 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     List<Object[]> profitByOrder(@Param("start") Instant start, @Param("end") Instant end);
 
     @Query("""
+            select p.method, sum(o.total), count(o) from Payment p
+            join Order o on o.id = p.orderId
+            where p.deletedAt is null
+            and o.deletedAt is null
+            and o.status <> br.com.chiccharmosa.entity.OrderStatus.CANCELLED
+            and p.paidAt >= :start
+            and p.paidAt < :end
+            group by p.method
+            """)
+    List<Object[]> sumByMethod(@Param("start") Instant start, @Param("end") Instant end);
+
+    @Query("""
             select pr.name, sum(i.unitPrice * i.quantity), sum(i.unitCost * i.quantity) from Payment p
             join Order o on o.id = p.orderId
             join o.items i

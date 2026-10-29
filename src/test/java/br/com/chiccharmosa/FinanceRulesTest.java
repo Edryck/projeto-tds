@@ -11,7 +11,9 @@ import br.com.chiccharmosa.dto.FinanceDto.EntryResponse;
 import br.com.chiccharmosa.dto.FinanceDto.EntrySummary;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryRequest;
 import br.com.chiccharmosa.dto.FinanceDto.FinancialCategoryResponse;
+import br.com.chiccharmosa.dto.FinanceDto.PaymentLine;
 import br.com.chiccharmosa.dto.FinanceDto.ProfitResponse;
+import br.com.chiccharmosa.dto.FinanceDto.SalesByPayment;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
 import br.com.chiccharmosa.dto.VariantDto.VariantRequest;
 import br.com.chiccharmosa.entity.EntryType;
@@ -260,6 +262,32 @@ class FinanceRulesTest extends IntegrationTest {
     }
 
     @Test
+    void salesByPaymentIgnoresCancelledAndIncludesShipping() {
+        LocalDate day = testData.uniqueDay();
+        paidOrderOn(day, PaymentMethod.PIX, "100.00", "15.00");
+        OrderResponse cancelled = paidOrderOn(day, PaymentMethod.PIX, "50.00", null);
+        orderService.cancel(cancelled.id(), noonOf(day).plus(Duration.ofHours(1)));
+
+        SalesByPayment report = financialService.salesByPayment(day, day);
+
+        assertThat(report.total()).isEqualByComparingTo("115.00");
+        assertThat(report.orderCount()).isEqualTo(1);
+        assertThat(report.lines()).extracting(PaymentLine::method)
+                .containsExactly(PaymentMethod.PIX, PaymentMethod.CARD, PaymentMethod.CASH);
+        assertThat(report.lines().get(1).total()).isEqualByComparingTo("0.00");
+    }
+
+    @Test
+    void salesByPaymentCountsLateEveningInStoreZone() {
+        LocalDate day = testData.uniqueDay();
+        OrderResponse order = pendingOrder("80.00", "30.00", null);
+        orderService.pay(order.id(), PaymentMethod.CASH, day.atTime(23, 30).atZone(STORE_ZONE).toInstant());
+
+        assertThat(financialService.salesByPayment(day, day).lines().get(2).total()).isEqualByComparingTo("80.00");
+        assertThat(financialService.salesByPayment(day.plusDays(1), day.plusDays(1)).total()).isEqualByComparingTo("0.00");
+    }
+
+    @Test
     void invertedProfitPeriodIsRejected() {
         LocalDate day = testData.uniqueDay();
 
@@ -354,6 +382,12 @@ class FinanceRulesTest extends IntegrationTest {
 
     private EntryResponse incomeOfDay(LocalDate day, PaymentMethod method, String amount) {
         return entry(day, EntryType.INCOME, SeedIds.SALES_CATEGORY, method, amount);
+    }
+
+    private OrderResponse paidOrderOn(LocalDate day, PaymentMethod method, String price, String shippingCost) {
+        OrderResponse order = pendingOrder(price, "10.00", shippingCost);
+        orderService.pay(order.id(), method, noonOf(day));
+        return order;
     }
 
     private OrderResponse pendingOrder(String price, String cost, String shippingCost) {
