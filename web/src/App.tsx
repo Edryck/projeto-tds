@@ -26,6 +26,8 @@ import Forbidden from './pages/Forbidden'
 import SupplierDetail from './pages/suppliers/SupplierDetail'
 import SupplierForm from './pages/suppliers/SupplierForm'
 import SupplierList from './pages/suppliers/SupplierList'
+import StoreResult from './pages/reports/StoreResult'
+import SalesByPayment from './pages/reports/SalesByPayment'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -277,6 +279,22 @@ export default function App() {
               }
             />
             <Route path="/cash-closing" element={<Navigate to="/finance/closing" replace />} />
+            <Route
+              path="/reports"
+              element={
+                <Screen permission="finance:view">
+                  <StoreResult />
+                </Screen>
+              }
+            />
+            <Route
+              path="/reports/sales"
+              element={
+                <Screen permission="finance:view">
+                  <SalesByPayment />
+                </Screen>
+              }
+            />
             <Route
               path="/finance/:id"
               element={

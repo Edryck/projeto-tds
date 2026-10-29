@@ -199,6 +199,27 @@ export type FinancialCategoryView = {
   system: boolean
 }
 
+export type Profit = {
+  revenue: number | string
+  costOfGoods: number | string
+  expenses: number | string
+  profit: number | string
+}
+
+export type PaymentLine = {
+  method: PaymentMethod
+  total: number | string
+  orderCount: number
+}
+
+export type SalesByPayment = {
+  from: string
+  to: string
+  total: number | string
+  orderCount: number
+  lines: PaymentLine[]
+}
+
 export const accountLabels: Record<AccountType, string> = {
   STORE: 'Loja',
   PERSONAL: 'Pessoal',
