@@ -28,6 +28,7 @@ import SupplierForm from './pages/suppliers/SupplierForm'
 import SupplierList from './pages/suppliers/SupplierList'
 import StoreResult from './pages/reports/StoreResult'
 import SalesByPayment from './pages/reports/SalesByPayment'
+import Users from './pages/admin/Users'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -295,6 +296,14 @@ export default function App() {
               element={
                 <Screen permission="finance:view">
                   <EntryForm />
+                </Screen>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <Screen permission="user:manage">
+                  <Users />
                 </Screen>
               }
             />

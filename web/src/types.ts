@@ -229,3 +229,15 @@ export const entryTypeLabels: Record<EntryType, string> = {
   INCOME: 'Receita',
   EXPENSE: 'Despesa',
 }
+
+export const ADMIN_ROLE_ID = '10000000-0000-0000-0000-000000000001'
+export const CASHIER_ROLE_ID = '10000000-0000-0000-0000-000000000002'
+
+export type UserResponse = {
+  id: string
+  email: string
+  name: string
+  roleId: string
+  roleName: string
+  active: boolean
+}
