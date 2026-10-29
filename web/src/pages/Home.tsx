@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Clock3, Plus, Receipt, RefreshCw, ShoppingBag, TrendingDown, TrendingUp } from 'lucide-react'
+import { Ban, Clock3, Plus, Receipt, RefreshCw, ShoppingBag, TrendingDown, TrendingUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { fetchPage, logoUrl, request, swapToFallbackLogo } from '../api'
 import { useAuth } from '../auth'
@@ -9,7 +9,7 @@ import { Card, EmptyState, ErrorState, LinkButton, Skeleton, StatusPill } from '
 import { money, todayIso } from '../format'
 import { useLoad } from '../hooks'
 import { orderStatusMeta } from '../types'
-import type { Account, OrderView, Profit, SalesByPayment, StoreSettingsView } from '../types'
+import type { Account, CancellationView, OrderView, Profit, SalesByPayment, StoreSettingsView } from '../types'
 
 const TIME_ZONE = 'America/Sao_Paulo'
 
@@ -126,6 +126,19 @@ export default function Home() {
     return fetchPage<OrderView>('/api/orders?status=PENDING&page=0&size=1')
   }, [canOrders])
 
+  const canCancel = can('order:cancel')
+  const cancellations = useLoad(async () => {
+    if (!canCancel) {
+      return 0
+    }
+    try {
+      const page = await fetchPage<CancellationView>('/api/cancellation-requests?status=PENDING&page=0&size=1')
+      return page.page.totalElements
+    } catch {
+      return 0
+    }
+  }, [canCancel])
+
   const recent = useLoad(async () => {
     if (!canOrders) {
       return null
@@ -138,6 +151,7 @@ export default function Home() {
     salesToday.reload()
     profit.reload()
     pending.reload()
+    cancellations.reload()
     recent.reload()
   }
 
@@ -173,6 +187,15 @@ export default function Home() {
       </header>
 
       <div className="mt-4 space-y-4">
+        {canCancel && cancellations.data !== null && cancellations.data > 0 && (
+          <Link
+            to="/admin/cancellations"
+            className="flex min-h-[48px] items-center gap-3 rounded-[14px] bg-warning-soft px-4 py-3 font-semibold text-warning focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <Ban className="h-5 w-5 shrink-0" aria-hidden="true" />
+            {cancellations.data === 1 ? '1 cancelamento aguardando' : `${cancellations.data} cancelamentos aguardando`}
+          </Link>
+        )}
         {(canFinance || canOrders) && (
           <div className="flex items-center justify-between gap-3 text-sm text-text-secondary">
             <span>Atualizado às {timeLabel(updatedAt)}</span>

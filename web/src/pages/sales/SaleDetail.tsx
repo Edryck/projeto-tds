@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Ban, CheckCircle2, PackageCheck, Pencil, Truck } from 'lucide-react'
+import { Ban, CheckCircle2, Clock3, PackageCheck, Pencil, Truck } from 'lucide-react'
 import { follow, hasLink, request } from '../../api'
 import type { Model } from '../../api'
 import { useToast } from '../../components/Toast'
-import { Button, Card, ConfirmSheet, ErrorState, Field, Input, PageHeader, Sheet, Skeleton, StatusPill } from '../../components/ui'
+import { Button, Card, ConfirmSheet, ErrorState, Field, Input, PageHeader, Sheet, Skeleton, StatusPill, Textarea } from '../../components/ui'
 import { dateTime, money, parseMoney, shortId } from '../../format'
 import { useLoad } from '../../hooks'
 import { orderStatusMeta, paymentLabels, shippingLabels } from '../../types'
 import type { OrderView, PaymentMethod, ShippingMethod } from '../../types'
 
-type Action = 'pay' | 'ship' | 'deliver' | 'shipping-cost' | 'cancel'
+type Action = 'pay' | 'ship' | 'deliver' | 'shipping-cost' | 'cancel' | 'request-cancel'
 
 const paymentMethods: PaymentMethod[] = ['PIX', 'CARD', 'CASH']
 const shippingMethods: ShippingMethod[] = ['POST_OFFICE', 'IN_PERSON']
@@ -64,6 +64,7 @@ export default function SaleDetail() {
   const [tracking, setTracking] = useState('')
   const [shippingText, setShippingText] = useState('')
   const [fieldError, setFieldError] = useState('')
+  const [reason, setReason] = useState('')
 
   const order = updated && updated.id === id ? updated : data
 
@@ -72,6 +73,7 @@ export default function SaleDetail() {
     setPayMethod(null)
     setShipMethod(null)
     setTracking('')
+    setReason('')
     setShippingText(order ? String(order.shippingCost).replace('.', ',') : '')
     setSheet(action)
   }
@@ -91,6 +93,7 @@ export default function SaleDetail() {
         deliver: 'Pedido marcado como entregue',
         'shipping-cost': 'Frete atualizado',
         cancel: 'Pedido cancelado',
+        'request-cancel': 'Cancelamento solicitado',
       }
       toast.show(messages[action])
     } catch (caught) {
@@ -120,6 +123,14 @@ export default function SaleDetail() {
     run('shipping-cost', 'PATCH', { shippingCost: value })
   }
 
+  function confirmRequestCancel() {
+    if (reason.trim() === '') {
+      setFieldError('Informe o motivo')
+      return
+    }
+    run('request-cancel', 'POST', { reason: reason.trim() })
+  }
+
   if (loading && !order) {
     return <Skeleton lines={5} />
   }
@@ -136,6 +147,8 @@ export default function SaleDetail() {
   const canDeliver = hasLink(order, 'deliver')
   const canEditShipping = hasLink(order, 'shipping-cost')
   const canCancel = hasLink(order, 'cancel')
+  const canRequestCancel = hasLink(order, 'request-cancel') && !canCancel
+  const pendingCancellation = order.pendingCancellation
 
   return (
     <div className="mx-auto max-w-3xl space-y-4 pb-4">
@@ -147,7 +160,19 @@ export default function SaleDetail() {
         <p className="text-2xl font-bold text-text">{money(order.total)}</p>
       </div>
 
-      {(canPay || canShip || canDeliver || canEditShipping || canCancel) && (
+      {pendingCancellation && (
+        <div role="status" className="flex gap-3 rounded-[14px] bg-warning-soft p-4 text-warning">
+          <Clock3 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="font-semibold">
+              Cancelamento solicitado por {pendingCancellation.requestedByName}: aguardando aprovação
+            </p>
+            <p className="mt-1 break-words text-sm">{pendingCancellation.reason}</p>
+          </div>
+        </div>
+      )}
+
+      {(canPay || canShip || canDeliver || canEditShipping || canCancel || canRequestCancel) && (
         <div className="space-y-2">
           {canPay && (
             <Button className="w-full" onClick={() => open('pay')}>
@@ -165,6 +190,12 @@ export default function SaleDetail() {
             <Button className="w-full" onClick={() => open('deliver')}>
               <PackageCheck className="h-5 w-5" aria-hidden="true" />
               Marcar como entregue
+            </Button>
+          )}
+          {canRequestCancel && (
+            <Button variant="ghost" className="w-full text-error" onClick={() => open('request-cancel')}>
+              <Ban className="h-5 w-5" aria-hidden="true" />
+              Solicitar cancelamento
             </Button>
           )}
           {(canEditShipping || canCancel) && (
@@ -310,6 +341,26 @@ export default function SaleDetail() {
             value={shippingText}
             invalid={fieldError !== ''}
             onChange={(event) => setShippingText(event.target.value)}
+          />
+        </Field>
+      </Sheet>
+
+      <Sheet
+        open={sheet === 'request-cancel'}
+        onClose={() => setSheet(null)}
+        title="Solicitar cancelamento"
+        footer={
+          <Button className="flex-1" loading={busy} onClick={confirmRequestCancel}>
+            Enviar solicitação
+          </Button>
+        }
+      >
+        <Field label="Motivo" required error={fieldError}>
+          <Textarea
+            value={reason}
+            maxLength={500}
+            invalid={fieldError !== ''}
+            onChange={(event) => setReason(event.target.value)}
           />
         </Field>
       </Sheet>

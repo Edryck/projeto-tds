@@ -30,6 +30,7 @@ import StoreResult from './pages/reports/StoreResult'
 import SalesByPayment from './pages/reports/SalesByPayment'
 import Users from './pages/admin/Users'
 import StoreSettings from './pages/admin/StoreSettings'
+import Cancellations from './pages/admin/Cancellations'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -313,6 +314,14 @@ export default function App() {
               element={
                 <Screen permission="settings:manage">
                   <StoreSettings />
+                </Screen>
+              }
+            />
+            <Route
+              path="/admin/cancellations"
+              element={
+                <Screen permission="order:cancel">
+                  <Cancellations />
                 </Screen>
               }
             />

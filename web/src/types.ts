@@ -53,6 +53,27 @@ export type ShipmentView = {
   deliveredAt: string | null
 }
 
+export type PendingCancellation = {
+  id: string
+  reason: string
+  requestedByName: string
+  requestedAt: string
+}
+
+export type CancellationView = {
+  id: string
+  orderId: string
+  orderCustomerName: string
+  orderTotal: number
+  reason: string
+  requestedByName: string
+  requestedAt: string
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+  decidedByName: string | null
+  decidedAt: string | null
+  response: string | null
+}
+
 export type OrderView = {
   id: string
   customerId: string
@@ -68,6 +89,7 @@ export type OrderView = {
   orderedAt: string
   payment: PaymentView | null
   shipment: ShipmentView | null
+  pendingCancellation: PendingCancellation | null
 }
 
 export type Customer = {
