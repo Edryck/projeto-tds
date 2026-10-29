@@ -2,8 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import type { ReactNode } from 'react'
 import { AuthProvider, useAuth } from './auth'
 import Layout from './components/Layout'
-import { PageHeader } from './components/ui'
 import { ToastProvider } from './components/Toast'
+import Home from './pages/Home'
 import Login from './pages/Login'
 import CustomerList from './pages/customers/CustomerList'
 import CustomerProfile from './pages/customers/CustomerProfile'
@@ -69,11 +69,6 @@ function FullScreen({ permission, children }: { permission: string; children: Re
 function LegacyStockEntry() {
   const { search } = useLocation()
   return <Navigate to={`/stock/entry${search}`} replace />
-}
-
-function Home() {
-  const { me } = useAuth()
-  return <PageHeader title="Início" subtitle={`Olá, ${me?.name}`} />
 }
 
 export default function App() {
