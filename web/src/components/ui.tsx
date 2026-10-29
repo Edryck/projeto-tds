@@ -1,5 +1,6 @@
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type {
+  AnimationEvent,
   ButtonHTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
@@ -14,7 +15,7 @@ import type { Page } from '../api'
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'
 
 const buttonBase =
-  'inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl px-5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50'
+  'pressable inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl px-5 text-base font-semibold disabled:cursor-not-allowed disabled:opacity-50'
 
 const variantClass: Record<Variant, string> = {
   primary: 'bg-primary text-white hover:bg-primary-hover',
@@ -82,7 +83,7 @@ export function Field({
       {children}
       {hint && !error && <span className="mt-1 block text-sm text-text-secondary">{hint}</span>}
       {error && (
-        <span role="alert" className="mt-1 block text-sm text-error">
+        <span key={error} role="alert" className="mt-1 block animate-shake text-sm text-error">
           {error}
         </span>
       )}
@@ -127,7 +128,7 @@ export function Chip({ active, onClick, children }: { active: boolean; onClick: 
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`min-h-[48px] shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
+      className={`pressable min-h-[48px] shrink-0 rounded-full border px-4 text-sm font-medium ${
         active ? 'border-secondary bg-secondary text-primary' : 'border-border bg-surface text-text'
       }`}
     >
@@ -210,6 +211,8 @@ export function Sheet({
   footer?: ReactNode
 }) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(open)
+  const closing = mounted && !open
   const onCloseRef = useRef(onClose)
   const titleId = useId()
 
@@ -267,20 +270,45 @@ export function Sheet({
     }
   }, [open])
 
-  if (!open) {
+  if (open && !mounted) {
+    setMounted(true)
+  }
+
+  useEffect(() => {
+    if (!closing) {
+      return
+    }
+    const timer = window.setTimeout(() => setMounted(false), 320)
+    return () => window.clearTimeout(timer)
+  }, [closing])
+
+  if (!mounted) {
     return null
   }
 
+  function onPanelAnimationEnd(event: AnimationEvent<HTMLDivElement>) {
+    if (closing && event.target === event.currentTarget) {
+      setMounted(false)
+    }
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center">
-      <div className="absolute inset-0 bg-primary/40" onClick={onClose} aria-hidden="true" />
+    <div className={`fixed inset-0 z-50 flex items-end justify-center lg:items-center ${closing ? 'pointer-events-none' : ''}`}>
+      <div
+        className={`absolute inset-0 bg-primary/40 ${closing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <div
         ref={panelRef}
+        onAnimationEnd={onPanelAnimationEnd}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="relative flex max-h-[90vh] w-full flex-col rounded-t-2xl bg-surface pb-[env(safe-area-inset-bottom)] focus:outline-none lg:max-w-lg lg:rounded-2xl lg:pb-0"
+        className={`relative flex max-h-[90vh] w-full flex-col rounded-t-2xl bg-surface pb-[env(safe-area-inset-bottom)] focus:outline-none lg:max-w-lg lg:rounded-2xl lg:pb-0 ${
+          closing ? 'animate-sheet-down lg:animate-pop-out' : 'animate-sheet-up lg:animate-pop-in'
+        }`}
       >
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2">
           <h2 id={titleId} className="font-serif text-lg font-bold text-text">
@@ -378,7 +406,10 @@ export function Skeleton({ lines = 3 }: { lines?: number }) {
   return (
     <div className="space-y-3" aria-busy="true" aria-label="Carregando">
       {Array.from({ length: lines }, (_, index) => (
-        <div key={index} className="h-14 rounded-[14px] bg-surface-alt" />
+        <div
+          key={index}
+          className="h-14 animate-shimmer rounded-[14px] bg-gradient-to-r from-surface-alt via-[#F8F4F2] to-surface-alt bg-[length:200%_100%]"
+        />
       ))}
     </div>
   )
@@ -415,15 +446,27 @@ export function Segmented<T extends string>({
   onChange: (value: T) => void
 }) {
   return (
-    <div role="group" className="flex rounded-xl bg-surface-alt p-1">
+    <div
+      role="group"
+      className="relative grid rounded-xl bg-surface-alt p-1"
+      style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-y-1 left-1 rounded-[10px] bg-secondary transition-transform duration-base ease-out"
+        style={{
+          width: `calc((100% - 0.5rem) / ${options.length})`,
+          transform: `translateX(${Math.max(0, options.findIndex((option) => option.value === value)) * 100}%)`,
+        }}
+      />
       {options.map((option) => (
         <button
           key={option.value}
           type="button"
           aria-pressed={option.value === value}
           onClick={() => onChange(option.value)}
-          className={`min-h-[48px] flex-1 rounded-[10px] px-3 text-sm font-semibold transition-colors ${
-            option.value === value ? 'bg-secondary text-primary' : 'text-text-secondary'
+          className={`relative min-h-[48px] rounded-[10px] px-3 text-sm font-semibold transition-colors ${
+            option.value === value ? 'text-primary' : 'text-text-secondary'
           }`}
         >
           {option.label}

@@ -338,7 +338,9 @@ export default function NewSale() {
           </ul>
           <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3">
             <span className="text-base text-text-secondary">Total</span>
-            <span className="font-serif text-2xl font-bold text-text">{money(total)}</span>
+            <span key={total} className="inline-block animate-value-flash font-serif text-2xl font-bold text-text">
+              {money(total)}
+            </span>
           </div>
         </Card>
 
@@ -488,7 +490,10 @@ function Done({ result, onNew }: { result: Result; onNew: () => void }) {
       {pending ? (
         <Clock3 className="mx-auto h-14 w-14 text-warning" aria-hidden="true" />
       ) : (
-        <CheckCircle2 className="mx-auto h-14 w-14 text-accent" aria-hidden="true" />
+        <CheckCircle2
+          className="mx-auto h-14 w-14 text-accent [&_path]:animate-check-draw [&_path]:[stroke-dasharray:12] [&_path]:[stroke-dashoffset:12]"
+          aria-hidden="true"
+        />
       )}
       <h1 className="font-serif text-2xl font-bold text-text">
         {pending ? 'Venda salva como pendente' : 'Venda concluída'}

@@ -17,7 +17,7 @@ import {
   StatusPill,
 } from '../../components/ui'
 import { dateTime, money, shortId } from '../../format'
-import { usePagedList } from '../../hooks'
+import { usePagedList, itemMotion } from '../../hooks'
 import { orderStatusMeta } from '../../types'
 import type { OrderStatus, OrderView } from '../../types'
 
@@ -140,13 +140,13 @@ export default function SalesList() {
         )}
         {data && orders.length > 0 && (
           <ul className="space-y-3">
-            {orders.map((order) => {
+            {orders.map((order, index) => {
               const meta = orderStatusMeta[order.status]
               return (
-                <li key={order.id}>
+                <li key={order.id} {...itemMotion(index, PAGE_SIZE)}>
                   <Link
                     to={`/sales/${order.id}`}
-                    className="block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    className="pressable block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     <Card className="flex min-h-[48px] items-center justify-between gap-3">
                       <div className="min-w-0">

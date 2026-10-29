@@ -7,7 +7,7 @@ import type { Period } from '../../components/PeriodPicker'
 import { useToast } from '../../components/Toast'
 import { Card, Chip, ChipRow, EmptyState, ErrorState, LinkButton, LoadMore, PageHeader, Segmented, Skeleton } from '../../components/ui'
 import { brDate, money } from '../../format'
-import { useLoad, usePagedList } from '../../hooks'
+import { useLoad, usePagedList, itemMotion } from '../../hooks'
 import { accountLabels } from '../../types'
 import type { Account, Entry, EntrySummary, EntryType, FinancialCategoryView } from '../../types'
 
@@ -139,15 +139,15 @@ export default function EntryList() {
         )}
         {data && entries.length > 0 && (
           <ul className="space-y-3">
-            {entries.map((entry) => {
+            {entries.map((entry, index) => {
               const income = entry.type === 'INCOME'
               const Icon = income ? ArrowUpCircle : ArrowDownCircle
               const target = entry.orderId ? `/sales/${entry.orderId}` : `/finance/${entry.id}`
               return (
-                <li key={entry.id}>
+                <li key={entry.id} {...itemMotion(index, PAGE_SIZE)}>
                   <Link
                     to={target}
-                    className="block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    className="pressable block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     <Card className="flex min-h-[48px] items-center gap-3">
                       <Icon className={`h-6 w-6 shrink-0 ${income ? 'text-accent' : 'text-error'}`} aria-hidden="true" />

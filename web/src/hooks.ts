@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchPage } from './api'
 import type { Model, Page } from './api'
@@ -80,4 +81,15 @@ export function usePagedList<T>(buildPath: (page: number) => string | null, deps
   const items = first.data ? [...first.data.items, ...extra] : []
   const page = lastPage ?? first.data?.page ?? null
   return { data: first.data, items, page, error: first.error, loading: first.loading, reload: first.reload, loadMore, loadingMore }
+}
+
+export function staggerStyle(index: number): CSSProperties {
+  return { animationDelay: `${Math.min(index, 8) * 30}ms` }
+}
+
+export function itemMotion(index: number, firstPageSize = 8): { className: string; style?: CSSProperties } {
+  if (index < firstPageSize) {
+    return { className: 'animate-rise-in [animation-fill-mode:both]', style: staggerStyle(index) }
+  }
+  return { className: 'animate-fade-in' }
 }

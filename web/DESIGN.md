@@ -298,11 +298,21 @@ fingir ser contabilidade fiscal.
 
 ## 10. Movimento
 
--   Transições curtas, 150--220 ms, somente quando ajudam a orientar.
--   Sem parallax, animações de entrada chamativas, partículas ou efeitos
-    elásticos.
--   Respeitar `prefers-reduced-motion`.
--   Feedback de toque rápido e discreto.
+-   Base "Precise": deslocamentos curtos, parada limpa, curva `out`
+    `cubic-bezier(.33,1,.68,1)`. Toque de "Spring" `cubic-bezier(.34,1.56,.64,1)`
+    só em press, abertura de sheet, check de sucesso e toast.
+-   Durações: `fast` 120 ms, `base` 200 ms, `slow` 280 ms. Nada acima de 320 ms.
+-   Animações: `fade-in`/`fade-out`, `rise-in` (8 px), `sheet-up`/`sheet-down`
+    (mobile), `pop-in`/`pop-out` (desktop), `toast-in`/`toast-out`, `shimmer`
+    (skeleton), `check-draw`, `shake` (erro de campo) e `value-flash`
+    (valor que muda). Press usa a classe `pressable` (`scale .97`).
+-   Cada rota entra com `rise-in`; listas escalonam só a primeira página
+    (30 ms por item, até 8); itens de "Carregar mais" só fazem `fade-in`.
+-   Sem parallax, partículas ou efeitos chamativos: o movimento orienta, não
+    decora.
+-   `prefers-reduced-motion`: sem deslocamento ou escala (`--motion-travel: 0`),
+    só opacidade em 150 ms, shimmer estático. O estado final é sempre visível.
+-   Referência: https://motion-reference.takayustudio.jp/ (Precise + Spring).
 
 ## 11. Regras para geração de telas com IA
 

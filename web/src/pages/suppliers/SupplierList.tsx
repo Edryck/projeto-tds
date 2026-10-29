@@ -5,7 +5,7 @@ import type { Model } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton } from '../../components/ui'
-import { usePagedList } from '../../hooks'
+import { usePagedList, itemMotion } from '../../hooks'
 import type { SupplierView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -99,11 +99,11 @@ export default function SupplierList() {
         )}
         {data && suppliers.length > 0 && (
           <ul className="space-y-3">
-            {suppliers.map((supplier) => (
-              <li key={supplier.id}>
+            {suppliers.map((supplier, index) => (
+              <li key={supplier.id} {...itemMotion(index, PAGE_SIZE)}>
                 <Link
                   to={`/suppliers/${supplier.id}`}
-                  className="block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  className="pressable block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   <Card className="flex min-h-[48px] items-center gap-3">
                     <div className="min-w-0">

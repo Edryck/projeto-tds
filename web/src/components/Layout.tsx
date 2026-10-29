@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { LogOut, Menu, Plus, WifiOff } from 'lucide-react'
 import { useAuth } from '../auth'
 import { bottomItems, createItems, menuGroups, visible } from '../nav'
@@ -86,6 +86,7 @@ function UserFooter({ onLogout }: { onLogout: () => void }) {
 export default function Layout({ children, hideNav }: { children: ReactNode; hideNav?: boolean }) {
   const { can, logout } = useAuth()
   const online = useOnline()
+  const { pathname } = useLocation()
   const [createOpen, setCreateOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -100,7 +101,9 @@ export default function Layout({ children, hideNav }: { children: ReactNode; hid
     return (
       <div className="min-h-screen">
         {offlineBanner}
-        <main className="mx-auto w-full max-w-[1200px] px-4 py-4">{children}</main>
+        <main key={pathname} className="mx-auto w-full max-w-[1200px] animate-rise-in px-4 py-4">
+          {children}
+        </main>
       </div>
     )
   }
@@ -147,7 +150,7 @@ export default function Layout({ children, hideNav }: { children: ReactNode; hid
               <Link
                 to={item.to}
                 onClick={() => setCreateOpen(false)}
-                className={`flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-base font-semibold text-text ${
+                className={`pressable flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-base font-semibold text-text ${
                   index === 0 && item.to === '/sales/new' ? 'bg-secondary' : 'border border-border bg-surface'
                 }`}
               >
@@ -192,7 +195,9 @@ export default function Layout({ children, hideNav }: { children: ReactNode; hid
 
       <div className="lg:pl-64">
         {offlineBanner}
-        <main className="mx-auto w-full max-w-[1200px] px-4 py-4 pb-28 lg:pb-8">{children}</main>
+        <main key={pathname} className="mx-auto w-full max-w-[1200px] animate-rise-in px-4 py-4 pb-28 lg:pb-8">
+          {children}
+        </main>
       </div>
 
       <nav

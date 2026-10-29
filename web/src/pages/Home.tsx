@@ -7,7 +7,7 @@ import { fetchPage, logoUrl, request, swapToFallbackLogo } from '../api'
 import { useAuth } from '../auth'
 import { Card, EmptyState, ErrorState, LinkButton, Skeleton, StatusPill } from '../components/ui'
 import { money, todayIso } from '../format'
-import { useLoad } from '../hooks'
+import { useLoad, itemMotion } from '../hooks'
 import { orderStatusMeta } from '../types'
 import type { Account, CancellationView, OrderView, Profit, SalesByPayment, StoreSettingsView } from '../types'
 
@@ -69,7 +69,9 @@ function Stat({
         <Icon className={`h-5 w-5 shrink-0 ${iconClassName}`} aria-hidden="true" />
         {label}
       </div>
-      <p className="font-serif text-2xl font-bold text-text">{value}</p>
+      <p key={value} className="animate-value-flash font-serif text-2xl font-bold text-text">
+        {value}
+      </p>
       <p className="text-sm text-text-secondary">{footnote}</p>
     </div>
   )
@@ -304,13 +306,13 @@ export default function Home() {
                 load={recent}
                 render={(page) => (
                   <ul className="divide-y divide-border">
-                    {page.items.map((order) => {
+                    {page.items.map((order, index) => {
                       const meta = orderStatusMeta[order.status]
                       return (
-                        <li key={order.id}>
+                        <li key={order.id} {...itemMotion(index)}>
                           <Link
                             to={`/sales/${order.id}`}
-                            className="flex min-h-[48px] items-center justify-between gap-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            className="pressable flex min-h-[48px] items-center justify-between gap-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                           >
                             <div className="min-w-0">
                               <p className="truncate font-semibold text-text">{order.customerName}</p>

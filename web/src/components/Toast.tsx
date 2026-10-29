@@ -6,7 +6,7 @@ type Tone = 'success' | 'error'
 
 type ToastAction = { label: string; to: string }
 
-type ToastState = { message: string; tone: Tone; action?: ToastAction }
+type ToastState = { message: string; tone: Tone; action?: ToastAction; leaving?: boolean }
 
 type ToastValue = {
   show: (message: string, tone?: Tone, action?: ToastAction) => void
@@ -21,7 +21,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const show = useCallback((message: string, tone: Tone = 'success', action?: ToastAction) => {
     window.clearTimeout(timer.current)
     setToast({ message, tone, action })
-    timer.current = window.setTimeout(() => setToast(null), action ? 6000 : 3000)
+    const total = action ? 6000 : 3000
+    timer.current = window.setTimeout(() => {
+      setToast((current) => (current ? { ...current, leaving: true } : null))
+      timer.current = window.setTimeout(() => setToast(null), 160)
+    }, total - 160)
   }, [])
 
   useEffect(() => () => window.clearTimeout(timer.current), [])
@@ -33,6 +37,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         <div
           role="status"
           className={`fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[60] mx-auto flex max-w-md flex-col items-center gap-2 rounded-xl px-4 py-3 text-center text-base font-medium lg:bottom-6 ${
+            toast.leaving ? 'animate-toast-out' : 'animate-toast-in'
+          } ${
             toast.tone === 'error' ? 'bg-error text-white' : 'bg-primary text-white'
           }`}
         >

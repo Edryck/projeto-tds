@@ -6,7 +6,7 @@ import type { Model } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, Chip, ChipRow, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton, StatusPill } from '../../components/ui'
-import { usePagedList } from '../../hooks'
+import { usePagedList, itemMotion } from '../../hooks'
 import type { VariantView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -164,7 +164,7 @@ export default function StockPosition() {
         )}
         {data && variants.length > 0 && (
           <ul className="space-y-3">
-            {variants.map((variant) => {
+            {variants.map((variant, index) => {
               const row = (
                 <Card className="flex min-h-[48px] items-center justify-between gap-3">
                   <div className="min-w-0">
@@ -181,11 +181,11 @@ export default function StockPosition() {
                 </Card>
               )
               return (
-                <li key={variant.id}>
+                <li key={variant.id} {...itemMotion(index, PAGE_SIZE)}>
                   {canAdjust ? (
                     <Link
                       to={`/stock/adjustment?variantId=${variant.id}`}
-                      className="block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      className="pressable block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                       {row}
                     </Link>

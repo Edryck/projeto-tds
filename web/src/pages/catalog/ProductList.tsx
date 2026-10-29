@@ -6,7 +6,7 @@ import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, Chip, ChipRow, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton } from '../../components/ui'
 import { money } from '../../format'
-import { useLoad, usePagedList } from '../../hooks'
+import { useLoad, usePagedList, itemMotion } from '../../hooks'
 import type { CategoryView, ProductView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -136,13 +136,13 @@ export default function ProductList() {
         )}
         {data && products.length > 0 && (
           <ul className="space-y-3">
-            {products.map((product) => {
+            {products.map((product, index) => {
               const soldOut = product.variantCount > 0 && product.totalBalance <= 0
               return (
-                <li key={product.id}>
+                <li key={product.id} {...itemMotion(index, PAGE_SIZE)}>
                   <Link
                     to={`/catalog/${product.id}`}
-                    className="block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    className="pressable block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     <Card className="flex min-h-[48px] items-center justify-between gap-3">
                       <div className="min-w-0">

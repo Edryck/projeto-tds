@@ -6,7 +6,7 @@ import type { Model } from '../../api'
 import { useToast } from '../../components/Toast'
 import { Button, Card, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton } from '../../components/ui'
 import { date } from '../../format'
-import { usePagedList } from '../../hooks'
+import { usePagedList, itemMotion } from '../../hooks'
 import type { CustomerView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -110,11 +110,11 @@ export default function CustomerList() {
         )}
         {data && customers.length > 0 && (
           <ul className="space-y-3">
-            {customers.map((customer) => (
-              <li key={customer.id}>
+            {customers.map((customer, index) => (
+              <li key={customer.id} {...itemMotion(index, PAGE_SIZE)}>
                 <Link
                   to={`/customers/${customer.id}`}
-                  className="block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  className="pressable block rounded-[14px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   <Card className="flex min-h-[48px] items-center gap-3">
                     <span

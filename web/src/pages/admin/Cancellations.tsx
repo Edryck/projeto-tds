@@ -6,7 +6,7 @@ import type { Model } from '../../api'
 import { useToast } from '../../components/Toast'
 import { Button, Card, ConfirmSheet, EmptyState, ErrorState, Field, PageHeader, Sheet, Skeleton, Textarea } from '../../components/ui'
 import { dateTime, money, shortId } from '../../format'
-import { useLoad } from '../../hooks'
+import { useLoad, itemMotion } from '../../hooks'
 import type { CancellationView } from '../../types'
 
 type Decision = { item: Model<CancellationView>; kind: 'approve' | 'reject' }
@@ -57,8 +57,8 @@ export default function Cancellations() {
       {list.error !== null && list.data === null && <ErrorState message={list.error} onRetry={list.reload} />}
       {list.data !== null && items.length === 0 && <EmptyState icon={Ban} title="Nenhuma solicitação pendente" />}
       <ul className="space-y-3">
-        {items.map((item) => (
-          <li key={item.id}>
+        {items.map((item, index) => (
+          <li key={item.id} {...itemMotion(index)}>
             <Card>
               <Link
                 to={`/sales/${item.orderId}`}
