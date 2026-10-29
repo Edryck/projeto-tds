@@ -1,5 +1,6 @@
 package br.com.chiccharmosa.exception;
 
+import br.com.chiccharmosa.service.StoreSettingsService;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
@@ -44,6 +46,14 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Dados inválidos");
         return handleExceptionInternal(exception, problem, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException exception,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY,
+                StoreSettingsService.INVALID_LOGO_MESSAGE);
+        return handleExceptionInternal(exception, problem, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
