@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
@@ -71,7 +73,7 @@ public class FinanceController {
 
     @GetMapping("/api/financial-categories")
     @PreAuthorize("hasAuthority('finance:view')")
-    public PagedModel<EntityModel<FinancialCategoryView>> listCategories(Pageable pageable) {
+    public PagedModel<EntityModel<FinancialCategoryView>> listCategories(@PageableDefault(size = 20, sort = {"name", "id"}) Pageable pageable) {
         return pagedCategoryAssembler.toModel(financialService.listCategoryViews(pageable),
                 financeAssembler::toCategoryViewModel);
     }
@@ -126,7 +128,7 @@ public class FinanceController {
             @RequestParam(required = false) EntryType type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            Pageable pageable) {
+            @PageableDefault(size = 20, sort = {"entryDate", "createdAt", "id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return pagedEntryAssembler.toModel(financialService.list(accountId, type, from, to, pageable),
                 financeAssembler);
     }

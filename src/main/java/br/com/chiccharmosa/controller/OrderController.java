@@ -14,6 +14,8 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -61,7 +63,7 @@ public class OrderController {
     public PagedModel<EntityModel<OrderView>> list(@RequestParam(required = false) OrderStatus status,
             @RequestParam(required = false) UUID customerId, @RequestParam(required = false) String q,
             @RequestParam(required = false) Instant from, @RequestParam(required = false) Instant to,
-            Pageable pageable) {
+            @PageableDefault(size = 20, sort = {"orderedAt", "id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return pagedOrderAssembler.toModel(orderService.listViews(status, customerId, q, from, to, pageable),
                 orderAssembler);
     }

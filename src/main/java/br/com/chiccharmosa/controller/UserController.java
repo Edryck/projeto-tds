@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -55,7 +56,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAuthority('user:manage')")
     public PagedModel<EntityModel<UserResponse>> list(@RequestParam(required = false) String name,
-            Pageable pageable) {
+            @PageableDefault(size = 20, sort = {"name", "id"}) Pageable pageable) {
         return pagedAssembler.toModel(userService.list(name, pageable), userAssembler);
     }
 

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -57,7 +58,7 @@ public class ProductController {
     @GetMapping
     @PreAuthorize("hasAuthority('product:view')")
     public PagedModel<EntityModel<ProductView>> list(@RequestParam(required = false) String name,
-            @RequestParam(required = false) UUID categoryId, Pageable pageable) {
+            @RequestParam(required = false) UUID categoryId, @PageableDefault(size = 20, sort = {"name", "id"}) Pageable pageable) {
         return pagedAssembler.toModel(catalogService.listProductViews(name, categoryId, pageable),
                 productAssembler::toViewModel);
     }

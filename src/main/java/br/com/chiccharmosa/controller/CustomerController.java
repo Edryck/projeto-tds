@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -63,7 +64,7 @@ public class CustomerController {
     @PreAuthorize("hasAuthority('customer:view')")
     public PagedModel<EntityModel<CustomerView>> list(@RequestParam(required = false) String q,
             @RequestParam(required = false) String name, @RequestParam(required = false) String phone,
-            Pageable pageable) {
+            @PageableDefault(size = 20, sort = {"name", "id"}) Pageable pageable) {
         return pagedCustomerAssembler.toModel(customerService.listViews(q, name, phone, pageable),
                 customerAssembler::toViewModel);
     }

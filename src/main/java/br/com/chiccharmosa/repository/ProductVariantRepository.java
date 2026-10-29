@@ -49,7 +49,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
             group by v, p.name
             having (:minBalance is null or coalesce(sum(m.quantity), 0) >= :minBalance)
             and (:maxBalance is null or coalesce(sum(m.quantity), 0) <= :maxBalance)
-            order by p.name, v.size
+            order by p.name, v.size, v.color, v.id
             """, countQuery = """
             select count(v) from ProductVariant v
             join v.product p
