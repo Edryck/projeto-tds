@@ -93,6 +93,17 @@ public class TestData {
         return userRepository.save(user);
     }
 
+    public User userWithRole(UUID roleId) {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setEmail(UUID.randomUUID() + "@test.com");
+        user.setPasswordHash(passwordEncoder.encode(PASSWORD));
+        user.setName("Usuário de teste");
+        user.setRole(roleRepository.findById(roleId).orElseThrow());
+        user.setActive(true);
+        return userRepository.save(user);
+    }
+
     public User admin() {
         return userRepository.findById(SeedIds.ADMIN_USER).orElseThrow();
     }

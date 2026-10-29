@@ -11,6 +11,7 @@ import br.com.chiccharmosa.repository.DeviceRepository;
 import br.com.chiccharmosa.repository.RefreshTokenRepository;
 import br.com.chiccharmosa.repository.RoleRepository;
 import br.com.chiccharmosa.repository.UserRepository;
+import br.com.chiccharmosa.security.CurrentUser;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.UUID;
@@ -90,6 +91,10 @@ public class UserService {
     @Transactional
     public UserResponse update(UUID id, UserRequest request, Instant changedAt) {
         User user = findActive(id);
+        boolean isSelf = id.equals(CurrentUser.current().userId());
+        if (isSelf && (!request.active() || !user.getRole().getId().equals(request.roleId()))) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Você não pode alterar o próprio papel ou situação");
+        }
         UserResponse before = UserResponse.from(user);
         String email = normalizeEmail(request.email());
         ensureEmailFree(email, id);

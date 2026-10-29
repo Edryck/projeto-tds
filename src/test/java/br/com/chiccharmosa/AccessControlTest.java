@@ -1,5 +1,6 @@
 package br.com.chiccharmosa;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -7,7 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import br.com.chiccharmosa.entity.User;
+import br.com.chiccharmosa.config.SeedIds;
 import com.jayway.jsonpath.JsonPath;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,5 +138,36 @@ class AccessControlTest extends IntegrationTest {
         String body = "{\"name\":\"Perfil de teste\",\"permissionCodes\":[" + quoted + "]}";
         return put("/api/roles/" + roleId).header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).content(body);
+    }
+
+    @Test
+    void cashierCanRequestButNotCancelOrders() throws Exception {
+        User cashier = testData.userWithRole(SeedIds.CASHIER_ROLE);
+        Set<String> permissions = testData.loginAs(cashier).permissions();
+        assertThat(permissions).contains("order:request-cancel", "finance:edit", "audit:view");
+        assertThat(permissions).doesNotContain("order:cancel", "user:manage", "coupon:edit", "settings:manage");
+    }
+
+    @Test
+    void adminCannotDeactivateSelf() throws Exception {
+        User admin = testData.userWithRole(SeedIds.ADMIN_ROLE);
+        String token = testData.tokenFor(testData.loginAs(admin));
+        mockMvc.perform(put("/api/users/" + admin.getId()).header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(selfBody(admin, SeedIds.ADMIN_ROLE, false)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void adminCannotChangeOwnRole() throws Exception {
+        User admin = testData.userWithRole(SeedIds.ADMIN_ROLE);
+        String token = testData.tokenFor(testData.loginAs(admin));
+        mockMvc.perform(put("/api/users/" + admin.getId()).header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).content(selfBody(admin, SeedIds.CASHIER_ROLE, true)))
+                .andExpect(status().isConflict());
+    }
+
+    private String selfBody(User user, UUID roleId, boolean active) {
+        return "{\"email\":\"" + user.getEmail() + "\",\"name\":\"" + user.getName() + "\",\"roleId\":\""
+                + roleId + "\",\"active\":" + active + "}";
     }
 }
