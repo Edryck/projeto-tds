@@ -1,12 +1,16 @@
 package br.com.chiccharmosa.service;
 
+import br.com.chiccharmosa.dto.CancellationDto.CancellationView;
 import br.com.chiccharmosa.dto.OrderDto.ItemRequest;
 import br.com.chiccharmosa.dto.OrderDto.ItemView;
 import br.com.chiccharmosa.dto.OrderDto.OrderRequest;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
 import br.com.chiccharmosa.dto.OrderDto.OrderView;
 import br.com.chiccharmosa.dto.OrderDto.PaymentView;
+import br.com.chiccharmosa.dto.OrderDto.PendingCancellation;
 import br.com.chiccharmosa.dto.OrderDto.ShipmentView;
+import br.com.chiccharmosa.entity.CancellationRequest;
+import br.com.chiccharmosa.entity.CancellationStatus;
 import br.com.chiccharmosa.entity.Coupon;
 import br.com.chiccharmosa.entity.Customer;
 import br.com.chiccharmosa.entity.Order;
@@ -18,12 +22,15 @@ import br.com.chiccharmosa.entity.ProductVariant;
 import br.com.chiccharmosa.entity.Shipment;
 import br.com.chiccharmosa.entity.ShippingMethod;
 import br.com.chiccharmosa.exception.BusinessException;
+import br.com.chiccharmosa.repository.CancellationRequestRepository;
 import br.com.chiccharmosa.repository.CouponRepository;
 import br.com.chiccharmosa.repository.CustomerRepository;
 import br.com.chiccharmosa.repository.OrderRepository;
 import br.com.chiccharmosa.repository.PaymentRepository;
 import br.com.chiccharmosa.repository.ProductVariantRepository;
 import br.com.chiccharmosa.repository.ShipmentRepository;
+import br.com.chiccharmosa.repository.UserRepository;
+import br.com.chiccharmosa.security.CurrentUser;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -56,11 +63,14 @@ public class OrderService {
     private final CouponService couponService;
     private final FinancialService financialService;
     private final AuditService auditService;
+    private final CancellationRequestRepository cancellationRepository;
+    private final UserRepository userRepository;
 
     public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository,
             ProductVariantRepository variantRepository, PaymentRepository paymentRepository,
             ShipmentRepository shipmentRepository, CouponRepository couponRepository, StockService stockService, CouponService couponService,
-            FinancialService financialService, AuditService auditService) {
+            FinancialService financialService, AuditService auditService,
+            CancellationRequestRepository cancellationRepository, UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.variantRepository = variantRepository;
@@ -71,6 +81,8 @@ public class OrderService {
         this.couponService = couponService;
         this.financialService = financialService;
         this.auditService = auditService;
+        this.cancellationRepository = cancellationRepository;
+        this.userRepository = userRepository;
     }
 
     public boolean exists(UUID id) {
@@ -159,7 +171,8 @@ public class OrderService {
         Order order = findActiveOrder(id);
         Payment payment = paymentRepository.findByOrderId(id).orElse(null);
         Shipment shipment = shipmentRepository.findByOrderId(id).orElse(null);
-        return toView(order, payment, shipment);
+        CancellationRequest pending = cancellationRepository.findPendingByOrderId(id).orElse(null);
+        return toView(order, payment, shipment, pending);
     }
 
     public Page<OrderView> listViews(OrderStatus status, UUID customerId, String q, Instant from, Instant to,
@@ -177,7 +190,12 @@ public class OrderService {
         for (Shipment shipment : shipmentRepository.findByOrderIdIn(ids)) {
             shipments.put(shipment.getOrderId(), shipment);
         }
-        return page.map(order -> toView(order, payments.get(order.getId()), shipments.get(order.getId())));
+        Map<UUID, CancellationRequest> pendings = new HashMap<>();
+        for (CancellationRequest pending : cancellationRepository.findPendingByOrderIds(ids)) {
+            pendings.put(pending.getOrder().getId(), pending);
+        }
+        return page.map(order -> toView(order, payments.get(order.getId()), shipments.get(order.getId()),
+                pendings.get(order.getId())));
     }
 
     private Page<Order> searchOrders(OrderStatus status, UUID customerId, String q, Instant from, Instant to,
@@ -199,7 +217,7 @@ public class OrderService {
         return text.toLowerCase();
     }
 
-    private OrderView toView(Order order, Payment payment, Shipment shipment) {
+    private OrderView toView(Order order, Payment payment, Shipment shipment, CancellationRequest pending) {
         List<ItemView> items = new ArrayList<>();
         for (OrderItem item : order.getItems()) {
             items.add(toItemView(item));
@@ -214,9 +232,15 @@ public class OrderService {
             shipmentView = new ShipmentView(shipment.getMethod(), shipment.getTrackingCode(),
                     shipment.getShippedAt(), shipment.getDeliveredAt());
         }
+        PendingCancellation pendingCancellation = null;
+        if (pending != null) {
+            pendingCancellation = new PendingCancellation(pending.getId(), pending.getReason(),
+                    pending.getRequestedBy().getName(), pending.getCreatedAt());
+        }
         return new OrderView(order.getId(), order.getCustomer().getId(), order.getCustomer().getName(),
                 order.getStatus(), items, order.getSubtotal(), order.getDiscount(), order.getShippingCost(),
-                order.getTotal(), couponCode, order.getNote(), order.getOrderedAt(), paymentView, shipmentView);
+                order.getTotal(), couponCode, order.getNote(), order.getOrderedAt(), paymentView, shipmentView,
+                pendingCancellation);
     }
 
     private ItemView toItemView(OrderItem item) {
@@ -232,6 +256,7 @@ public class OrderService {
     @Transactional
     public OrderResponse pay(UUID id, PaymentMethod method, Instant changedAt) {
         Order order = findLockedOrder(id);
+        rejectIfCancellationPending(order);
         OrderResponse before = OrderResponse.from(order);
         moveTo(order, OrderStatus.PAID, changedAt);
         Payment payment = new Payment();
@@ -249,6 +274,7 @@ public class OrderService {
     @Transactional
     public OrderResponse ship(UUID id, ShippingMethod method, String trackingCode, Instant changedAt) {
         Order order = findLockedOrder(id);
+        rejectIfCancellationPending(order);
         if (!order.getStatus().canMoveTo(OrderStatus.SHIPPED)) {
             throw new BusinessException(UNPROCESSABLE, "Transição de status inválida");
         }
@@ -272,6 +298,7 @@ public class OrderService {
     @Transactional
     public OrderResponse deliver(UUID id, Instant changedAt) {
         Order order = findLockedOrder(id);
+        rejectIfCancellationPending(order);
         OrderResponse before = OrderResponse.from(order);
         moveTo(order, OrderStatus.DELIVERED, changedAt);
         Shipment shipment = shipmentRepository.findByOrderId(order.getId())
@@ -284,6 +311,11 @@ public class OrderService {
     @Transactional
     public OrderResponse cancel(UUID id, Instant changedAt) {
         Order order = findLockedOrder(id);
+        CancellationRequest pending = cancellationRepository.findPendingByOrderId(id).orElse(null);
+        return cancelOrder(order, pending, null, changedAt);
+    }
+
+    private OrderResponse cancelOrder(Order order, CancellationRequest pending, String response, Instant changedAt) {
         OrderResponse before = OrderResponse.from(order);
         boolean wasPaid = order.getStatus() == OrderStatus.PAID;
         moveTo(order, OrderStatus.CANCELLED, changedAt);
@@ -291,7 +323,80 @@ public class OrderService {
         if (wasPaid) {
             financialService.recordRefund(order, changedAt);
         }
+        if (pending != null) {
+            decide(pending, CancellationStatus.APPROVED, response, changedAt);
+        }
         return recordStatusChange(order, before, changedAt);
+    }
+
+    @Transactional
+    public CancellationView requestCancellation(UUID orderId, String reason, Instant changedAt) {
+        Order order = findLockedOrder(orderId);
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.PAID) {
+            throw new BusinessException(UNPROCESSABLE, "Pedido não pode ser cancelado");
+        }
+        if (cancellationRepository.findPendingByOrderId(orderId).isPresent()) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Já existe uma solicitação pendente para este pedido");
+        }
+        CancellationRequest request = new CancellationRequest();
+        request.setId(UUID.randomUUID());
+        request.setOrder(order);
+        request.setReason(reason.trim());
+        request.setRequestedBy(userRepository.getReferenceById(CurrentUser.current().userId()));
+        request.setStatus(CancellationStatus.PENDING);
+        request.touch(changedAt);
+        CancellationView view = CancellationView.from(cancellationRepository.save(request));
+        auditService.record(AuditService.CANCELLATION_REQUEST, request.getId(), AuditService.CREATE, null, view,
+                changedAt);
+        return view;
+    }
+
+    public Page<CancellationView> listCancellations(CancellationStatus status, Pageable pageable) {
+        return cancellationRepository.search(status, pageable).map(CancellationView::from);
+    }
+
+    @Transactional
+    public CancellationView approveCancellation(UUID id, String response, Instant changedAt) {
+        CancellationRequest request = findPendingForDecision(id);
+        cancelOrder(request.getOrder(), request, response, changedAt);
+        return CancellationView.from(request);
+    }
+
+    @Transactional
+    public CancellationView rejectCancellation(UUID id, String response, Instant changedAt) {
+        CancellationRequest request = findPendingForDecision(id);
+        decide(request, CancellationStatus.REJECTED, response, changedAt);
+        return CancellationView.from(request);
+    }
+
+    // trava o pedido antes de ler a solicitação, assim aprovar, recusar e cancelar direto nunca decidem a mesma ao mesmo tempo
+    private CancellationRequest findPendingForDecision(UUID id) {
+        UUID orderId = cancellationRepository.findOrderIdById(id)
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "Solicitação não encontrada"));
+        findLockedOrder(orderId);
+        CancellationRequest request = cancellationRepository.findById(id).orElseThrow();
+        if (request.getStatus() != CancellationStatus.PENDING) {
+            throw new BusinessException(HttpStatus.CONFLICT, "Solicitação já decidida");
+        }
+        return request;
+    }
+
+    private void decide(CancellationRequest request, CancellationStatus status, String response, Instant changedAt) {
+        CancellationView before = CancellationView.from(request);
+        request.setStatus(status);
+        request.setDecidedBy(userRepository.getReferenceById(CurrentUser.current().userId()));
+        request.setDecidedAt(changedAt);
+        request.setResponse(response == null || response.isBlank() ? null : response.trim());
+        request.touch(changedAt);
+        CancellationView after = CancellationView.from(request);
+        auditService.record(AuditService.CANCELLATION_REQUEST, request.getId(), AuditService.STATUS_CHANGE, before,
+                after, changedAt);
+    }
+
+    private void rejectIfCancellationPending(Order order) {
+        if (cancellationRepository.findPendingByOrderId(order.getId()).isPresent()) {
+            throw new BusinessException(UNPROCESSABLE, "Pedido com cancelamento pendente");
+        }
     }
 
     @Transactional

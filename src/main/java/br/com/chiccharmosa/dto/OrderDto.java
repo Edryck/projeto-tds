@@ -73,9 +73,13 @@ public final class OrderDto {
     public record ShipmentView(ShippingMethod method, String trackingCode, Instant shippedAt, Instant deliveredAt) {
     }
 
+    public record PendingCancellation(UUID id, String reason, String requestedByName, Instant requestedAt) {
+    }
+
     @Relation(collectionRelation = "orders")
     public record OrderView(UUID id, UUID customerId, String customerName, OrderStatus status, List<ItemView> items,
             BigDecimal subtotal, BigDecimal discount, BigDecimal shippingCost, BigDecimal total, String couponCode,
-            String note, Instant orderedAt, PaymentView payment, ShipmentView shipment) {
+            String note, Instant orderedAt, PaymentView payment, ShipmentView shipment,
+            PendingCancellation pendingCancellation) {
     }
 }

@@ -1,6 +1,7 @@
 package br.com.chiccharmosa.controller;
 
 import br.com.chiccharmosa.assembler.OrderAssembler;
+import br.com.chiccharmosa.dto.CancellationDto.CancellationRequestBody;
 import br.com.chiccharmosa.dto.OrderDto.OrderRequest;
 import br.com.chiccharmosa.dto.OrderDto.OrderResponse;
 import br.com.chiccharmosa.dto.OrderDto.OrderView;
@@ -97,6 +98,15 @@ public class OrderController {
     public EntityModel<OrderView> cancel(@PathVariable UUID id) {
         orderService.cancel(id, Instant.now());
         return orderAssembler.toModel(orderService.getView(id));
+    }
+
+    @PostMapping("/{id}/cancellation-requests")
+    @PreAuthorize("hasAuthority('order:request-cancel')")
+    public ResponseEntity<EntityModel<OrderView>> requestCancellation(@PathVariable UUID id,
+            @Valid @RequestBody CancellationRequestBody request) {
+        orderService.requestCancellation(id, request.reason(), Instant.now());
+        EntityModel<OrderView> model = orderAssembler.toModel(orderService.getView(id));
+        return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(model);
     }
 
     @PatchMapping("/{id}/shipping-cost")

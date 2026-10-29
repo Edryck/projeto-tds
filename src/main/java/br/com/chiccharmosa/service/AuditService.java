@@ -30,6 +30,7 @@ public class AuditService {
     public static final String ROLE = "ROLE";
     public static final String SUPPLIER = "SUPPLIER";
     public static final String STORE_SETTINGS = "STORE_SETTINGS";
+    public static final String CANCELLATION_REQUEST = "CANCELLATION_REQUEST";
 
     public static final String CREATE = "CREATE";
     public static final String UPDATE = "UPDATE";
