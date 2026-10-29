@@ -3,13 +3,13 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Clock3, Plus, Receipt, RefreshCw, ShoppingBag, TrendingDown, TrendingUp } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { fetchPage, request } from '../api'
+import { fetchPage, logoUrl, request, swapToFallbackLogo } from '../api'
 import { useAuth } from '../auth'
 import { Card, EmptyState, ErrorState, LinkButton, Skeleton, StatusPill } from '../components/ui'
 import { money, todayIso } from '../format'
 import { useLoad } from '../hooks'
 import { orderStatusMeta } from '../types'
-import type { Account, OrderView, Profit, SalesByPayment } from '../types'
+import type { Account, OrderView, Profit, SalesByPayment, StoreSettingsView } from '../types'
 
 const TIME_ZONE = 'America/Sao_Paulo'
 
@@ -92,6 +92,9 @@ export default function Home() {
   const canCreate = can('order:create')
 
   const [updatedAt, setUpdatedAt] = useState(() => new Date())
+  const [logoVersion] = useState(() => Date.now())
+  const settings = useLoad(() => request<StoreSettingsView>('/api/store-settings'), [])
+  const storeName = settings.data?.name ?? 'Chic Charmosa'
 
   const salesToday = useLoad(async () => {
     if (!canFinance) {
@@ -149,7 +152,12 @@ export default function Home() {
   return (
     <div className="mx-auto max-w-5xl">
       <header className="flex flex-wrap items-center gap-3">
-        <img src="/logo.jpg" alt="Chic Charmosa" className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+        <img
+          src={logoUrl(logoVersion)}
+          alt={storeName}
+          onError={swapToFallbackLogo}
+          className="h-12 w-12 shrink-0 rounded-xl object-cover"
+        />
         <div className="min-w-0 flex-1">
           <h1 className="font-serif text-2xl font-bold text-text">
             {greetingFor(currentHour())}, {firstName}

@@ -1,3 +1,5 @@
+import type { SyntheticEvent } from 'react'
+
 const API_URL = import.meta.env.VITE_API_URL
 const REFRESH_KEY = 'refreshToken'
 
@@ -15,6 +17,7 @@ export class ApiError extends Error {
 type Options = {
   method?: string
   body?: unknown
+  form?: FormData
   anonymous?: boolean
 }
 
@@ -51,7 +54,7 @@ export function clearTokens() {
 
 async function send(path: string, options: Options): Promise<Response> {
   const headers: Record<string, string> = {}
-  if (options.body !== undefined) {
+  if (options.body !== undefined && !options.form) {
     headers['Content-Type'] = 'application/json'
   }
   if (!options.anonymous && accessToken) {
@@ -61,7 +64,7 @@ async function send(path: string, options: Options): Promise<Response> {
     return await fetch(`${API_URL}${path}`, {
       method: options.method ?? 'GET',
       headers,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      body: options.form ?? (options.body === undefined ? undefined : JSON.stringify(options.body)),
     })
   } catch {
     throw new ApiError(0, 'Sem conexão com o servidor')
@@ -128,6 +131,25 @@ export async function request<T>(path: string, options: Options = {}): Promise<T
     return undefined as T
   }
   return response.json()
+}
+
+export function upload<T>(path: string, file: File): Promise<T> {
+  const form = new FormData()
+  form.append('file', file)
+  return request<T>(path, { method: 'PUT', form })
+}
+
+export const FALLBACK_LOGO = '/logo.jpg'
+
+export function logoUrl(version: number): string {
+  return `${API_URL}/api/store-settings/logo?v=${version}`
+}
+
+export function swapToFallbackLogo(event: SyntheticEvent<HTMLImageElement>) {
+  const image = event.currentTarget
+  if (!image.src.endsWith(FALLBACK_LOGO)) {
+    image.src = FALLBACK_LOGO
+  }
 }
 
 export function follow<T>(link: { href: string }, options: Options = {}): Promise<T> {

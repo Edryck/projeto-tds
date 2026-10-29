@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
-import { ApiError } from '../api'
+import { ApiError, logoUrl, swapToFallbackLogo } from '../api'
 import { useAuth } from '../auth'
 import { Button, Field, Input } from '../components/ui'
 
@@ -36,6 +36,7 @@ export default function Login() {
   const [passwordError, setPasswordError] = useState('')
   const [apiError, setApiError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [logoVersion] = useState(() => Date.now())
 
   if (me) {
     return <Navigate to="/" replace />
@@ -66,7 +67,12 @@ export default function Login() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-2xl bg-surface p-2">
-          <img src="/logo.jpg" alt="Chic Charmosa" className="h-full w-full object-contain" />
+          <img
+            src={logoUrl(logoVersion)}
+            alt="Chic Charmosa"
+            onError={swapToFallbackLogo}
+            className="h-full w-full object-contain"
+          />
         </div>
         <h1 className="font-serif text-2xl font-bold text-text">Bem-vinda de volta</h1>
         <p className="mb-6 mt-1 text-base text-text-secondary">Entre para gerenciar sua loja</p>

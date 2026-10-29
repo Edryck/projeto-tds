@@ -241,3 +241,11 @@ export type UserResponse = {
   roleName: string
   active: boolean
 }
+
+export type StoreSettingsView = {
+  name: string
+  phone: string | null
+  email: string | null
+  address: string | null
+  hasLogo: boolean
+}

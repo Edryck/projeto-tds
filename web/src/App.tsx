@@ -29,6 +29,7 @@ import SupplierList from './pages/suppliers/SupplierList'
 import StoreResult from './pages/reports/StoreResult'
 import SalesByPayment from './pages/reports/SalesByPayment'
 import Users from './pages/admin/Users'
+import StoreSettings from './pages/admin/StoreSettings'
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { me, loading } = useAuth()
@@ -304,6 +305,14 @@ export default function App() {
               element={
                 <Screen permission="user:manage">
                   <Users />
+                </Screen>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <Screen permission="settings:manage">
+                  <StoreSettings />
                 </Screen>
               }
             />
