@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { ArrowDownCircle, ArrowUpCircle, Pencil, Plus, Tags, Trash2 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { fetchPage, newId, request } from '../../api'
+import { ApiError, fetchPage, newId, request } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, ConfirmSheet, EmptyState, ErrorState, Field, Input, PageHeader, Select, Sheet, Skeleton, StatusPill } from '../../components/ui'
@@ -108,6 +108,12 @@ export default function FinancialCategories() {
       toast.show('Categoria excluída')
       categories.reload()
     } catch (caught) {
+      if (caught instanceof ApiError && caught.status === 409) {
+        setDeleteTarget(null)
+        toast.show(caught.message, 'error')
+        categories.reload()
+        return
+      }
       setDeleteError(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado')
       categories.reload()
     } finally {

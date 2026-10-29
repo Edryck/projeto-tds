@@ -70,6 +70,8 @@ export default function StockAdjustment() {
         if (active && caught instanceof ApiError && caught.status === 404) {
           setSelected(null)
           setMissing(true)
+        } else if (active) {
+          show('Não foi possível carregar a variante. Escolha manualmente.', 'error')
         }
       }
     }
@@ -77,7 +79,7 @@ export default function StockAdjustment() {
     return () => {
       active = false
     }
-  }, [prefillId])
+  }, [prefillId, show])
 
   function pickVariant(variant: VariantView) {
     setSelected({

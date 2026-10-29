@@ -1,15 +1,13 @@
-import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowDownCircle, ArrowUpCircle, Plus, Wallet } from 'lucide-react'
 import { fetchPage, request } from '../../api'
-import type { Model, Page } from '../../api'
 import { useAuth } from '../../auth'
-import PeriodPicker, { brDate, periodFromRange, presetPeriod } from '../../components/PeriodPicker'
+import PeriodPicker, { periodFromRange, presetPeriod } from '../../components/PeriodPicker'
 import type { Period } from '../../components/PeriodPicker'
 import { useToast } from '../../components/Toast'
 import { Card, Chip, ChipRow, EmptyState, ErrorState, LinkButton, LoadMore, PageHeader, Segmented, Skeleton } from '../../components/ui'
-import { money } from '../../format'
-import { useLoad } from '../../hooks'
+import { brDate, money } from '../../format'
+import { useLoad, usePagedList } from '../../hooks'
 import { accountLabels } from '../../types'
 import type { Account, Entry, EntrySummary, EntryType, FinancialCategoryView } from '../../types'
 
@@ -37,9 +35,6 @@ export default function EntryList() {
   const { can } = useAuth()
   const canEdit = can('finance:edit')
   const [params, setParams] = useSearchParams()
-  const [extra, setExtra] = useState<Model<Entry>[]>([])
-  const [lastPage, setLastPage] = useState<Page<Entry>['page'] | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
 
   const initial = presetPeriod('thisMonth')
   const period = periodFromRange(params.get('from') ?? initial.from, params.get('to') ?? initial.to)
@@ -52,14 +47,7 @@ export default function EntryList() {
   const store = accounts.data?.find((account) => account.type === 'STORE')
   const accountId = params.get('account') ?? store?.id ?? accounts.data?.[0]?.id ?? ''
 
-  const { data, error, loading, reload } = useLoad(async () => {
-    setExtra([])
-    setLastPage(null)
-    if (accountId === '') {
-      return null
-    }
-    return fetchPage<Entry>(buildPath(accountId, period, type, 0))
-  }, [accountId, period.from, period.to, type])
+  const { data, items, page, error, loading, reload, loadMore, loadingMore } = usePagedList<Entry>((page) => (accountId === '' ? null : buildPath(accountId, period, type, page)), [accountId, period.from, period.to, type])
 
   const summary = useLoad(async () => {
     if (accountId === '') {
@@ -81,25 +69,12 @@ export default function EntryList() {
     setParams(next, { replace: true })
   }
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<Entry>(buildPath(accountId, period, type, current.number + 1))
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error'))
   }
 
   const categoryNames = new Map((categories.data ?? []).map((category) => [category.id, category.name]))
-  const entries = data ? [...data.items, ...extra] : []
+  const entries = items
   const newButton = canEdit ? (
     <LinkButton to="/finance/new">
       <Plus className="h-5 w-5" aria-hidden="true" />
@@ -192,7 +167,7 @@ export default function EntryList() {
             })}
           </ul>
         )}
-        {data && entries.length > 0 && <LoadMore page={lastPage ?? data.page} onMore={loadMore} loading={loadingMore} />}
+        {page && entries.length > 0 && <LoadMore page={page} onMore={onMore} loading={loadingMore} />}
       </div>
     </div>
   )

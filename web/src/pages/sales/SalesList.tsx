@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Receipt, Search } from 'lucide-react'
-import { fetchPage } from '../../api'
-import type { Model, Page } from '../../api'
 import { useToast } from '../../components/Toast'
 import {
   Button,
@@ -19,7 +17,7 @@ import {
   StatusPill,
 } from '../../components/ui'
 import { dateTime, money, shortId } from '../../format'
-import { useLoad } from '../../hooks'
+import { usePagedList } from '../../hooks'
 import { orderStatusMeta } from '../../types'
 import type { OrderStatus, OrderView } from '../../types'
 
@@ -46,9 +44,6 @@ export default function SalesList() {
   const rawStatus = params.get('status') ?? ''
   const status = statusOrder.includes(rawStatus as OrderStatus) ? rawStatus : ''
   const [text, setText] = useState(q)
-  const [extra, setExtra] = useState<Model<OrderView>[]>([])
-  const [lastPage, setLastPage] = useState<Page<OrderView>['page'] | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
     const trimmed = text.trim()
@@ -67,11 +62,7 @@ export default function SalesList() {
     return () => window.clearTimeout(timer)
   }, [text, q, params, setParams])
 
-  const { data, error, loading, reload } = useLoad(() => {
-    setExtra([])
-    setLastPage(null)
-    return fetchPage<OrderView>(buildPath(q, status, 0))
-  }, [q, status])
+  const { data, items, page, error, loading, reload, loadMore, loadingMore } = usePagedList<OrderView>((page) => buildPath(q, status, page), [q, status])
 
   function selectStatus(value: string) {
     const next = new URLSearchParams(params)
@@ -88,24 +79,11 @@ export default function SalesList() {
     setParams({}, { replace: true })
   }
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<OrderView>(buildPath(q, status, current.number + 1))
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error'))
   }
 
-  const orders = data ? [...data.items, ...extra] : []
+  const orders = items
   const filtered = q !== '' || status !== ''
 
   return (
@@ -189,7 +167,7 @@ export default function SalesList() {
             })}
           </ul>
         )}
-        {data && orders.length > 0 && <LoadMore page={lastPage ?? data.page} onMore={loadMore} loading={loadingMore} />}
+        {page && orders.length > 0 && <LoadMore page={page} onMore={onMore} loading={loadingMore} />}
       </div>
     </div>
   )

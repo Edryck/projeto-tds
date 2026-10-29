@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type NavItem = { label: string; to: string; icon: LucideIcon; permission?: string }
+export type NavItem = { label: string; to: string; icon: LucideIcon; permission?: string; end?: boolean }
 
 export const bottomItems: NavItem[] = [
   { label: 'Início', to: '/', icon: Home },
@@ -44,7 +44,7 @@ export const menuGroups: { title: string; items: NavItem[] }[] = [
     title: 'Cadastros',
     items: [
       { label: 'Clientes', to: '/customers', icon: Users, permission: 'customer:view' },
-      { label: 'Catálogo', to: '/catalog', icon: Package, permission: 'product:view' },
+      { label: 'Catálogo', to: '/catalog', icon: Package, permission: 'product:view', end: true },
       { label: 'Categorias', to: '/catalog/categories', icon: Layers, permission: 'product:view' },
       { label: 'Fornecedores', to: '/suppliers', icon: Truck, permission: 'stock:view' },
     ],
@@ -52,7 +52,7 @@ export const menuGroups: { title: string; items: NavItem[] }[] = [
   {
     title: 'Financeiro',
     items: [
-      { label: 'Lançamentos', to: '/finance', icon: Wallet, permission: 'finance:view' },
+      { label: 'Lançamentos', to: '/finance', icon: Wallet, permission: 'finance:view', end: true },
       { label: 'Fechamento', to: '/finance/closing', icon: CalendarCheck, permission: 'finance:view' },
       { label: 'Categorias financeiras', to: '/finance/categories', icon: Landmark, permission: 'finance:view' },
     ],

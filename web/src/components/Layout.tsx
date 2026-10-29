@@ -53,7 +53,7 @@ function SideLink({ item, onNavigate }: { item: NavItem; onNavigate?: () => void
   return (
     <NavLink
       to={item.to}
-      end={item.to === '/'}
+      end={item.to === '/' || item.end}
       onClick={onNavigate}
       className={({ isActive }) =>
         `flex min-h-[48px] items-center gap-3 rounded-xl px-3 text-base font-medium text-text ${

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Ban, CheckCircle2, Clock3, PackageCheck, Pencil, Truck } from 'lucide-react'
-import { follow, hasLink, request } from '../../api'
+import { ApiError, follow, hasLink, request } from '../../api'
 import type { Model } from '../../api'
 import { useToast } from '../../components/Toast'
 import { Button, Card, ConfirmSheet, ErrorState, Field, Input, PageHeader, Sheet, Skeleton, StatusPill, Textarea } from '../../components/ui'
@@ -97,6 +97,11 @@ export default function SaleDetail() {
       }
       toast.show(messages[action])
     } catch (caught) {
+      if (caught instanceof ApiError && (caught.status === 409 || caught.status === 422)) {
+        setSheet(null)
+        setUpdated(null)
+        reload()
+      }
       toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
     } finally {
       setBusy(false)

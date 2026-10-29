@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { AlertTriangle, CheckCircle2, PackagePlus, PackageX, Search, SlidersHorizontal, XCircle } from 'lucide-react'
-import { fetchPage } from '../../api'
-import type { Model, Page } from '../../api'
+import type { Model } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, Chip, ChipRow, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton, StatusPill } from '../../components/ui'
-import { useLoad } from '../../hooks'
+import { usePagedList } from '../../hooks'
 import type { VariantView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -68,9 +67,6 @@ export default function StockPosition() {
   const query = params.get('q') ?? ''
   const status = params.get('status') ?? ''
   const [text, setText] = useState(query)
-  const [extra, setExtra] = useState<Model<VariantView>[]>([])
-  const [lastPage, setLastPage] = useState<Page<VariantView>['page'] | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
     const trimmed = text.trim()
@@ -89,11 +85,7 @@ export default function StockPosition() {
     return () => window.clearTimeout(timer)
   }, [text, query, params, setParams])
 
-  const { data, error, loading, reload } = useLoad(() => {
-    setExtra([])
-    setLastPage(null)
-    return fetchPage<VariantView>(buildPath(query, status, 0))
-  }, [query, status])
+  const { data, items, page, error, loading, reload, loadMore, loadingMore } = usePagedList<VariantView>((page) => buildPath(query, status, page), [query, status])
 
   function selectStatus(value: string) {
     const next = new URLSearchParams(params)
@@ -110,24 +102,11 @@ export default function StockPosition() {
     setParams({}, { replace: true })
   }
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<VariantView>(buildPath(query, status, current.number + 1))
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error'))
   }
 
-  const variants = data ? [...data.items, ...extra] : []
+  const variants = items
   const filtered = query !== '' || status !== ''
 
   return (
@@ -218,7 +197,7 @@ export default function StockPosition() {
             })}
           </ul>
         )}
-        {data && variants.length > 0 && <LoadMore page={lastPage ?? data.page} onMore={loadMore} loading={loadingMore} />}
+        {page && variants.length > 0 && <LoadMore page={page} onMore={onMore} loading={loadingMore} />}
       </div>
     </div>
   )

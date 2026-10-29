@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Chip, ChipRow, Field, Input } from './ui'
-import { todayIso } from '../format'
+import { brDate, todayIso } from '../format'
 
 export type Period = { from: string; to: string; label: string }
 
@@ -45,11 +45,6 @@ function monthPeriod(year: number, month: number): Period {
     to: `${year}-${pad(month)}-${pad(last)}`,
     label: `${monthNames[month - 1]} ${year}`,
   }
-}
-
-export function brDate(iso: string): string {
-  const [year, month, day] = iso.split('-')
-  return `${day}/${month}/${year}`
 }
 
 export function presetPeriod(preset: Preset): Period {

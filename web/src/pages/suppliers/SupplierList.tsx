@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Truck } from 'lucide-react'
-import { fetchPage } from '../../api'
-import type { Model, Page } from '../../api'
+import type { Model } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton } from '../../components/ui'
-import { useLoad } from '../../hooks'
+import { usePagedList } from '../../hooks'
 import type { SupplierView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -32,9 +31,6 @@ export default function SupplierList() {
   const [params, setParams] = useSearchParams()
   const name = params.get('name') ?? ''
   const [text, setText] = useState(name)
-  const [extra, setExtra] = useState<Model<SupplierView>[]>([])
-  const [lastPage, setLastPage] = useState<Page<SupplierView>['page'] | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
     const trimmed = text.trim()
@@ -53,35 +49,18 @@ export default function SupplierList() {
     return () => window.clearTimeout(timer)
   }, [text, name, params, setParams])
 
-  const { data, error, loading, reload } = useLoad(() => {
-    setExtra([])
-    setLastPage(null)
-    return fetchPage<SupplierView>(buildPath(name, 0))
-  }, [name])
+  const { data, items, page, error, loading, reload, loadMore, loadingMore } = usePagedList<SupplierView>((page) => buildPath(name, page), [name])
 
   function clearFilters() {
     setText('')
     setParams({}, { replace: true })
   }
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<SupplierView>(buildPath(name, current.number + 1))
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error'))
   }
 
-  const suppliers = data ? [...data.items, ...extra] : []
+  const suppliers = items
   const filtered = name !== ''
   const newButton = canEdit ? (
     <LinkButton to="/suppliers/new">
@@ -137,7 +116,7 @@ export default function SupplierList() {
             ))}
           </ul>
         )}
-        {data && suppliers.length > 0 && <LoadMore page={lastPage ?? data.page} onMore={loadMore} loading={loadingMore} />}
+        {page && suppliers.length > 0 && <LoadMore page={page} onMore={onMore} loading={loadingMore} />}
       </div>
     </div>
   )

@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Users } from 'lucide-react'
-import { fetchPage } from '../../api'
-import type { Model, Page } from '../../api'
 import { useAuth } from '../../auth'
+import type { Model } from '../../api'
 import { useToast } from '../../components/Toast'
 import { Button, Card, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton } from '../../components/ui'
 import { date } from '../../format'
-import { useLoad } from '../../hooks'
+import { usePagedList } from '../../hooks'
 import type { CustomerView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -43,9 +42,6 @@ export default function CustomerList() {
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
   const [text, setText] = useState(query)
-  const [extra, setExtra] = useState<Model<CustomerView>[]>([])
-  const [lastPage, setLastPage] = useState<Page<CustomerView>['page'] | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
     const trimmed = text.trim()
@@ -64,35 +60,18 @@ export default function CustomerList() {
     return () => window.clearTimeout(timer)
   }, [text, query, params, setParams])
 
-  const { data, error, loading, reload } = useLoad(() => {
-    setExtra([])
-    setLastPage(null)
-    return fetchPage<CustomerView>(buildPath(query, 0))
-  }, [query])
+  const { data, items, page, error, loading, reload, loadMore, loadingMore } = usePagedList<CustomerView>((page) => buildPath(query, page), [query])
 
   function clearFilters() {
     setText('')
     setParams({}, { replace: true })
   }
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<CustomerView>(buildPath(query, current.number + 1))
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error'))
   }
 
-  const customers = data ? [...data.items, ...extra] : []
+  const customers = items
   const filtered = query !== ''
   const newButton = canEdit ? (
     <LinkButton to="/customers/new">
@@ -155,7 +134,7 @@ export default function CustomerList() {
             ))}
           </ul>
         )}
-        {data && customers.length > 0 && <LoadMore page={lastPage ?? data.page} onMore={loadMore} loading={loadingMore} />}
+        {page && customers.length > 0 && <LoadMore page={page} onMore={onMore} loading={loadingMore} />}
       </div>
     </div>
   )

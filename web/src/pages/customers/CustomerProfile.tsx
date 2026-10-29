@@ -3,7 +3,6 @@ import type { FormEvent, ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { MapPin, Pencil, Plus, Receipt, Trash2 } from 'lucide-react'
 import { ApiError, fetchPage, newId, request } from '../../api'
-import type { Model } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import {
@@ -22,7 +21,7 @@ import {
   Textarea,
 } from '../../components/ui'
 import { date, dateTime, money, shortId } from '../../format'
-import { useLoad } from '../../hooks'
+import { useLoad, usePagedList } from '../../hooks'
 import { DEFAULT_CUSTOMER_ID, orderStatusMeta } from '../../types'
 import type { Address, CustomerView, OrderView } from '../../types'
 
@@ -297,36 +296,14 @@ function AddressSheet({
 
 function SalesHistory({ customerId, canCreate }: { customerId: string; canCreate: boolean }) {
   const toast = useToast()
-  const [extra, setExtra] = useState<Model<OrderView>[]>([])
-  const [lastPage, setLastPage] = useState<{ number: number; totalPages: number } | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
-  const { data, error, loading, reload } = useLoad(() => {
-    setExtra([])
-    setLastPage(null)
-    return fetchPage<OrderView>(`/api/orders?customerId=${customerId}&page=0&size=${HISTORY_SIZE}`)
-  }, [customerId])
+  const { data, items: orders, page, error, loading, reload, loadMore, loadingMore } = usePagedList<OrderView>(
+    (pageNumber) => `/api/orders?customerId=${customerId}&page=${pageNumber}&size=${HISTORY_SIZE}`,
+    [customerId],
+  )
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<OrderView>(
-        `/api/orders?customerId=${customerId}&page=${current.number + 1}&size=${HISTORY_SIZE}`,
-      )
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(messageOf(caught), 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(messageOf(caught), 'error'))
   }
-
-  const orders = data ? [...data.items, ...extra] : []
-  const page = lastPage ?? data?.page
 
   return (
     <section aria-labelledby="history-title" className="space-y-3">
@@ -372,7 +349,7 @@ function SalesHistory({ customerId, canCreate }: { customerId: string; canCreate
       )}
       {page && page.number + 1 < page.totalPages && (
         <div className="flex justify-center">
-          <Button variant="ghost" onClick={loadMore} loading={loadingMore}>
+          <Button variant="ghost" onClick={onMore} loading={loadingMore}>
             Ver mais
           </Button>
         </div>

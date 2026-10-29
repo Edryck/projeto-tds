@@ -5,14 +5,29 @@ export function money(value: number | string): string {
 }
 
 export function parseMoney(input: string): number {
-  const text = input.replace(/[^\d.,-]/g, '')
-  if (text.includes(',')) {
-    return Number(text.replace(/\./g, '').replace(',', '.'))
+  const text = input.replace(/R\$/g, '').replace(/\s/g, '')
+  if (!/^-?[\d.,]+$/.test(text) || !/\d/.test(text)) {
+    return NaN
   }
-  return Number(text)
+  let normalized = text
+  if (text.includes(',')) {
+    normalized = text.replace(/\./g, '').replace(',', '.')
+  } else if (/^-?\d{1,3}(\.\d{3})+$/.test(text)) {
+    normalized = text.replace(/\./g, '')
+  }
+  const value = Number(normalized)
+  return Number.isFinite(value) ? Math.round(value * 100) / 100 : NaN
+}
+
+export function brDate(iso: string): string {
+  const [year, month, day] = iso.split('-')
+  return `${day}/${month}/${year}`
 }
 
 export function date(iso: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    return brDate(iso)
+  }
   return new Date(iso).toLocaleDateString('pt-BR', { timeZone: TIME_ZONE })
 }
 

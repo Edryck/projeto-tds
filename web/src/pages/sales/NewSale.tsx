@@ -75,10 +75,11 @@ export default function NewSale() {
   const shippingInvalid = Number.isNaN(shippingValue) || shippingValue < 0
   const total = subtotal + (shippingInvalid ? 0 : shippingValue)
   const receivedValue = received.trim() === '' ? null : parseMoney(received)
+  const receivedInvalid = receivedValue !== null && Number.isNaN(receivedValue)
   const hasCoupon = couponCode.trim() !== ''
-  const cashShort = !hasCoupon && method === 'CASH' && receivedValue !== null && receivedValue < total
+  const cashShort = !hasCoupon && method === 'CASH' && receivedValue !== null && !receivedInvalid && receivedValue < total
   const hasSoldOut = cart.some((line) => line.variant.balance <= 0)
-  const change = method === 'CASH' && receivedValue !== null && receivedValue >= total ? receivedValue - total : null
+  const change = method === 'CASH' && receivedValue !== null && !receivedInvalid && receivedValue >= total ? receivedValue - total : null
   const canProceed = cart.length > 0 && !hasSoldOut
 
   function addVariant(variant: VariantView) {
@@ -166,6 +167,10 @@ export default function NewSale() {
     }
     if (shippingInvalid) {
       toast.show('Frete inválido', 'error')
+      return
+    }
+    if (receivedInvalid && pay && method === 'CASH') {
+      toast.show('Valor recebido inválido', 'error')
       return
     }
     busyRef.current = true
@@ -355,12 +360,15 @@ export default function NewSale() {
 
         {method === 'CASH' && (
           <div className="mb-4 space-y-2">
-            <Field label="Valor recebido" error={cashShort ? 'Valor recebido menor que o total' : undefined}>
+            <Field
+              label="Valor recebido"
+              error={receivedInvalid ? 'Valor inválido' : cashShort ? 'Valor recebido menor que o total' : undefined}
+            >
               <Input
                 inputMode="decimal"
                 value={received}
                 onChange={(event) => setReceived(event.target.value)}
-                invalid={cashShort}
+                invalid={cashShort || receivedInvalid}
                 placeholder="0,00"
               />
             </Field>

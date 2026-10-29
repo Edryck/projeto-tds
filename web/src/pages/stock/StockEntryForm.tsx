@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Plus, Trash2 } from 'lucide-react'
 import { ApiError, fetchPage, newId, request } from '../../api'
+import { useToast } from '../../components/Toast'
 import { VariantPickerSheet } from '../../components/VariantPicker'
 import { Button, Card, Field, Input, LinkButton, PageHeader, Select, Textarea } from '../../components/ui'
 import { money, parseMoney, todayIso } from '../../format'
@@ -59,6 +60,7 @@ function parseCost(text: string): number | null {
 }
 
 export default function StockEntryForm() {
+  const { show } = useToast()
   const [params] = useSearchParams()
   const prefillId = params.get('variantId')
 
@@ -95,6 +97,9 @@ export default function StockEntryForm() {
         if (caught instanceof ApiError && caught.status === 404) {
           patch = { variantId: null, label: '', missing: true }
         } else {
+          if (active) {
+            show('Não foi possível carregar a variante. Escolha manualmente.', 'error')
+          }
           return
         }
       }
@@ -106,7 +111,7 @@ export default function StockEntryForm() {
     return () => {
       active = false
     }
-  }, [prefillId])
+  }, [prefillId, show])
 
   function updateItem(key: string, patch: Partial<Item>) {
     setItems((current) => current.map((item) => (item.key === key ? { ...item, ...patch } : item)))

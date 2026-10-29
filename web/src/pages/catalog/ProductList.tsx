@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, Search, Shirt } from 'lucide-react'
 import { fetchPage } from '../../api'
-import type { Model, Page } from '../../api'
 import { useAuth } from '../../auth'
 import { useToast } from '../../components/Toast'
 import { Button, Card, Chip, ChipRow, EmptyState, ErrorState, Input, LinkButton, LoadMore, PageHeader, Skeleton } from '../../components/ui'
 import { money } from '../../format'
-import { useLoad } from '../../hooks'
+import { useLoad, usePagedList } from '../../hooks'
 import type { CategoryView, ProductView } from '../../types'
 
 const PAGE_SIZE = 20
@@ -43,9 +42,6 @@ export default function ProductList() {
   const name = params.get('name') ?? ''
   const categoryId = params.get('categoryId') ?? ''
   const [text, setText] = useState(name)
-  const [extra, setExtra] = useState<Model<ProductView>[]>([])
-  const [lastPage, setLastPage] = useState<Page<ProductView>['page'] | null>(null)
-  const [loadingMore, setLoadingMore] = useState(false)
 
   useEffect(() => {
     const trimmed = text.trim()
@@ -66,11 +62,7 @@ export default function ProductList() {
 
   const categories = useLoad(async () => (await fetchPage<CategoryView>('/api/categories?size=100')).items, [])
 
-  const { data, error, loading, reload } = useLoad(() => {
-    setExtra([])
-    setLastPage(null)
-    return fetchPage<ProductView>(buildPath(name, categoryId, 0))
-  }, [name, categoryId])
+  const { data, items, page, error, loading, reload, loadMore, loadingMore } = usePagedList<ProductView>((page) => buildPath(name, categoryId, page), [name, categoryId])
 
   function selectCategory(value: string) {
     const next = new URLSearchParams(params)
@@ -87,24 +79,11 @@ export default function ProductList() {
     setParams({}, { replace: true })
   }
 
-  async function loadMore() {
-    const current = lastPage ?? data?.page
-    if (!current) {
-      return
-    }
-    setLoadingMore(true)
-    try {
-      const next = await fetchPage<ProductView>(buildPath(name, categoryId, current.number + 1))
-      setExtra((list) => [...list, ...next.items])
-      setLastPage(next.page)
-    } catch (caught) {
-      toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error')
-    } finally {
-      setLoadingMore(false)
-    }
+  function onMore() {
+    loadMore().catch((caught) => toast.show(caught instanceof Error ? caught.message : 'Ocorreu um erro inesperado', 'error'))
   }
 
-  const products = data ? [...data.items, ...extra] : []
+  const products = items
   const filtered = name !== '' || categoryId !== ''
   const newButton = canEdit ? (
     <LinkButton to="/catalog/new">
@@ -185,7 +164,7 @@ export default function ProductList() {
             })}
           </ul>
         )}
-        {data && products.length > 0 && <LoadMore page={lastPage ?? data.page} onMore={loadMore} loading={loadingMore} />}
+        {page && products.length > 0 && <LoadMore page={page} onMore={onMore} loading={loadingMore} />}
       </div>
     </div>
   )
