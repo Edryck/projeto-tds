@@ -154,7 +154,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"admin@chiccharmosa.com.br\",\n  \"password\": \"Admin@123\",\n  \"deviceId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"deviceName\": \"string\"\n}"
+        "text": "{\n  \"email\": \"admin@admin.dev\",\n  \"password\": \"admin123\",\n  \"deviceId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"deviceName\": \"string\"\n}"
       },
       "metaSortKey": 0
     },
@@ -2628,7 +2628,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000091\",\n  \"name\": \"VIEWER\",\n  \"permissionCodes\": [\n    \"product:view\"\n  ]\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"name\": \"VIEWER {% now 'millis' %}\",\n  \"permissionCodes\": [\n    \"product:view\"\n  ]\n}"
       },
       "metaSortKey": 4
     },
@@ -2652,7 +2652,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000092\",\n  \"email\": \"viewer@chiccharmosa.com.br\",\n  \"password\": \"Viewer@123\",\n  \"name\": \"Viewer\",\n  \"roleId\": \"aaaaaaaa-0000-4000-8000-000000000091\",\n  \"active\": true\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"email\": \"viewer-{% now 'millis' %}@admin.dev\",\n  \"password\": \"Viewer@123\",\n  \"name\": \"Viewer\",\n  \"roleId\": \"{% response 'body', 'req_56a746fb077c9ae16d1506bc3e23b9f2', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n  \"active\": true\n}"
       },
       "metaSortKey": 5
     },
@@ -2672,7 +2672,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"viewer@chiccharmosa.com.br\",\n  \"password\": \"Viewer@123\",\n  \"deviceId\": \"aaaaaaaa-0000-4000-8000-000000000090\",\n  \"deviceName\": \"viewer device\"\n}"
+        "text": "{\n  \"email\": \"{% response 'body', 'req_df685be38392914d770b9b90d8bc41de', 'b64::JC5lbWFpbA==::46b', 'never', 60 %}\",\n  \"password\": \"Viewer@123\",\n  \"deviceId\": \"{% uuid 'v4' %}\",\n  \"deviceName\": \"viewer device\"\n}"
       },
       "metaSortKey": 6
     },
@@ -2788,7 +2788,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000010\",\n  \"name\": \"Flow Dresses\"\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"name\": \"Flow Dresses {% now 'millis' %}\"\n}"
       },
       "metaSortKey": 1
     },
@@ -2812,7 +2812,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000020\",\n  \"categoryId\": \"aaaaaaaa-0000-4000-8000-000000000010\",\n  \"name\": \"Flow Summer Dress\",\n  \"description\": \"Flow test product\"\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"categoryId\": \"{% response 'body', 'req_7c0975dc568540dcea5f33440da2b977', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n  \"name\": \"Flow Summer Dress\",\n  \"description\": \"Flow test product\"\n}"
       },
       "metaSortKey": 2
     },
@@ -2822,7 +2822,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "4 - create variant",
       "method": "POST",
-      "url": "{{ _.baseUrl }}/api/products/aaaaaaaa-0000-4000-8000-000000000020/variants",
+      "url": "{{ _.baseUrl }}/api/products/{% response 'body', 'req_198cb263b37e1e512d7be69c15a8d810', 'b64::JC5pZA==::46b', 'never', 60 %}/variants",
       "parameters": [],
       "headers": [
         {
@@ -2836,7 +2836,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n  \"color\": \"Red\",\n  \"size\": \"M\",\n  \"model\": \"Midi\",\n  \"price\": 120.0,\n  \"cost\": 60.0\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"color\": \"Red\",\n  \"size\": \"M\",\n  \"model\": \"Midi\",\n  \"price\": 120.0,\n  \"cost\": 60.0\n}"
       },
       "metaSortKey": 3
     },
@@ -2860,7 +2860,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000050\",\n  \"entryDate\": \"2026-10-31\",\n  \"note\": \"Flow stock\",\n  \"items\": [\n    {\n      \"id\": \"aaaaaaaa-0000-4000-8000-000000000051\",\n      \"variantId\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n      \"quantity\": 10,\n      \"unitCost\": 60.0\n    }\n  ]\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"entryDate\": \"2026-10-31\",\n  \"note\": \"Flow stock\",\n  \"items\": [\n    {\n      \"id\": \"{% uuid 'v4' %}\",\n      \"variantId\": \"{% response 'body', 'req_2d4793887b4e2e9113eb0ab2d06f8692', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n      \"quantity\": 10,\n      \"unitCost\": 60.0\n    }\n  ]\n}"
       },
       "metaSortKey": 4
     },
@@ -2870,7 +2870,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "6 - variant balance is 10",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/variants/aaaaaaaa-0000-4000-8000-000000000030",
+      "url": "{{ _.baseUrl }}/api/variants/{% response 'body', 'req_2d4793887b4e2e9113eb0ab2d06f8692', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -2901,7 +2901,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000040\",\n  \"name\": \"Flow Customer\",\n  \"phone\": \"41999990000\",\n  \"email\": \"flow@example.com\"\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"name\": \"Flow Customer\",\n  \"phone\": \"41999990000\",\n  \"email\": \"flow@example.com\"\n}"
       },
       "metaSortKey": 6
     },
@@ -2925,7 +2925,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000060\",\n  \"customerId\": \"aaaaaaaa-0000-4000-8000-000000000040\",\n  \"note\": \"Flow test order\",\n  \"shippingCost\": 10.0,\n  \"items\": [\n    {\n      \"id\": \"aaaaaaaa-0000-4000-8000-000000000061\",\n      \"variantId\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n      \"quantity\": 2\n    }\n  ]\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"customerId\": \"{% response 'body', 'req_8587dd0edb22a18f5c1edeada1f2268b', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n  \"note\": \"Flow test order\",\n  \"shippingCost\": 10.0,\n  \"items\": [\n    {\n      \"id\": \"{% uuid 'v4' %}\",\n      \"variantId\": \"{% response 'body', 'req_2d4793887b4e2e9113eb0ab2d06f8692', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n      \"quantity\": 2\n    }\n  ]\n}"
       },
       "metaSortKey": 7
     },
@@ -2935,7 +2935,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "9 - get order (links: pay, cancel)",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_4f242fe5d7bac381cb3252c7b92ea4ff', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -2952,7 +2952,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "10 - pay order",
       "method": "POST",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060/pay",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_4f242fe5d7bac381cb3252c7b92ea4ff', 'b64::JC5pZA==::46b', 'never', 60 %}/pay",
       "parameters": [],
       "headers": [
         {
@@ -2976,7 +2976,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "11 - ship order",
       "method": "POST",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060/ship",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_4f242fe5d7bac381cb3252c7b92ea4ff', 'b64::JC5pZA==::46b', 'never', 60 %}/ship",
       "parameters": [],
       "headers": [
         {
@@ -3000,7 +3000,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "12 - deliver order",
       "method": "POST",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060/deliver",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_4f242fe5d7bac381cb3252c7b92ea4ff', 'b64::JC5pZA==::46b', 'never', 60 %}/deliver",
       "parameters": [],
       "headers": [
         {
@@ -3017,7 +3017,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "13 - get order (DELIVERED)",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_4f242fe5d7bac381cb3252c7b92ea4ff', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -3034,7 +3034,7 @@
       "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
       "name": "14 - variant movements (-2 sale)",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/variants/aaaaaaaa-0000-4000-8000-000000000030/movements",
+      "url": "{{ _.baseUrl }}/api/variants/{% response 'body', 'req_2d4793887b4e2e9113eb0ab2d06f8692', 'b64::JC5pZA==::46b', 'never', 60 %}/movements",
       "parameters": [],
       "headers": [
         {
@@ -3082,7 +3082,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000070\",\n  \"customerId\": \"aaaaaaaa-0000-4000-8000-000000000040\",\n  \"note\": \"Flow test order\",\n  \"shippingCost\": 10.0,\n  \"items\": [\n    {\n      \"id\": \"aaaaaaaa-0000-4000-8000-000000000071\",\n      \"variantId\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n      \"quantity\": 1\n    }\n  ]\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"customerId\": \"{% response 'body', 'req_8587dd0edb22a18f5c1edeada1f2268b', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n  \"note\": \"Flow test order\",\n  \"shippingCost\": 10.0,\n  \"items\": [\n    {\n      \"id\": \"{% uuid 'v4' %}\",\n      \"variantId\": \"{% response 'body', 'req_2d4793887b4e2e9113eb0ab2d06f8692', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n      \"quantity\": 1\n    }\n  ]\n}"
       },
       "metaSortKey": 0
     },
@@ -3092,7 +3092,7 @@
       "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
       "name": "2 - cancel order",
       "method": "POST",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000070/cancel",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_7e445f350a34932290093f743746db6b', 'b64::JC5pZA==::46b', 'never', 60 %}/cancel",
       "parameters": [],
       "headers": [
         {
@@ -3109,7 +3109,7 @@
       "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
       "name": "3 - get order (CANCELLED)",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000070",
+      "url": "{{ _.baseUrl }}/api/orders/{% response 'body', 'req_7e445f350a34932290093f743746db6b', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -3126,7 +3126,7 @@
       "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
       "name": "4 - variant movements (sale reversed)",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/variants/aaaaaaaa-0000-4000-8000-000000000030/movements",
+      "url": "{{ _.baseUrl }}/api/variants/{% response 'body', 'req_2d4793887b4e2e9113eb0ab2d06f8692', 'b64::JC5pZA==::46b', 'never', 60 %}/movements",
       "parameters": [],
       "headers": [
         {
@@ -3157,7 +3157,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000080\",\n  \"name\": \"Flow Supplier\"\n}"
+        "text": "{\n  \"id\": \"{% uuid 'v4' %}\",\n  \"name\": \"Flow Supplier\"\n}"
       },
       "metaSortKey": 0
     },
@@ -3167,7 +3167,7 @@
       "parentId": "fld_9415542e914f4d15d459263ba782139e",
       "name": "2 - get supplier",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "url": "{{ _.baseUrl }}/api/suppliers/{% response 'body', 'req_ba96e26956eea3307e0cabfb43477942', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -3201,7 +3201,7 @@
       "parentId": "fld_9415542e914f4d15d459263ba782139e",
       "name": "4 - update supplier",
       "method": "PUT",
-      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "url": "{{ _.baseUrl }}/api/suppliers/{% response 'body', 'req_ba96e26956eea3307e0cabfb43477942', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -3215,7 +3215,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000080\",\n  \"name\": \"Flow Supplier Updated\"\n}"
+        "text": "{\n  \"id\": \"{% response 'body', 'req_ba96e26956eea3307e0cabfb43477942', 'b64::JC5pZA==::46b', 'never', 60 %}\",\n  \"name\": \"Flow Supplier Updated\"\n}"
       },
       "metaSortKey": 3
     },
@@ -3225,7 +3225,7 @@
       "parentId": "fld_9415542e914f4d15d459263ba782139e",
       "name": "5 - delete supplier",
       "method": "DELETE",
-      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "url": "{{ _.baseUrl }}/api/suppliers/{% response 'body', 'req_ba96e26956eea3307e0cabfb43477942', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {
@@ -3242,7 +3242,7 @@
       "parentId": "fld_9415542e914f4d15d459263ba782139e",
       "name": "6 - get supplier (404)",
       "method": "GET",
-      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "url": "{{ _.baseUrl }}/api/suppliers/{% response 'body', 'req_ba96e26956eea3307e0cabfb43477942', 'b64::JC5pZA==::46b', 'never', 60 %}",
       "parameters": [],
       "headers": [
         {

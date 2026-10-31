@@ -14,7 +14,7 @@ A Chic Charmosa é uma loja pequena que controlava estoque, clientes, vendas e d
 - **Administração**: usuários, perfis com permissões, configurações da loja e auditoria de tudo que muda.
 - **Sincronização**: `POST /api/sync/push` e `GET /api/sync/pull` aceitam operações feitas offline. São idempotentes pelo UUID e uma venda offline sempre é aceita, gerando alerta de divergência de estoque se faltar saldo. O frontend atual fala com a API online; o armazenamento offline fica para uma próxima fase.
 
-Regras de negócio, entidades e decisões técnicas detalhadas estão no [PRODUCT.md](PRODUCT.md). O fluxo completo do app está em [docs/app-flow.md](docs/app-flow.md).
+Regras de negócio, entidades e decisões técnicas detalhadas estão no [PRODUCT.md](PRODUCT.md). Os fluxos do app, em diagramas, estão em [docs/app-flow.md](docs/app-flow.md). O roteiro dos vídeos e a ordem dos testes estão em [docs/video-scripts.md](docs/video-scripts.md).
 
 ## Tecnologias
 
@@ -63,6 +63,7 @@ Regras de negócio, entidades e decisões técnicas detalhadas estão no [PRODUC
 | `V1__create_schema.sql` | 26 tabelas com chaves primárias, estrangeiras, unicidade e checks |
 | `V2__seed_basic_data.sql` | permissões, perfil `ADMIN`, usuário administrador, contas e categorias financeiras |
 | `V3` a `V6` | cliente padrão, contato do fornecedor, notas financeiras, caixa e cancelamento |
+| `V7__single_developer_admin.sql` | troca e-mail, nome e senha do administrador inicial |
 
 O Hibernate roda com `ddl-auto=validate`: o schema é sempre do Flyway.
 
@@ -102,9 +103,9 @@ npm run dev
 
 | E-mail | Senha |
 |---|---|
-| `admin@chiccharmosa.com.br` | `Admin@123` |
+| `admin@admin.dev` | `admin123` |
 
-Criado pela migration `V2`, com o perfil `ADMIN` (todas as permissões). Troque a senha em qualquer uso real.
+Usuário "Desenvolvedor", único usuário do seed. Criado pela `V2` e ajustado pela `V7`, com o perfil `ADMIN` (todas as permissões). Troque a senha em qualquer uso real.
 
 ## Autenticação e uso do token JWT
 
@@ -145,12 +146,12 @@ Importe `insomnia/chic-charmosa.insomnia.json` no Insomnia e suba a API antes.
 
 - Uma pasta por recurso (Auth, Roles, Users, Categories, Products, Variants, Stock, Suppliers, Customers, Orders, Coupons, Finance, Audit, Cancellations, Store Settings) com cadastro, listagem, busca por ID, atualização e exclusão.
 - A variável `token` do ambiente é preenchida pelo login do administrador (`Auth > POST /api/auth/login`). Todas as outras requisições enviam `Bearer {{ _.token }}`.
-- **Security**: provas de `401` (sem token, token inválido) e de `403` (usuário `VIEWER`, que só tem `product:view`). Rode a pasta de cima para baixo: ela cria o perfil, o usuário e faz o login dele.
+- **Security**: provas de `401` (sem token, token inválido) e de `403` (usuário `VIEWER`, que só tem `product:view`). Rode a pasta de cima para baixo: ela cria o perfil e o usuário e faz o login dele.
 - **Flow - Sale**: categoria, produto, variação, entrada de estoque, cliente, pedido, pagamento, envio e entrega, conferindo saldo, movimentações e financeiro.
-- **Flow - Cancellation**: cria um pedido e cancela, devolvendo o estoque.
+- **Flow - Cancellation**: cria um pedido e cancela, devolvendo o estoque. Rode depois do Flow - Sale, porque usa a variação e o cliente criados lá.
 - **Flow - Catalog CRUD**: ciclo completo de fornecedor, terminando em `404` depois da exclusão.
 
-Os fluxos usam UUIDs fixos e a criação é idempotente, então podem ser repetidos.
+Cada passo guarda o ID criado pelo passo anterior (response chaining do Insomnia), então rode as pastas de cima para baixo. Os fluxos geram UUIDs novos a cada execução e podem ser repetidos.
 
 A coleção é gerada por `scripts/generate_insomnia.py` a partir do Swagger:
 

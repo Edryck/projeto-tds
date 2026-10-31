@@ -42,7 +42,7 @@ class AuthFlowTest extends IntegrationTest {
 
     @Test
     void loginReturnsTokens() throws Exception {
-        mockMvc.perform(login("admin@chiccharmosa.com.br", "Admin@123", UUID.randomUUID(), "10.1.0.1"))
+        mockMvc.perform(login("admin@admin.dev", "admin123", UUID.randomUUID(), "10.1.0.1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
                 .andExpect(jsonPath("$.refreshToken").isNotEmpty());
@@ -50,7 +50,7 @@ class AuthFlowTest extends IntegrationTest {
 
     @Test
     void wrongPasswordReturns401() throws Exception {
-        mockMvc.perform(login("admin@chiccharmosa.com.br", "errada", UUID.randomUUID(), "10.1.0.2"))
+        mockMvc.perform(login("admin@admin.dev", "errada", UUID.randomUUID(), "10.1.0.2"))
                 .andExpect(status().isUnauthorized());
     }
 

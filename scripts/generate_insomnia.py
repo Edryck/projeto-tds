@@ -20,8 +20,8 @@ FOLDER_BY_SEGMENT = {
     "store-settings": "Store Settings",
 }
 MANUAL_FOLDERS = ["Richardson", "Sync"]
-ADMIN_EMAIL = "admin@chiccharmosa.com.br"
-ADMIN_PASSWORD = "Admin@123"
+ADMIN_EMAIL = "admin@admin.dev"
+ADMIN_PASSWORD = "admin123"
 VIEWER_EMAIL = "viewer@chiccharmosa.com.br"
 VIEWER_PASSWORD = "Viewer@123"
 VIEWER_LOGIN_KEY = "post /api/auth/login viewer"
@@ -191,11 +191,17 @@ def path_variables(spec):
     return names
 
 
-def uid(number):
-    return "aaaaaaaa-0000-4000-8000-%012d" % number
+NEW_ID = "{% uuid 'v4' %}"
+RUN_STAMP = "{% now 'millis' %}"
 
 
-def flow_request(folder, key, name, method, path, sort_key, body=None, auth="admin"):
+def ref(folder, name, field="id"):
+    path = base64.b64encode(("$." + field).encode()).decode()
+    request_id = stable_id("req", folder + " " + name)
+    return "{% response 'body', '" + request_id + "', 'b64::" + path + "::46b', 'never', 60 %}"
+
+
+def flow_request(folder, name, method, path, sort_key, body=None, auth="admin", key=None):
     headers = []
     request_body = {}
     if body is not None:
@@ -208,7 +214,7 @@ def flow_request(folder, key, name, method, path, sort_key, body=None, auth="adm
     if auth == "invalid":
         headers.append({"name": "Authorization", "value": "Bearer invalid.token.value"})
     return {
-        "_id": stable_id("req", key),
+        "_id": stable_id("req", key or folder + " " + name),
         "_type": "request",
         "parentId": stable_id("fld", folder),
         "name": name,
@@ -221,79 +227,105 @@ def flow_request(folder, key, name, method, path, sort_key, body=None, auth="adm
     }
 
 
-def order_body(order_id, item_id, quantity):
+SALE = "Flow - Sale"
+SALE_CATEGORY = "2 - create category"
+SALE_PRODUCT = "3 - create product"
+SALE_VARIANT = "4 - create variant"
+SALE_CUSTOMER = "7 - create customer"
+SALE_ORDER = "8 - create order (PENDING)"
+CANCEL_ORDER = "1 - create order (PENDING)"
+SUPPLIER = "1 - create supplier"
+VIEWER_ROLE = "Setup - create VIEWER role (product:view only)"
+VIEWER_USER = "Setup - create viewer user"
+
+
+def order_body(quantity):
     return {
-        "id": order_id,
-        "customerId": uid(40),
+        "id": NEW_ID,
+        "customerId": ref(SALE, SALE_CUSTOMER),
         "note": "Flow test order",
         "shippingCost": 10.0,
-        "items": [{"id": item_id, "variantId": uid(30), "quantity": quantity}],
+        "items": [{"id": NEW_ID, "variantId": ref(SALE, SALE_VARIANT), "quantity": quantity}],
     }
 
 
 def security_steps():
-    login = {"email": VIEWER_EMAIL, "password": VIEWER_PASSWORD, "deviceId": uid(90), "deviceName": "viewer device"}
+    login = {"email": ref("Security", VIEWER_USER, "email"), "password": VIEWER_PASSWORD,
+             "deviceId": NEW_ID, "deviceName": "viewer device"}
     return [
         ("401 - list products without token", "GET", "/api/products", None, "none"),
         ("401 - create category without token", "POST", "/api/categories", {"name": "No token"}, "none"),
         ("401 - current user without token", "GET", "/api/auth/me", None, "none"),
         ("401 - list products with invalid token", "GET", "/api/products", None, "invalid"),
-        ("Setup - create VIEWER role (product:view only)", "POST", "/api/roles",
-         {"id": uid(91), "name": "VIEWER", "permissionCodes": ["product:view"]}, "admin"),
-        ("Setup - create viewer user", "POST", "/api/users",
-         {"id": uid(92), "email": VIEWER_EMAIL, "password": VIEWER_PASSWORD, "name": "Viewer",
-          "roleId": uid(91), "active": True}, "admin"),
+        (VIEWER_ROLE, "POST", "/api/roles",
+         {"id": NEW_ID, "name": "VIEWER " + RUN_STAMP, "permissionCodes": ["product:view"]}, "admin"),
+        (VIEWER_USER, "POST", "/api/users",
+         {"id": NEW_ID, "email": "viewer-" + RUN_STAMP + "@admin.dev", "password": VIEWER_PASSWORD,
+          "name": "Viewer", "roleId": ref("Security", VIEWER_ROLE), "active": True}, "admin"),
         ("Viewer - login", "POST", "/api/auth/login", login, "none", VIEWER_LOGIN_KEY),
         ("200 - viewer lists products", "GET", "/api/products", None, "viewer"),
         ("403 - viewer creates category", "POST", "/api/categories", {"name": "Forbidden"}, "viewer"),
         ("403 - viewer lists users", "GET", "/api/users", None, "viewer"),
-        ("403 - viewer reads finance summary", "GET", "/api/financial-entries/summary?accountId=30000000-0000-0000-0000-000000000001&from=2026-10-01&to=2026-10-31", None, "viewer"),
+        ("403 - viewer reads finance summary", "GET", SUMMARY_PATH, None, "viewer"),
     ]
 
 
+SUMMARY_PATH = ("/api/financial-entries/summary?accountId=30000000-0000-0000-0000-000000000001"
+                "&from=2026-10-01&to=2026-10-31")
+
+
 def sale_steps():
+    variant = ref(SALE, SALE_VARIANT)
+    order = ref(SALE, SALE_ORDER)
     return [
         ("1 - current user", "GET", "/api/auth/me", None),
-        ("2 - create category", "POST", "/api/categories", {"id": uid(10), "name": "Flow Dresses"}),
-        ("3 - create product", "POST", "/api/products",
-         {"id": uid(20), "categoryId": uid(10), "name": "Flow Summer Dress", "description": "Flow test product"}),
-        ("4 - create variant", "POST", "/api/products/" + uid(20) + "/variants",
-         {"id": uid(30), "color": "Red", "size": "M", "model": "Midi", "price": 120.0, "cost": 60.0}),
+        (SALE_CATEGORY, "POST", "/api/categories", {"id": NEW_ID, "name": "Flow Dresses " + RUN_STAMP}),
+        (SALE_PRODUCT, "POST", "/api/products",
+         {"id": NEW_ID, "categoryId": ref(SALE, SALE_CATEGORY), "name": "Flow Summer Dress",
+          "description": "Flow test product"}),
+        (SALE_VARIANT, "POST", "/api/products/" + ref(SALE, SALE_PRODUCT) + "/variants",
+         {"id": NEW_ID, "color": "Red", "size": "M", "model": "Midi", "price": 120.0, "cost": 60.0}),
         ("5 - stock entry (+10 units)", "POST", "/api/stock-entries",
-         {"id": uid(50), "entryDate": "2026-10-31", "note": "Flow stock",
-          "items": [{"id": uid(51), "variantId": uid(30), "quantity": 10, "unitCost": 60.0}]}),
-        ("6 - variant balance is 10", "GET", "/api/variants/" + uid(30), None),
-        ("7 - create customer", "POST", "/api/customers",
-         {"id": uid(40), "name": "Flow Customer", "phone": "41999990000", "email": "flow@example.com"}),
-        ("8 - create order (PENDING)", "POST", "/api/orders", order_body(uid(60), uid(61), 2)),
-        ("9 - get order (links: pay, cancel)", "GET", "/api/orders/" + uid(60), None),
-        ("10 - pay order", "POST", "/api/orders/" + uid(60) + "/pay", {"method": "PIX"}),
-        ("11 - ship order", "POST", "/api/orders/" + uid(60) + "/ship",
+         {"id": NEW_ID, "entryDate": "2026-10-31", "note": "Flow stock",
+          "items": [{"id": NEW_ID, "variantId": variant, "quantity": 10, "unitCost": 60.0}]}),
+        ("6 - variant balance is 10", "GET", "/api/variants/" + variant, None),
+        (SALE_CUSTOMER, "POST", "/api/customers",
+         {"id": NEW_ID, "name": "Flow Customer", "phone": "41999990000", "email": "flow@example.com"}),
+        (SALE_ORDER, "POST", "/api/orders", order_body(2)),
+        ("9 - get order (links: pay, cancel)", "GET", "/api/orders/" + order, None),
+        ("10 - pay order", "POST", "/api/orders/" + order + "/pay", {"method": "PIX"}),
+        ("11 - ship order", "POST", "/api/orders/" + order + "/ship",
          {"method": "POST_OFFICE", "trackingCode": "BR123456789"}),
-        ("12 - deliver order", "POST", "/api/orders/" + uid(60) + "/deliver", None),
-        ("13 - get order (DELIVERED)", "GET", "/api/orders/" + uid(60), None),
-        ("14 - variant movements (-2 sale)", "GET", "/api/variants/" + uid(30) + "/movements", None),
-        ("15 - finance summary", "GET", "/api/financial-entries/summary?accountId=30000000-0000-0000-0000-000000000001&from=2026-10-01&to=2026-10-31", None),
+        ("12 - deliver order", "POST", "/api/orders/" + order + "/deliver", None),
+        ("13 - get order (DELIVERED)", "GET", "/api/orders/" + order, None),
+        ("14 - variant movements (-2 sale)", "GET", "/api/variants/" + variant + "/movements", None),
+        ("15 - finance summary", "GET", SUMMARY_PATH, None),
     ]
 
 
 def cancellation_steps():
+    folder = "Flow - Cancellation"
+    order = ref(folder, CANCEL_ORDER)
     return [
-        ("1 - create order (PENDING)", "POST", "/api/orders", order_body(uid(70), uid(71), 1)),
-        ("2 - cancel order", "POST", "/api/orders/" + uid(70) + "/cancel", None),
-        ("3 - get order (CANCELLED)", "GET", "/api/orders/" + uid(70), None),
-        ("4 - variant movements (sale reversed)", "GET", "/api/variants/" + uid(30) + "/movements", None),
+        (CANCEL_ORDER, "POST", "/api/orders", order_body(1)),
+        ("2 - cancel order", "POST", "/api/orders/" + order + "/cancel", None),
+        ("3 - get order (CANCELLED)", "GET", "/api/orders/" + order, None),
+        ("4 - variant movements (sale reversed)", "GET",
+         "/api/variants/" + ref(SALE, SALE_VARIANT) + "/movements", None),
     ]
 
 
 def catalog_crud_steps():
+    folder = "Flow - Catalog CRUD"
+    supplier = ref(folder, SUPPLIER)
     return [
-        ("1 - create supplier", "POST", "/api/suppliers", {"id": uid(80), "name": "Flow Supplier"}),
-        ("2 - get supplier", "GET", "/api/suppliers/" + uid(80), None),
+        (SUPPLIER, "POST", "/api/suppliers", {"id": NEW_ID, "name": "Flow Supplier"}),
+        ("2 - get supplier", "GET", "/api/suppliers/" + supplier, None),
         ("3 - list suppliers by name", "GET", "/api/suppliers?name=Flow", None),
-        ("4 - update supplier", "PUT", "/api/suppliers/" + uid(80), {"id": uid(80), "name": "Flow Supplier Updated"}),
-        ("5 - delete supplier", "DELETE", "/api/suppliers/" + uid(80), None),
-        ("6 - get supplier (404)", "GET", "/api/suppliers/" + uid(80), None),
+        ("4 - update supplier", "PUT", "/api/suppliers/" + supplier,
+         {"id": supplier, "name": "Flow Supplier Updated"}),
+        ("5 - delete supplier", "DELETE", "/api/suppliers/" + supplier, None),
+        ("6 - get supplier (404)", "GET", "/api/suppliers/" + supplier, None),
     ]
 
 
@@ -308,13 +340,13 @@ def build_flows_and_security():
             "metaSortKey": len(FOLDER_ORDER) + index,
         })
     for index, step in enumerate(security_steps()):
-        key = step[5] if len(step) > 5 else "Security " + step[0]
-        resources.append(flow_request("Security", key, step[0], step[1], step[2], index, step[3], step[4]))
+        key = step[5] if len(step) > 5 else None
+        resources.append(flow_request("Security", step[0], step[1], step[2], index, step[3], step[4], key))
     flows = [("Flow - Sale", sale_steps()), ("Flow - Cancellation", cancellation_steps()),
              ("Flow - Catalog CRUD", catalog_crud_steps())]
     for folder, steps in flows:
         for index, (name, method, path, body) in enumerate(steps):
-            resources.append(flow_request(folder, folder + " " + name, name, method, path, index, body))
+            resources.append(flow_request(folder, name, method, path, index, body))
     return resources
 
 
