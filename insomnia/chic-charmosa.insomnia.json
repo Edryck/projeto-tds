@@ -19,6 +19,7 @@
       "data": {
         "baseUrl": "http://localhost:8080",
         "token": "{% response 'body', 'req_92025b8b73595a15e22fbfa2fc5c6088', 'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'when-expired', 60 %}",
+        "viewerToken": "{% response 'body', 'req_c5bf1b1d5c7c503020fe960f5a00975d', 'b64::JC5hY2Nlc3NUb2tlbg==::46b', 'when-expired', 60 %}",
         "addressId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "productId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -124,6 +125,20 @@
       "metaSortKey": 13
     },
     {
+      "_id": "fld_f64e0236f94dc46f4f0cc7bfbd876a5a",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Cancellations",
+      "metaSortKey": 14
+    },
+    {
+      "_id": "fld_de144d7c4749ba8dcd5c911624381ed1",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Store Settings",
+      "metaSortKey": 15
+    },
+    {
       "_id": "req_92025b8b73595a15e22fbfa2fc5c6088",
       "_type": "request",
       "parentId": "fld_35d0f5fbca4b84a0ac3992970ff01199",
@@ -139,7 +154,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"email\": \"string\",\n  \"password\": \"string\",\n  \"deviceId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"deviceName\": \"string\"\n}"
+        "text": "{\n  \"email\": \"admin@chiccharmosa.com.br\",\n  \"password\": \"Admin@123\",\n  \"deviceId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"deviceName\": \"string\"\n}"
       },
       "metaSortKey": 0
     },
@@ -807,6 +822,49 @@
       "metaSortKey": 6
     },
     {
+      "_id": "req_91740b2d9fc4efa5683e22c0abfe96fb",
+      "_type": "request",
+      "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
+      "name": "GET /api/variants",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/variants",
+      "parameters": [
+        {
+          "name": "q",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "status",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
       "_id": "req_25eed25f600e6e7264f0fda7b3880c47",
       "_type": "request",
       "parentId": "fld_1bc3d368f8ad61e91648458829240a7e",
@@ -821,7 +879,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 0
+      "metaSortKey": 1
     },
     {
       "_id": "req_3f8ee642b7a536a8f276447dfe780927",
@@ -845,7 +903,7 @@
         "mimeType": "application/json",
         "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"color\": \"string\",\n  \"size\": \"string\",\n  \"model\": \"string\",\n  \"price\": 1.0,\n  \"cost\": 1.0\n}"
       },
-      "metaSortKey": 1
+      "metaSortKey": 2
     },
     {
       "_id": "req_5ecc0a638ebdc24b68a3ed894db8e41f",
@@ -862,7 +920,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 2
+      "metaSortKey": 3
     },
     {
       "_id": "req_ee51b63e05f9352eb2d3e7851e193163",
@@ -886,7 +944,7 @@
         "mimeType": "application/json",
         "text": "{\n  \"quantity\": 1,\n  \"reason\": \"string\"\n}"
       },
-      "metaSortKey": 3
+      "metaSortKey": 4
     },
     {
       "_id": "req_5dc556dd18069d25e3ce08c7949d4e72",
@@ -919,7 +977,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 4
+      "metaSortKey": 5
     },
     {
       "_id": "req_aa5fa6e1d870d719e952eea94c5e01a8",
@@ -1053,7 +1111,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\"\n}"
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\",\n  \"contactName\": \"string\",\n  \"email\": \"string\",\n  \"address\": \"string\",\n  \"note\": \"string\"\n}"
       },
       "metaSortKey": 1
     },
@@ -1094,7 +1152,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\"\n}"
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"phone\": \"string\",\n  \"contactName\": \"string\",\n  \"email\": \"string\",\n  \"address\": \"string\",\n  \"note\": \"string\"\n}"
       },
       "metaSortKey": 3
     },
@@ -1123,6 +1181,11 @@
       "method": "GET",
       "url": "{{ _.baseUrl }}/api/customers",
       "parameters": [
+        {
+          "name": "q",
+          "value": "",
+          "disabled": true
+        },
         {
           "name": "name",
           "value": "",
@@ -1374,6 +1437,11 @@
           "disabled": true
         },
         {
+          "name": "q",
+          "value": "",
+          "disabled": true
+        },
+        {
           "name": "from",
           "value": "",
           "disabled": true
@@ -1467,6 +1535,30 @@
       "metaSortKey": 3
     },
     {
+      "_id": "req_46cd82788ff1ec0f33d0381ea9053f2f",
+      "_type": "request",
+      "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
+      "name": "POST /api/orders/{id}/cancellation-requests",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/{{ _.id }}/cancellation-requests",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"reason\": \"string\"\n}"
+      },
+      "metaSortKey": 4
+    },
+    {
       "_id": "req_22a55b52435ed4b63f036f3b74ffba48",
       "_type": "request",
       "parentId": "fld_cded093321ddaa4c0eaf56ef36f84dd5",
@@ -1481,7 +1573,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 4
+      "metaSortKey": 5
     },
     {
       "_id": "req_f02bec55c36cee42897009ba5ff522c8",
@@ -1505,7 +1597,7 @@
         "mimeType": "application/json",
         "text": "{\n  \"method\": \"PIX\"\n}"
       },
-      "metaSortKey": 5
+      "metaSortKey": 6
     },
     {
       "_id": "req_59a33d802d59c2c12d722d37dfa083e5",
@@ -1529,7 +1621,7 @@
         "mimeType": "application/json",
         "text": "{\n  \"method\": \"POST_OFFICE\",\n  \"trackingCode\": \"string\"\n}"
       },
-      "metaSortKey": 6
+      "metaSortKey": 7
     },
     {
       "_id": "req_7bfada418af63f8939f0420e62da1919",
@@ -1553,7 +1645,7 @@
         "mimeType": "application/json",
         "text": "{\n  \"shippingCost\": 1.0\n}"
       },
-      "metaSortKey": 7
+      "metaSortKey": 8
     },
     {
       "_id": "req_4d0fbfc36a0355c321fcb0e02c86e4e5",
@@ -1738,9 +1830,37 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"closingDate\": \"2026-10-16\"\n}"
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"closingDate\": \"2026-10-16\",\n  \"countedPix\": 1.0,\n  \"countedCard\": 1.0,\n  \"countedCash\": 1.0,\n  \"note\": \"string\"\n}"
       },
       "metaSortKey": 1
+    },
+    {
+      "_id": "req_4a632dd35ccf1c1723be7f3927ed6cf6",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/cash-closings/preview",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/cash-closings/preview",
+      "parameters": [
+        {
+          "name": "accountId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "date",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
     },
     {
       "_id": "req_78ebf50f071ec72a4b9931a8bb0a18b6",
@@ -1757,7 +1877,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 2
+      "metaSortKey": 3
     },
     {
       "_id": "req_0c56e45317d57d3ef3ca6918ed32db18",
@@ -1790,7 +1910,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 3
+      "metaSortKey": 4
     },
     {
       "_id": "req_f0bfcf64622bc150e22157094259a6fb",
@@ -1828,7 +1948,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 4
+      "metaSortKey": 5
     },
     {
       "_id": "req_e77cbfc97be1c128247fe0fc1a48c18c",
@@ -1845,7 +1965,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 5
+      "metaSortKey": 6
     },
     {
       "_id": "req_1c930863c8557c8eb33b80af689218b1",
@@ -1878,7 +1998,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 6
+      "metaSortKey": 7
     },
     {
       "_id": "req_18f44170b638e3059372d6e33bbda812",
@@ -1902,7 +2022,65 @@
         "mimeType": "application/json",
         "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"type\": \"INCOME\"\n}"
       },
-      "metaSortKey": 7
+      "metaSortKey": 8
+    },
+    {
+      "_id": "req_0e424d9843bbb114af5da98a0f613126",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/financial-categories/{id}",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-categories/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 9
+    },
+    {
+      "_id": "req_331f5a0782dd1bec476be2775905e649",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "PUT /api/financial-categories/{id}",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/financial-categories/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"name\": \"string\",\n  \"type\": \"INCOME\"\n}"
+      },
+      "metaSortKey": 10
+    },
+    {
+      "_id": "req_40b7680827b6b9d0b3d61485a4158304",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "DELETE /api/financial-categories/{id}",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/financial-categories/{{ _.id }}",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 11
     },
     {
       "_id": "req_f6d1a07e84079af9fb0cfece98724993",
@@ -1955,7 +2133,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 8
+      "metaSortKey": 12
     },
     {
       "_id": "req_fd241f6aa69f0f93271664eb2cf6ee20",
@@ -1977,9 +2155,42 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"type\": \"INCOME\",\n  \"amount\": 1.0,\n  \"paymentMethod\": \"PIX\",\n  \"entryDate\": \"2026-10-16\",\n  \"description\": \"string\"\n}"
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"type\": \"INCOME\",\n  \"amount\": 1.0,\n  \"paymentMethod\": \"PIX\",\n  \"entryDate\": \"2026-10-16\",\n  \"description\": \"string\",\n  \"note\": \"string\"\n}"
       },
-      "metaSortKey": 9
+      "metaSortKey": 13
+    },
+    {
+      "_id": "req_0e7dc0049d60c3a0d7655b6d0bb263ac",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/financial-entries/summary",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-entries/summary",
+      "parameters": [
+        {
+          "name": "accountId",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 14
     },
     {
       "_id": "req_4672f04ddf3a9938a70a762777d3014c",
@@ -1996,7 +2207,7 @@
         }
       ],
       "body": {},
-      "metaSortKey": 10
+      "metaSortKey": 15
     },
     {
       "_id": "req_049e5a84e84457f5a3c1b33f6f723a5d",
@@ -2018,9 +2229,9 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"type\": \"INCOME\",\n  \"amount\": 1.0,\n  \"paymentMethod\": \"PIX\",\n  \"entryDate\": \"2026-10-16\",\n  \"description\": \"string\"\n}"
+        "text": "{\n  \"id\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"accountId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"categoryId\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\n  \"type\": \"INCOME\",\n  \"amount\": 1.0,\n  \"paymentMethod\": \"PIX\",\n  \"entryDate\": \"2026-10-16\",\n  \"description\": \"string\",\n  \"note\": \"string\"\n}"
       },
-      "metaSortKey": 11
+      "metaSortKey": 16
     },
     {
       "_id": "req_d2988cf2e852f9bce77c9ccc9989cbb4",
@@ -2037,7 +2248,35 @@
         }
       ],
       "body": {},
-      "metaSortKey": 12
+      "metaSortKey": 17
+    },
+    {
+      "_id": "req_098786007104b5edaad9c54edcf203d1",
+      "_type": "request",
+      "parentId": "fld_1b48d3f014245f7c149ce9b77cd815ab",
+      "name": "GET /api/reports/sales-by-payment",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/reports/sales-by-payment",
+      "parameters": [
+        {
+          "name": "from",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "to",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 18
     },
     {
       "_id": "req_2acd79e9fa473c28f638544e4d657d51",
@@ -2118,6 +2357,901 @@
       ],
       "body": {},
       "metaSortKey": 1
+    },
+    {
+      "_id": "req_cd22713fff45853746ede7d93353ce12",
+      "_type": "request",
+      "parentId": "fld_f64e0236f94dc46f4f0cc7bfbd876a5a",
+      "name": "GET /api/cancellation-requests",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/cancellation-requests",
+      "parameters": [
+        {
+          "name": "status",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "page",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "size",
+          "value": "",
+          "disabled": true
+        },
+        {
+          "name": "sort",
+          "value": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_443b223cb19813e859d1b5da7b57f9d9",
+      "_type": "request",
+      "parentId": "fld_f64e0236f94dc46f4f0cc7bfbd876a5a",
+      "name": "POST /api/cancellation-requests/{id}/approve",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/cancellation-requests/{{ _.id }}/approve",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"response\": \"string\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_25c36167845deaf39664bdce1f6195dc",
+      "_type": "request",
+      "parentId": "fld_f64e0236f94dc46f4f0cc7bfbd876a5a",
+      "name": "POST /api/cancellation-requests/{id}/reject",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/cancellation-requests/{{ _.id }}/reject",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"response\": \"string\"\n}"
+      },
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_72a99523a5c912b89c095015c183caee",
+      "_type": "request",
+      "parentId": "fld_de144d7c4749ba8dcd5c911624381ed1",
+      "name": "GET /api/store-settings",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/store-settings",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_9cc96e46e4377d27f9aa2612dab79d5f",
+      "_type": "request",
+      "parentId": "fld_de144d7c4749ba8dcd5c911624381ed1",
+      "name": "PUT /api/store-settings",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/store-settings",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"string\",\n  \"phone\": \"string\",\n  \"email\": \"string\",\n  \"address\": \"string\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_bf4ac049b381b7065c9b3d553861ed57",
+      "_type": "request",
+      "parentId": "fld_de144d7c4749ba8dcd5c911624381ed1",
+      "name": "GET /api/store-settings/logo",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/store-settings/logo",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_bb807f3379d9dbb864b52df96a1fde5c",
+      "_type": "request",
+      "parentId": "fld_de144d7c4749ba8dcd5c911624381ed1",
+      "name": "PUT /api/store-settings/logo",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/store-settings/logo",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Security",
+      "metaSortKey": 16
+    },
+    {
+      "_id": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Flow - Sale",
+      "metaSortKey": 17
+    },
+    {
+      "_id": "fld_893162a24a6314a8fec61b2f6d5834a7",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Flow - Cancellation",
+      "metaSortKey": 18
+    },
+    {
+      "_id": "fld_9415542e914f4d15d459263ba782139e",
+      "_type": "request_group",
+      "parentId": "wrk_chic_charmosa",
+      "name": "Flow - Catalog CRUD",
+      "metaSortKey": 19
+    },
+    {
+      "_id": "req_239a5b071526be0f73038af99b9359e9",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "401 - list products without token",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/products",
+      "parameters": [],
+      "headers": [],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_6afd139e253ffbcb8aa6acae3c67ac4c",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "401 - create category without token",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/categories",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"No token\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_3304ccc579cedae76af4e962abd8c6fb",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "401 - current user without token",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/auth/me",
+      "parameters": [],
+      "headers": [],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_a43a0b31bd5aead5d0eb384cec3c1361",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "401 - list products with invalid token",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/products",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer invalid.token.value"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_56a746fb077c9ae16d1506bc3e23b9f2",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "Setup - create VIEWER role (product:view only)",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/roles",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000091\",\n  \"name\": \"VIEWER\",\n  \"permissionCodes\": [\n    \"product:view\"\n  ]\n}"
+      },
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_df685be38392914d770b9b90d8bc41de",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "Setup - create viewer user",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/users",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000092\",\n  \"email\": \"viewer@chiccharmosa.com.br\",\n  \"password\": \"Viewer@123\",\n  \"name\": \"Viewer\",\n  \"roleId\": \"aaaaaaaa-0000-4000-8000-000000000091\",\n  \"active\": true\n}"
+      },
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_c5bf1b1d5c7c503020fe960f5a00975d",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "Viewer - login",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/auth/login",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"viewer@chiccharmosa.com.br\",\n  \"password\": \"Viewer@123\",\n  \"deviceId\": \"aaaaaaaa-0000-4000-8000-000000000090\",\n  \"deviceName\": \"viewer device\"\n}"
+      },
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_290ce36e57b67312c7a8e815072e0431",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "200 - viewer lists products",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/products",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.viewerToken }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_e907dd249dabaa462a60b44b18389d00",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "403 - viewer creates category",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/categories",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.viewerToken }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Forbidden\"\n}"
+      },
+      "metaSortKey": 8
+    },
+    {
+      "_id": "req_8c6170afe305f813e62d16946508637e",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "403 - viewer lists users",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/users",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.viewerToken }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 9
+    },
+    {
+      "_id": "req_9afd8ff2ef395b48c3b3f0103587a20b",
+      "_type": "request",
+      "parentId": "fld_f25ce1b8a399bd8621a57427a20039b4",
+      "name": "403 - viewer reads finance summary",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-entries/summary?accountId=30000000-0000-0000-0000-000000000001&from=2026-10-01&to=2026-10-31",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.viewerToken }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 10
+    },
+    {
+      "_id": "req_fa0093858195afc7e1103b99db959f05",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "1 - current user",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/auth/me",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_7c0975dc568540dcea5f33440da2b977",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "2 - create category",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/categories",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000010\",\n  \"name\": \"Flow Dresses\"\n}"
+      },
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_198cb263b37e1e512d7be69c15a8d810",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "3 - create product",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/products",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000020\",\n  \"categoryId\": \"aaaaaaaa-0000-4000-8000-000000000010\",\n  \"name\": \"Flow Summer Dress\",\n  \"description\": \"Flow test product\"\n}"
+      },
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_2d4793887b4e2e9113eb0ab2d06f8692",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "4 - create variant",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/products/aaaaaaaa-0000-4000-8000-000000000020/variants",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n  \"color\": \"Red\",\n  \"size\": \"M\",\n  \"model\": \"Midi\",\n  \"price\": 120.0,\n  \"cost\": 60.0\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_6d03ac79b219620be46537b048055d2d",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "5 - stock entry (+10 units)",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/stock-entries",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000050\",\n  \"entryDate\": \"2026-10-31\",\n  \"note\": \"Flow stock\",\n  \"items\": [\n    {\n      \"id\": \"aaaaaaaa-0000-4000-8000-000000000051\",\n      \"variantId\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n      \"quantity\": 10,\n      \"unitCost\": 60.0\n    }\n  ]\n}"
+      },
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_ca2bc0c0e01bf2af89032163b23f6543",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "6 - variant balance is 10",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/variants/aaaaaaaa-0000-4000-8000-000000000030",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 5
+    },
+    {
+      "_id": "req_8587dd0edb22a18f5c1edeada1f2268b",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "7 - create customer",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/customers",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000040\",\n  \"name\": \"Flow Customer\",\n  \"phone\": \"41999990000\",\n  \"email\": \"flow@example.com\"\n}"
+      },
+      "metaSortKey": 6
+    },
+    {
+      "_id": "req_4f242fe5d7bac381cb3252c7b92ea4ff",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "8 - create order (PENDING)",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000060\",\n  \"customerId\": \"aaaaaaaa-0000-4000-8000-000000000040\",\n  \"note\": \"Flow test order\",\n  \"shippingCost\": 10.0,\n  \"items\": [\n    {\n      \"id\": \"aaaaaaaa-0000-4000-8000-000000000061\",\n      \"variantId\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n      \"quantity\": 2\n    }\n  ]\n}"
+      },
+      "metaSortKey": 7
+    },
+    {
+      "_id": "req_e7eebec975eff5206cfae708907cb4c5",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "9 - get order (links: pay, cancel)",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 8
+    },
+    {
+      "_id": "req_6be4a3fd479c217dda7a5dcf11f5b169",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "10 - pay order",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060/pay",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"method\": \"PIX\"\n}"
+      },
+      "metaSortKey": 9
+    },
+    {
+      "_id": "req_a2b958b2de95d21228d9fea95ac53c01",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "11 - ship order",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060/ship",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"method\": \"POST_OFFICE\",\n  \"trackingCode\": \"BR123456789\"\n}"
+      },
+      "metaSortKey": 10
+    },
+    {
+      "_id": "req_24a6215191883c3d3a6251000d74c0e8",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "12 - deliver order",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060/deliver",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 11
+    },
+    {
+      "_id": "req_1beed17f7a0b4862ec7e459328d69a28",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "13 - get order (DELIVERED)",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000060",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 12
+    },
+    {
+      "_id": "req_4b3f1aad2d359c51f376e55d6ed9d123",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "14 - variant movements (-2 sale)",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/variants/aaaaaaaa-0000-4000-8000-000000000030/movements",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 13
+    },
+    {
+      "_id": "req_5931195ebbd83994044d3a167b1dc865",
+      "_type": "request",
+      "parentId": "fld_f9cf4ac4d73f43925fed916dc9e4f3a4",
+      "name": "15 - finance summary",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/financial-entries/summary?accountId=30000000-0000-0000-0000-000000000001&from=2026-10-01&to=2026-10-31",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 14
+    },
+    {
+      "_id": "req_7e445f350a34932290093f743746db6b",
+      "_type": "request",
+      "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
+      "name": "1 - create order (PENDING)",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000070\",\n  \"customerId\": \"aaaaaaaa-0000-4000-8000-000000000040\",\n  \"note\": \"Flow test order\",\n  \"shippingCost\": 10.0,\n  \"items\": [\n    {\n      \"id\": \"aaaaaaaa-0000-4000-8000-000000000071\",\n      \"variantId\": \"aaaaaaaa-0000-4000-8000-000000000030\",\n      \"quantity\": 1\n    }\n  ]\n}"
+      },
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_bffd0921088e7ccc2e4ed5c28f907f09",
+      "_type": "request",
+      "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
+      "name": "2 - cancel order",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000070/cancel",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_60405c4acd5b4f826ddada2a39201fe5",
+      "_type": "request",
+      "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
+      "name": "3 - get order (CANCELLED)",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/orders/aaaaaaaa-0000-4000-8000-000000000070",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_a9b7026edcccb89c2e72c862e7abfbff",
+      "_type": "request",
+      "parentId": "fld_893162a24a6314a8fec61b2f6d5834a7",
+      "name": "4 - variant movements (sale reversed)",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/variants/aaaaaaaa-0000-4000-8000-000000000030/movements",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_ba96e26956eea3307e0cabfb43477942",
+      "_type": "request",
+      "parentId": "fld_9415542e914f4d15d459263ba782139e",
+      "name": "1 - create supplier",
+      "method": "POST",
+      "url": "{{ _.baseUrl }}/api/suppliers",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000080\",\n  \"name\": \"Flow Supplier\"\n}"
+      },
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_97171eeb64a97482141733cd0e388b7b",
+      "_type": "request",
+      "parentId": "fld_9415542e914f4d15d459263ba782139e",
+      "name": "2 - get supplier",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_4672528cf425ecb45ba8a1768e43fc91",
+      "_type": "request",
+      "parentId": "fld_9415542e914f4d15d459263ba782139e",
+      "name": "3 - list suppliers by name",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/suppliers?name=Flow",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_d2a322096d63e867881ac1655c40fc8f",
+      "_type": "request",
+      "parentId": "fld_9415542e914f4d15d459263ba782139e",
+      "name": "4 - update supplier",
+      "method": "PUT",
+      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"id\": \"aaaaaaaa-0000-4000-8000-000000000080\",\n  \"name\": \"Flow Supplier Updated\"\n}"
+      },
+      "metaSortKey": 3
+    },
+    {
+      "_id": "req_4916dc5e230e9cf13184a0b4643f0eeb",
+      "_type": "request",
+      "parentId": "fld_9415542e914f4d15d459263ba782139e",
+      "name": "5 - delete supplier",
+      "method": "DELETE",
+      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 4
+    },
+    {
+      "_id": "req_941ddfb38a745d99e519c13af87fe476",
+      "_type": "request",
+      "parentId": "fld_9415542e914f4d15d459263ba782139e",
+      "name": "6 - get supplier (404)",
+      "method": "GET",
+      "url": "{{ _.baseUrl }}/api/suppliers/aaaaaaaa-0000-4000-8000-000000000080",
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token }}"
+        }
+      ],
+      "body": {},
+      "metaSortKey": 5
     }
   ]
 }
